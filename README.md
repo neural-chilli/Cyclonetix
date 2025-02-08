@@ -3,7 +3,7 @@ Blazing fast task orchestration framework
 
 
 ## **1. Overview**
-This document outlines the detailed design of a **high-performance, AI-friendly orchestration framework** built in Rust. The framework provides **dynamic task execution, self-assembling graphs, flexible evaluation points, and cloud-native scaling** while maintaining simplicity and efficiency.
+**Cyclonetix** is a **high-performance, AI-friendly orchestration framework** built in Rust. The framework provides **dynamic task execution, self-assembling graphs, flexible evaluation points, and cloud-native scaling** while maintaining simplicity and efficiency.
 
 ### **Key Features**
 - **Single-binary dev mode** with **embedded Redis** for local development.
