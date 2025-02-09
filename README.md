@@ -6,7 +6,7 @@ Blazing fast task orchestration framework
 **Cyclonetix** is a **high-performance, AI-friendly orchestration framework** built in Rust. The framework provides **dynamic task execution, self-assembling graphs, flexible evaluation points, and cloud-native scaling** while maintaining simplicity and efficiency.
 
 ### **Key Features**
-- **Single-binary dev mode** with **embedded Redis** for local development.
+- **Single-binary dev mode** with **embedded state management** for local development.
 - **Dynamic graph execution** built from task dependencies at scheduling time.
 - **Evaluation tasks** that allow **runtime decision-making**, including LLM integration.
 - **Kubernetes-native autoscaling** with **Prometheus-based scaling signals.**
@@ -15,15 +15,16 @@ Blazing fast task orchestration framework
 
 ---
 
-## **2. Redis Strategy**
-### **2.1. Embedded Redis for Development**
-- The framework will **embed a standard Redis binary** for local development to ensure consistency with cloud deployments.
-- Developers can spin up the entire system with **one binary**, without needing to install Redis manually.
-- If users want persistence across restarts, they can run their **own Redis instance**.
+## **2. State Manager Strategy**
+### **2.1. In-memory implementation for development**
+- The framework will **provide an in-memory state manager** for local development to ensure consistency with cloud deployments.
+- Developers can spin up the entire system with **one binary**, without needing to install Redis or a database.
+- If users want persistence across restarts, they can run their **own Redis instance locally**.
 
-### **2.2. External Redis for Production**
+### **2.2. External state manager for production**
 - On-premise users will be able to **point the framework to an external Redis instance**.
 - Cloud deployments will use **Redis PaaS (e.g., AWS ElastiCache, GCP Memorystore).**
+- Future option to use PostgreSQL for state management.
 
 ---
 
@@ -35,14 +36,14 @@ Blazing fast task orchestration framework
 ### **3.2. Multiple Orchestrator Pattern**
 - **Orchestrators distribute execution graphs using `mod n` of a hash.**
 - **No leader election or complex clustering needed**—each orchestrator knows its assigned tasks.
-- If an orchestrator crashes, a new instance will **rebuild execution graphs from Redis.**
+- If an orchestrator crashes, a new instance will **rebuild execution graphs from the state-manager.**
 
 ### **3.3. Stateless UI with Cytoscape.js**
 - The UI is stateless and purely **reads execution data** from Redis.
 - **Graphs will be rendered using Cytoscape.js**, supporting **real-time updates**.
 
-### **3.4. Workers Polling Redis for Work**
-- Workers **poll Redis queues** for available tasks.
+### **3.4. Workers Polling State Manager for Work**
+- Workers **poll state manager queues** for available tasks.
 - Each worker **processes only tasks for queues they are assigned to**.
 
 ### **3.5. Dynamic Queue Creation**
@@ -66,7 +67,7 @@ Blazing fast task orchestration framework
 - Tasks can **add new values** to the execution context.
 
 ### **4.3. Handling Special Variables**
-- Variables like `DATE` are **resolved at scheduling time**, ensuring consistency.
+- Variables like `DATE` are **resolved at scheduling time**, and placed in the context, ensuring consistency.
 - **YAML supports `${VARIABLE}` macros**, expanded at scheduling.
 
 ---
@@ -92,6 +93,7 @@ Blazing fast task orchestration framework
 - Evaluator tasks **return JSON via stdout or a file**.
 - JSON specifies **which workflows (if any) should run next**.
 - Evaluators **can be simple Python logic or AI-driven (e.g., LangChain + LLMs).**
+- Context is optionally propagated forward to spawned tasks
 
 ### **6.2. Task Descriptions for AI Evaluators**
 - Tasks must include **rich descriptions** so LLM-based evaluators can understand them.
@@ -145,11 +147,5 @@ Blazing fast task orchestration framework
 ### **9.2. UI Metrics and Real-Time Updates**
 - UI displays **work in queues, graph execution, executor statuses, and logs.**
 
----
 
-## **Next Steps**
-1. **Finalize YAML format and variable handling.**
-2. **Prototype Redis-based execution graph caching.**
-3. **Implement evaluation tasks with JSON-based decisioning.**
-4. **Test autoscaling logic in Kubernetes.**
 
