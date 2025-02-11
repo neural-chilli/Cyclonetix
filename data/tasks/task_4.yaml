@@ -1,0 +1,5 @@
+id: "task_4"
+name: "Deploy Model"
+command: "echo 'Deploying model...'"
+dependencies: ["task_2", "task_3"]
+parameters: {}

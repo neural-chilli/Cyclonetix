@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclonetix DAG</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.23.0/dist/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.3.2/cytoscape-dagre.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            cytoscape.use(cytoscapeDagre);
+
+            let cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [
+                    { data: { id: 'task_1' } },
+                    { data: { id: 'task_2' } },
+                    { data: { id: 'task_3' } },
+                    { data: { id: 'task_4' } },
+                    { data: { source: 'task_1', target: 'task_2' } },
+                    { data: { source: 'task_1', target: 'task_3' } },
+                    { data: { source: 'task_2', target: 'task_4' } },
+                    { data: { source: 'task_3', target: 'task_4' } },
+                ],
+                style: [
+                    { selector: 'node', style: { label: 'data(id)', 'background-color': '#007bff', 'color': 'white', 'text-valign': 'center' } },
+                    { selector: 'edge', style: { 'curve-style': 'bezier', 'target-arrow-shape': 'triangle' } }
+                ],
+                layout: { name: 'dagre' }
+            });
+        });
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="/">Cyclonetix</a>
+</nav>
+<div class="container mt-4">
+    <h1 class="text-center">Execution Graph</h1>
+    <div id="cy" style="width: 100%; height: 500px; border: 1px solid white;"></div>
+</div>
+</body>
+</html>
