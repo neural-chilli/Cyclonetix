@@ -1,5 +1,0 @@
-id: "task_2"
-name: "Train Model"
-command: "echo 'Training model...'"
-dependencies: ["task_1"]
-parameters: {}

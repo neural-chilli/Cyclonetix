@@ -1,4 +1,0 @@
-task_directory: "./data/tasks"
-context_directory: "./data/contexts"
-parameter_set_directory: "./data/parameter_sets"
-dag_directory: "./data/dags"
