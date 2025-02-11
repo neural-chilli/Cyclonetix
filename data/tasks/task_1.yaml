@@ -1,0 +1,5 @@
+id: "task_1"
+name: "Prepare Data"
+command: "echo 'Preparing data...'"
+dependencies: []
+parameters: {}

@@ -1,0 +1,56 @@
+project:
+  type: website
+
+# Configure the website
+website:
+  title: "Cyclonetix"
+  # The navbar brand will display the logo + project name
+  navbar:
+    brand:
+      text: "Cyclonetix"
+      href: index.qmd
+    logo: "images/logo.webp"
+    search: true
+    right:
+      - icon: github
+        href: "https://github.com/neural-chilli/Cyclonetix"
+      - text: "Download"
+        href: "https://github.com/neural-chilli/Cyclonetix/releases"
+
+  # Define the left sidebar navigation structure
+  sidebar:
+    - contents:
+        - text: "Introduction"
+          href: index.qmd
+#        - text: "Getting Started"
+#          href: getting-started.qmd
+#        - text: "Core Concepts and Architecture"
+#          href: core-concepts-and-architecture.qmd
+#        - text: "Configuration Reference"
+#          href: configuration-reference.qmd
+#        - text: "How-to Guides"
+#          href: how-to-guides.qmd
+#        - text: "Security and Deployment"
+#          href: security-and-deployment.qmd
+#        - text: "FAQ and Troubleshooting"
+#          href: faq-and-troubleshooting.qmd
+#        - text: "Contributor / Developer Guide"
+#          href: contributor-developer-guide.qmd
+#        - text: "Roadmap"
+#          href: roadmap.qmd
+
+# Theme configuration
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    toc: true
+    toc-location: right
+    css: styles.css
+
+# (Optional) Execute options if you have code in pages
+execute:
+  warning: false
+  echo: false
+

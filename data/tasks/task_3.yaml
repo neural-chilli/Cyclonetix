@@ -1,0 +1,5 @@
+id: "task_3"
+name: "Generate Reports"
+command: "echo 'Generating reports...'"
+dependencies: ["task_1"]
+parameters: {}
