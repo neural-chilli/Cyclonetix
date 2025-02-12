@@ -62,6 +62,7 @@ async fn main() -> std::io::Result<()> {
 
     // Spawn orchestrator scheduling.
     {
+        info!("Starting Cyclonetix orchestrator");
         let state = app_state.clone();
         task::spawn({
             async move {
@@ -88,6 +89,7 @@ async fn main() -> std::io::Result<()> {
 
     // Start the worker on the specified queue.
     {
+        info!("Starting Cyclonetix worker");
         let worker = Arc::new(Worker::new(app_state.state_manager.clone()));
         let queue_name = cli.queue;
         let worker_clone = worker.clone();
