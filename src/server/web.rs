@@ -29,7 +29,7 @@ pub async fn start_server() -> std::io::Result<()> {
             .route("/dashboard", web::get().to(dashboard))
             .route("/static/{filename:.*}", web::get().to(static_handler))
     })
-        .bind("127.0.0.1:3000")?
+        .bind("0.0.0.0:3000")?
         .run()
         .await
 }
@@ -49,12 +49,6 @@ async fn dashboard() -> impl Responder {
 async fn static_handler(path: web::Path<String>) -> impl Responder {
     // Extract the inner String from web::Path.
     let filename = path.into_inner();
-    // If no file is specified, default to "index.html".
-    let filename = if filename.is_empty() {
-        "index.html".to_string()
-    } else {
-        filename
-    };
 
     match StaticAssets::get(&filename) {
         Some(content) => {

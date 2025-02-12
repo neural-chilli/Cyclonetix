@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tracing::{debug, error, info, warn};
 use twox_hash::XxHash64;
 
-use crate::orchestrator::execution_graph::ExecutionGraph;
+use crate::orchestrator::graph_manager::ExecutionGraph;
 use crate::state::state_manager::StateManager;
 
 /// Computes a 64-bit hash of the given data using `XxHash64`.
