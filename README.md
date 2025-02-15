@@ -1,3 +1,7 @@
+[![CI Pipeline](https://github.com/neural-chilli/Cyclonetix/actions/workflows/build.yml/badge.svg)](https://github.com/neural-chilli/Cyclonetix/actions/workflows/build.yml)
+[![Quarto Docs](https://img.shields.io/badge/docs-online-blue.svg)](https://neural-chilli.github.io/Cyclonetix/)
+
+
 # Cyclonetix
 
 ## **Overview**
