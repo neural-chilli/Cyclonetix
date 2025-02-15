@@ -1,7 +1,7 @@
 use crate::models::context::Context;
-use crate::models::dag::DagDefinition;
+use crate::models::dag::DAGTemplate;
 use crate::models::parameters::ParameterSet;
-use crate::models::task::Task;
+use crate::models::task::TaskTemplate;
 use crate::state::state_manager::StateManager;
 use crate::utils::config::CyclonetixConfig;
 use serde::de::DeserializeOwned;
@@ -20,7 +20,7 @@ impl<S: StateManager + ?Sized + 'static> Bootstrapper<S> {
     }
 
     pub async fn bootstrap(&self, config: &CyclonetixConfig) {
-        self.load::<Task, _>(&config.task_directory, "task", |s, v| {
+        self.load::<TaskTemplate, _>(&config.task_directory, "task", |s, v| {
             let s = Arc::clone(s);
             Box::pin(async move { s.store_task(&v).await })
         })
@@ -38,7 +38,7 @@ impl<S: StateManager + ?Sized + 'static> Bootstrapper<S> {
         })
         .await;
 
-        self.load::<DagDefinition, _>(&config.dag_directory, "dag", |s, v| {
+        self.load::<DAGTemplate, _>(&config.dag_directory, "dag", |s, v| {
             let s = Arc::clone(s);
             Box::pin(async move { s.store_dag_definition(&v).await })
         })

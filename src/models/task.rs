@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::log::warn;
-use tracing::{debug, info};
+use tracing::debug;
+use std::collections::HashMap;
+use crate::utils::cli::TaskInstanceFields;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum TaskStatus {
@@ -12,15 +14,17 @@ pub enum TaskStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct Task {
+pub struct TaskTemplate {
     pub id: String,
     pub name: String,
+    pub description: Option<String>,
     pub command: String,
+    pub parameters: Value,
     pub dependencies: Vec<String>,
-    pub parameters: Value, // Uses `Value` to handle flexible JSON-like parameters
+    pub queue: Option<String>,
 }
 
-impl Task {
+impl TaskTemplate {
     pub fn from_yaml(path: &std::path::Path) -> Option<Self> {
         debug!("Trying to load YAML: {:?}", path);
         let content = std::fs::read_to_string(path).ok()?;
@@ -36,5 +40,39 @@ impl Task {
                 None
             }
         }
+    }
+}
+
+/// Represents a single task instance within a DAG execution.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TaskInstance {
+    pub run_id: String,            
+    pub task_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub command: String,
+    pub parameters: HashMap<String, String>,
+    pub dependencies: Vec<String>,
+    pub queue: String,
+}
+
+impl TaskInstanceFields for TaskTemplate {
+    fn id(&self) -> &String {
+        &self.id
+    }
+    fn name(&self) -> &String {
+        &self.name
+    }
+    fn description(&self) -> &Option<String> {
+        &self.description
+    }
+    fn queue(&self) -> &Option<String> {
+        &self.queue
+    }
+    fn dependencies(&self) -> &Vec<String> {
+        &self.dependencies
+    }
+    fn command(&self) -> &String {
+        &self.command
     }
 }

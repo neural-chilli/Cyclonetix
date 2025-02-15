@@ -1,56 +1,70 @@
 use crate::models::context::Context;
-use crate::models::dag::{DagDefinition, ScheduledDag};
-use crate::models::outcome::Outcome;
+use crate::models::dag::{DAGInstance, DAGTemplate};
 use crate::models::parameters::ParameterSet;
-use crate::models::task::Task;
+use crate::models::task::{TaskInstance, TaskTemplate};
 use async_trait::async_trait;
+use std::error::Error;
 use std::sync::Arc;
 
+/// A struct representing the status of a worker.
+#[derive(Debug, Clone)]
+pub struct WorkerStatus {
+    pub worker_id: String,
+    pub last_heartbeat: i64, // Unix timestamp in seconds.
+    pub tasks: Vec<String>,  // Task instance run IDs assigned to this worker.
+}
+
+/// The StateManager trait defines asynchronous methods for both executing and querying workflow state.
+/// It is designed to be backend-agnostic so that UIs (or recovery code) can query the current queues,
+/// worker statuses, scheduled DAGs, and even a DAG visualization.
 #[async_trait]
 pub trait StateManager: Send + Sync {
-    // Work
-    async fn get_work_from_queue(&self, queue: &str) -> Option<(String, String)>; // (task_id, context_id)
-    async fn put_work_in_queue(&self, queue: &str, task: &Task);
-
-    // Tasks
-    async fn store_task(&self, task: &Task);
-    async fn get_task_definition(&self, task_id: &str) -> Option<Task>;
-    async fn get_all_tasks(&self) -> Vec<Task>;
-    async fn mark_task_complete(&self, execution_id: &str, task_id: &str);
-    async fn update_task_status(&self, task_id: &str, context_id: &str, status: &str);
-    async fn enqueue_task_instance(&self, task_id: &str, context_id: &str);
-    async fn get_task_status(&self, task_id: &str, context_id: &str) -> Option<String>;
-    async fn is_task_scheduled(&self, task_id: &str, context_id: &str) -> bool;
-
-    // Contexts
+    // ----- Existing Methods -----
+    async fn get_work_from_queue(&self, queue: &str) -> Option<(String, String)>;
+    async fn store_task(&self, task: &TaskTemplate);
+    async fn get_task_definition(&self, task_id: &str) -> Option<TaskTemplate>;
+    async fn get_all_tasks(&self) -> Vec<TaskTemplate>;
+    async fn enqueue_task_instance(&self, task_instance: &TaskInstance, dag_run_id: &str);
+    async fn get_task_status(&self, task_instance_run_id: &str) -> Option<String>;
+    async fn update_task_status(&self, task_instance_run_id: &str, status: &str);
+    async fn is_task_scheduled(&self, task_instance_run_id: &str) -> bool;
     async fn store_context(&self, context: &Context);
     async fn get_context(&self, context_id: &str) -> Option<Context>;
-    async fn save_context(&self, context_id: &str, context: &Context);
-
-    // Parameter sets
     async fn store_parameter_set(&self, parameter_set: &ParameterSet);
-
-    // Outcomes
-    async fn schedule_outcome(&self, outcome: &Outcome);
-    async fn get_scheduled_outcomes(&self) -> Vec<Outcome>;
-    async fn remove_scheduled_outcome(&self, outcome_id: &str);
-
-    // DAGs
-    async fn get_scheduled_dags(&self) -> Vec<ScheduledDag>;
-    async fn schedule_dag(&self, scheduled_dag: &ScheduledDag);
-    async fn remove_scheduled_dag(&self, run_id: &String);
-    async fn get_dag_status(&self, scheduled_dag: &ScheduledDag) -> Result<String, String>;
-
-    // Store & Retrieve DAG Definitions (static DAGs)
-    async fn store_dag_definition(&self, dag: &DagDefinition);
-    async fn get_dag(&self, dag_id: &str) -> Option<DagDefinition>;
-
-    // Graphs
-    async fn notify_graph_update(&self, context_id: &str);
+    async fn remove_scheduled_dag(&self, run_id: &str);
+    async fn get_dag_status(&self, run_id: &str) -> Result<String, Box<dyn Error + Send + Sync>>;
+    async fn get_scheduled_dags(&self) -> Vec<DAGInstance>;
+    async fn store_dag_execution(&self, dag_execution: &DAGInstance);
+    async fn get_dag_execution(&self, run_id: &str) -> Option<DAGInstance>;
+    async fn store_dag_definition(&self, dag: &DAGTemplate);
+    async fn get_dag(&self, dag_id: &str) -> Option<DAGTemplate>;
+    async fn cleanup_dag_execution(
+        &self,
+        dag_run_id: &str,
+        task_run_ids: &[String],
+    ) -> Result<(), Box<dyn Error + Send + Sync>>;
+    async fn notify_graph_update(&self, dag_run_id: &str);
     async fn listen_for_graph_updates(self: Arc<Self>);
+    async fn get_orchestrator_count(&self) -> Result<u32, Box<dyn Error + Send + Sync>>;
+    async fn get_orchestrator_id(&self) -> Result<u32, Box<dyn Error + Send + Sync>>;
 
-    // Registrations
-    async fn register_executor(&self, executor_id: &str);
-    async fn get_orchestrator_count(&self) -> Result<u32, String>;
-    async fn get_orchestrator_id(&self) -> Result<u32, String>;
+    // ----- New Methods for Worker Tracking & UI -----
+    /// Registers a worker with the given worker_id and records its first heartbeat.
+    async fn register_worker(&self, worker_id: &str);
+    /// Updates the heartbeat timestamp for the given worker.
+    async fn update_worker_heartbeat(&self, worker_id: &str);
+    /// Assigns a task (by run_id) to a worker.
+    async fn assign_task_to_worker(&self, worker_id: &str, task_run_id: &str);
+    /// Removes a task (by run_id) from a worker's assignment list.
+    async fn remove_task_from_worker(&self, worker_id: &str, task_run_id: &str);
+    /// Returns a list of all registered workers along with their last heartbeat and assigned tasks.
+    async fn get_all_workers(&self) -> Vec<WorkerStatus>;
+    /// Returns a list of task instance run IDs currently in the specified queue.
+    async fn get_queue_tasks(&self, queue: &str) -> Vec<String>;
+    /// Returns a JSON string representing the DAG visualization (nodes with statuses and edges).
+    async fn get_dag_visualization(&self, dag_run_id: &str) -> Option<String>;
+    async fn reset_tasks_from_dead_workers(
+        &self,
+        heartbeat_threshold: u64,
+    ) -> Result<(), Box<dyn Error + Send + Sync>>;
 }

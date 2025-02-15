@@ -1,8 +1,10 @@
-use actix_web::{web, App, HttpResponse, HttpServer, Responder, http::header};
+use crate::utils::app_state::AppState;
+use actix_web::{http::header, web, App, HttpResponse, HttpServer, Responder};
 use askama::Template;
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 use std::borrow::Cow;
+use std::sync::Arc;
 
 /// Embedded static assets from the `static/` folder.
 #[derive(RustEmbed, Clone)]
@@ -22,16 +24,18 @@ pub struct IndexTemplate;
 pub struct DashboardTemplate;
 
 /// Starts the Actix‑web server.
-pub async fn start_server() -> std::io::Result<()> {
-    HttpServer::new(|| {
+pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {
+    let server = HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(app_state.clone()))
             .route("/", web::get().to(index))
             .route("/dashboard", web::get().to(dashboard))
             .route("/static/{filename:.*}", web::get().to(static_handler))
     })
-        .bind("0.0.0.0:3000")?
-        .run()
-        .await
+    .bind("0.0.0.0:3000")?
+    .run();
+
+    server.await
 }
 
 /// Handler for the index page.
@@ -63,4 +67,3 @@ async fn static_handler(path: web::Path<String>) -> impl Responder {
         None => HttpResponse::NotFound().body("404 - Not Found"),
     }
 }
-

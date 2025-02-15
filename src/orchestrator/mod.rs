@@ -1,2 +1,2 @@
-pub mod graph_manager;
+pub mod execution_graph;
 pub mod orchestrator;

@@ -1,20 +1,12 @@
 use crate::models::context::Context;
+use crate::models::task::{TaskTemplate, TaskInstance};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Represents a scheduled DAG in Cyclonetix
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct ScheduledDag {
-    pub run_id: String,
-    pub dag: DagDefinition,
-    pub context: Context,
-    pub scheduled_at: DateTime<Utc>,
-}
-
 /// Represents a manually defined DAG in Cyclonetix
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct DagDefinition {
+pub struct DAGTemplate {
     /// Unique identifier for the DAG
     pub id: String,
 
@@ -22,28 +14,22 @@ pub struct DagDefinition {
     pub description: Option<String>,
 
     /// List of tasks in the DAG, with their dependencies
-    pub tasks: Vec<DagTask>,
+    pub tasks: Vec<TaskTemplate>,
 }
 
-/// Represents a single task inside a manually defined DAG
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct DagTask {
-    /// Unique task identifier
-    pub id: String,
-
-    /// List of task IDs that this task depends on
-    pub depends_on: Vec<String>,
-
-    /// Optional environment variables (overrides global context)
-    pub env: Option<HashMap<String, String>>,
-
-    /// Command to execute (e.g., "python train.py")
-    pub command: String,
+/// Represents a DAG execution, whether predefined or dynamically created.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DAGInstance {
+    pub run_id: String,           // Unique identifier for this DAG execution
+    pub dag_id: String,           // Original DAG ID (if predefined) or generated
+    pub context: Context,         // Execution context (e.g., env variables)
+    pub tasks: Vec<TaskInstance>, // Tasks within this DAG
+    pub scheduled_at: DateTime<Utc>,
 }
 
-impl DagDefinition {
+impl DAGTemplate {
     /// Creates a new DAG definition
-    pub fn new(id: &str, description: Option<String>, tasks: Vec<DagTask>) -> Self {
+    pub fn new(id: &str, description: Option<String>, tasks: Vec<TaskTemplate>) -> Self {
         Self {
             id: id.to_string(),
             description,
@@ -71,7 +57,7 @@ impl DagDefinition {
 
         for task in &self.tasks {
             if task.id == task_id {
-                for dep in &task.depends_on {
+                for dep in &task.dependencies {
                     if self.has_cycle(dep.clone(), visited) {
                         return true;
                     }
@@ -80,22 +66,5 @@ impl DagDefinition {
         }
         visited.insert(task_id, false);
         false
-    }
-}
-
-impl DagTask {
-    /// Creates a new DAG task
-    pub fn new(
-        id: &str,
-        depends_on: Vec<String>,
-        command: &str,
-        env: Option<HashMap<String, String>>,
-    ) -> Self {
-        Self {
-            id: id.to_string(),
-            depends_on,
-            env,
-            command: command.to_string(),
-        }
     }
 }

@@ -1,52 +1,40 @@
-mod server;
-
-use actix_web::main;
-use tokio::task;
-use std::sync::Arc;
-use clap::{Parser, Subcommand};
-use chrono::Utc;
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-use tracing::{error, info, Level};
-use tracing_subscriber::EnvFilter;
-use cyclonetix::{
-    models::dag::ScheduledDag,
-    models::outcome::Outcome,
-    orchestrator::orchestrator::*,
-    state::bootstrapper::Bootstrapper,
-    state::redis_state_manager::RedisStateManager,
-    state::state_manager::StateManager,
-    utils::config::CyclonetixConfig,
-    worker::worker::Worker,
-};
-use cyclonetix::utils::cli::{schedule_commands, Cli};
+use clap::Parser;
+use cyclonetix::utils::app_state::AppState;
+use cyclonetix::utils::cli::{ensure_config_exists, handle_scheduling, Cli};
 use cyclonetix::utils::logging::init_tracing;
-
-
-struct AppState {
-    state_manager: Arc<dyn StateManager>,
-    default_context_id: String,
-}
+use cyclonetix::{
+    orchestrator::orchestrator::*, server, state::bootstrapper::Bootstrapper,
+    state::redis_state_manager::RedisStateManager, state::state_manager::StateManager,
+    utils::config::CyclonetixConfig, worker::worker::Worker,
+};
+use std::sync::Arc;
+use tracing::{error, info};
+use cyclonetix::utils::constants::DEFAULT_QUEUE;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Initialize logging.
     init_tracing();
-
     info!("Cyclonetix is starting...");
 
     // Parse CLI arguments.
     let cli = Cli::parse();
-    info!("Using config file: {}", cli.config_file);
 
-    // Load configuration from the given file.
-    let config = CyclonetixConfig::load(&cli.config_file);
+    // Ensure the config file exists and load configuration.
+    ensure_config_exists(&cli.config_file);
+    let config = Arc::new(CyclonetixConfig::load(&cli.config_file));
 
-    // Choose the state backend based on config.
+    // Initialize state manager based on the config.
     let state_manager: Arc<dyn StateManager> = match config.backend.as_str() {
         "redis" => Arc::new(RedisStateManager::new(&config.backend_url).await),
+        "memory" => unimplemented!("In-memory backend"),
+        "postgresql" => unimplemented!("PostgreSQL backend"),
         other => panic!("Unsupported backend: {}", other),
     };
+
+    // Bootstrap the state.
+    let bootstrapper = Bootstrapper::new(state_manager.clone());
+    bootstrapper.bootstrap(&config).await;
 
     // Retrieve the default context ID.
     let default_context_id = state_manager
@@ -57,48 +45,83 @@ async fn main() -> std::io::Result<()> {
 
     let app_state = Arc::new(AppState {
         state_manager: state_manager.clone(),
-        default_context_id: default_context_id.clone(),
+        default_context_id,
     });
 
-    // Spawn orchestrator scheduling.
-    {
-        info!("Starting Cyclonetix orchestrator");
-        let state = app_state.clone();
-        task::spawn({
-            async move {
-                orchestrate(state.state_manager.clone(), Some(&state.default_context_id)).await;
-            }
-        });
+    // Handle scheduling command if provided.
+    if let Some(command) = cli.command {
+        handle_scheduling(command, state_manager.clone()).await;
+        return Ok(()); // Exit cleanly instead of calling exit(0)
     }
 
-    // Monitor scheduled outcomes.
-    {
-        let state = app_state.clone();
-        task::spawn(async move {
-            monitor_scheduled_outcomes(state.state_manager.clone(), &state.default_context_id).await;
-        });
-    }
+    // Spawn services based on CLI flags or run all in development mode.
+    let mut handles = Vec::new();
 
-    // Listen for graph updates.
-    {
-        let state = app_state.clone();
-        task::spawn(async move {
-            state.state_manager.clone().listen_for_graph_updates().await;
-        });
+    if !cli.ui && !cli.worker && !cli.orchestrator {
+        info!("No specific services enabled, running all in development mode.");
+        handles.push(tokio::spawn(start_worker(app_state.clone(), config.clone())));
+        handles.push(tokio::spawn(start_orchestrator(app_state.clone())));
+        handles.push(tokio::spawn(start_dag_monitor(app_state.clone())));
+        handles.push(tokio::spawn(start_update_listener(app_state.clone())));
+        // Run UI in the main task.
+        start_ui(app_state.clone()).await;
+    } else {
+        if cli.ui {
+            handles.push(tokio::spawn(start_ui(app_state.clone())));
+        }
+        if cli.worker {
+            handles.push(tokio::spawn(start_worker(app_state.clone(), config.clone())));
+        }
+        if cli.orchestrator {
+            handles.push(tokio::spawn(start_orchestrator(app_state.clone())));
+            handles.push(tokio::spawn(start_dag_monitor(app_state.clone())));
+            handles.push(tokio::spawn(start_update_listener(app_state.clone())));
+        }
     }
+    
+    // Wait for all services to finish.
+    futures::future::join_all(handles).await;
 
-    // Start the worker on the specified queue.
-    {
-        info!("Starting Cyclonetix worker");
-        let worker = Arc::new(Worker::new(app_state.state_manager.clone()));
-        let queue_name = cli.queue;
-        let worker_clone = worker.clone();
-        task::spawn(async move {
-            worker_clone.run(&queue_name).await;
-        });
+    Ok(())
+}
+
+/// Starts the UI server.
+async fn start_ui(app_state: Arc<AppState>) {
+    info!("Starting Cyclonetix UI Server...");
+    if let Err(e) = server::web::start_server(app_state).await {
+        error!("UI server failed: {}", e);
     }
+}
 
-    // Start the Cyclonetix UI server.
-    info!("Starting Cyclonetix UI Server");
-    server::web::start_server().await
+/// Starts a worker process.
+async fn start_worker(app_state: Arc<AppState>, config: Arc<CyclonetixConfig>) {
+    info!("Starting worker process...");
+
+    let worker = Arc::new(Worker::new(app_state.state_manager.clone()));
+
+    // Get queues from config, fallback to default if empty
+    let queues = if config.queues.is_empty() {
+        vec![DEFAULT_QUEUE.to_string()]
+    } else {
+        config.queues.clone()
+    };
+
+    worker.run(queues).await;
+}
+
+/// Starts an orchestrator process.
+async fn start_orchestrator(app_state: Arc<AppState>) {
+    info!("Starting orchestrator process...");
+    recover_orchestrator(app_state.state_manager.clone()).await;
+}
+
+/// Starts a DAG monitor process.
+async fn start_dag_monitor(app_state: Arc<AppState>) {
+    info!("Starting DAG monitor process...");
+    monitor_scheduled_dags(app_state.state_manager.clone()).await;
+}
+
+async fn start_update_listener(app_state: Arc<AppState>) {
+    info!("Starting update listener...");
+    app_state.state_manager.clone().listen_for_graph_updates().await;
 }
