@@ -3,7 +3,7 @@ use crate::models::dag::{DAGInstance, DAGTemplate};
 use crate::models::parameters::ParameterSet;
 use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::orchestrator::orchestrator::evaluate_graph;
-use crate::state::state_manager::{StateManager, WorkerStatus};
+use crate::state::state_manager::{StateManager, AgentStatus};
 use async_trait::async_trait;
 use futures_util::stream::StreamExt;
 use redis::aio::PubSub;
@@ -59,11 +59,11 @@ impl RedisStateManager {
     fn dag_status_key(dag_run_id: &str) -> String {
         format!("dag_status:{}", dag_run_id)
     }
-    fn worker_key(worker_id: &str) -> String {
-        format!("worker:{}", worker_id)
+    fn agent_key(agent_id: &str) -> String {
+        format!("agent:{}", agent_id)
     }
-    fn worker_tasks_key(worker_id: &str) -> String {
-        format!("worker:{}:tasks", worker_id)
+    fn agent_tasks_key(agent_id: &str) -> String {
+        format!("agent:{}:tasks", agent_id)
     }
 }
 
@@ -72,7 +72,7 @@ impl StateManager for RedisStateManager {
     async fn get_work_from_queue(&self, queue: &str) -> Option<(String, String)> {
         let mut conn = self.get_connection().await;
 
-        if let Ok(queue_item) = conn.lpop::<_, String>(queue, None).await {
+        if let Ok(queue_item) = conn.rpop::<_, String>(queue, None).await {
             let parts: Vec<&str> = queue_item.split('|').collect();
             if parts.len() == 2 {
                 return Some((parts[0].to_string(), parts[1].to_string()));
@@ -129,7 +129,7 @@ impl StateManager for RedisStateManager {
             .await
             .unwrap();
 
-        info!(
+        debug!(
             "Task Instance {} added to queue {} for DAG {}",
             task_instance.run_id, task_instance.queue, dag_run_id
         );
@@ -244,7 +244,7 @@ impl StateManager for RedisStateManager {
             .await
             .unwrap();
 
-        info!("Stored DAG execution: {}", dag_execution.run_id);
+        debug!("Stored DAG execution: {}", dag_execution.run_id);
     }
 
     async fn get_dag_execution(&self, run_id: &str) -> Option<DAGInstance> {
@@ -319,7 +319,7 @@ impl StateManager for RedisStateManager {
         conn.publish::<String, String, ()>("graph_update".to_string(), dag_run_id.to_string())
             .await
             .unwrap();
-        info!("Published graph update for DAG: {}", dag_run_id);
+        debug!("Published graph update for DAG: {}", dag_run_id);
     }
 
     async fn listen_for_graph_updates(self: Arc<Self>) {
@@ -368,61 +368,61 @@ impl StateManager for RedisStateManager {
         Ok(id.unwrap_or(0))
     }
 
-    async fn register_worker(&self, worker_id: &str) {
+    async fn register_agent(&self, agent_id: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::worker_key(worker_id);
+        let key = Self::agent_key(agent_id);
         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
         let _: () = conn.hset(key.clone(), "last_heartbeat", timestamp).await.unwrap();
-        // Also add the worker to a global set of workers.
-        let _: () = conn.sadd("workers", worker_id).await.unwrap();
-        info!("Registered worker {}", worker_id);
+        // Also add the agent to a global set of agents.
+        let _: () = conn.sadd("agents", agent_id).await.unwrap();
+        info!("Registered agent {}", agent_id);
     }
 
-    async fn update_worker_heartbeat(&self, worker_id: &str) {
+    async fn update_agent_heartbeat(&self, agent_id: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::worker_key(worker_id);
+        let key = Self::agent_key(agent_id);
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
         let _: () = conn.hset(key, "last_heartbeat", timestamp).await.unwrap();
-        debug!("Updated heartbeat for worker {}", worker_id);
+        debug!("Updated heartbeat for agent {}", agent_id);
     }
 
-    async fn assign_task_to_worker(&self, worker_id: &str, assignment: &str) {
+    async fn assign_task_to_agent(&self, agent_id: &str, assignment: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::worker_tasks_key(worker_id);
+        let key = Self::agent_tasks_key(agent_id);
         let _: () = conn.sadd(key, assignment).await.unwrap();
-        info!("Assigned task {} to worker {}", assignment, worker_id);
+        debug!("Assigned task {} to agent {}", assignment, agent_id);
     }
 
-    async fn remove_task_from_worker(&self, worker_id: &str, assignment: &str) {
+    async fn remove_task_from_agent(&self, agent_id: &str, assignment: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::worker_tasks_key(worker_id);
+        let key = Self::agent_tasks_key(agent_id);
         let _: () = conn.srem(key, assignment).await.unwrap();
-        info!("Removed task {} from worker {}", assignment, worker_id);
+        debug!("Removed task {} from agent {}", assignment, agent_id);
     }
 
-    async fn get_all_workers(&self) -> Vec<WorkerStatus> {
+    async fn get_all_agents(&self) -> Vec<AgentStatus> {
         let mut conn = self.get_connection().await;
-        let worker_ids: Vec<String> = conn.smembers("workers").await.unwrap_or_default();
-        let mut workers = Vec::new();
-        for worker_id in worker_ids {
-            let key = Self::worker_key(&worker_id);
+        let agent_ids: Vec<String> = conn.smembers("agents").await.unwrap_or_default();
+        let mut agents = Vec::new();
+        for agent_id in agent_ids {
+            let key = Self::agent_key(&agent_id);
             let heartbeat: Option<i64> = conn.hget(&key, "last_heartbeat").await.unwrap_or(None);
             let tasks: Vec<String> = conn
-                .smembers(Self::worker_tasks_key(&worker_id))
+                .smembers(Self::agent_tasks_key(&agent_id))
                 .await
                 .unwrap_or_default();
             if let Some(ts) = heartbeat {
-                workers.push(WorkerStatus {
-                    worker_id: worker_id.clone(),
+                agents.push(AgentStatus {
+                    agent_id: agent_id.clone(),
                     last_heartbeat: ts,
                     tasks,
                 });
             }
         }
-        workers
+        agents
     }
 
     async fn get_queue_tasks(&self, queue: &str) -> Vec<String> {
@@ -466,20 +466,20 @@ impl StateManager for RedisStateManager {
     }
 
 
-    async fn reset_tasks_from_dead_workers(
+    async fn reset_tasks_from_downed_agents(
         &self,
         heartbeat_threshold: u64,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let current_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)?
             .as_secs() as i64;
-        // Get all workers with their statuses.
-        let workers = self.get_all_workers().await;
-        for worker in workers {
-            if current_time - worker.last_heartbeat > heartbeat_threshold as i64 {
-                info!("Worker {} is dead. Resetting its tasks.", worker.worker_id);
+        // Get all agents with their statuses.
+        let agents = self.get_all_agents().await;
+        for agent in agents {
+            if current_time - agent.last_heartbeat > heartbeat_threshold as i64 {
+                info!("Agent {} is down. Resetting its tasks.", agent.agent_id);
                 let mut conn = self.get_connection().await;
-                let key = Self::worker_tasks_key(&worker.worker_id);
+                let key = Self::agent_tasks_key(&agent.agent_id);
                 // Get the composite assignment strings.
                 let assignments: Vec<String> = conn.smembers(&key).await.unwrap_or_default();
                 for assignment in assignments {
@@ -487,8 +487,8 @@ impl StateManager for RedisStateManager {
                     let parts: Vec<&str> = assignment.split('|').collect();
                     if parts.len() != 2 {
                         warn!(
-                            "Malformed assignment {} for worker {}",
-                            assignment, worker.worker_id
+                            "Malformed assignment {} for agent {}",
+                            assignment, agent.agent_id
                         );
                         continue;
                     }
@@ -502,8 +502,8 @@ impl StateManager for RedisStateManager {
                             .find(|t| t.run_id == task_run_id)
                         {
                             info!(
-                                "Resetting task {} from dead worker {}",
-                                task_run_id, worker.worker_id
+                                "Resetting task {} from downed agent {}",
+                                task_run_id, agent.agent_id
                             );
                             // Update task status to "pending".
                             self.update_task_status(task_run_id, "pending").await;
@@ -512,22 +512,24 @@ impl StateManager for RedisStateManager {
                                 .await;
                         } else {
                             warn!(
-                                "Task instance {} not found in DAG {} for dead worker {}",
-                                task_run_id, dag_run_id, worker.worker_id
+                                "Task instance {} not found in DAG {} for downed agent {}",
+                                task_run_id, dag_run_id, agent.agent_id
                             );
                         }
                     } else {
                         warn!(
-                            "DAG execution {} not found while resetting task {} for dead worker {}",
-                            dag_run_id, task_run_id, worker.worker_id
+                            "DAG execution {} not found while resetting task {} for downed agent {}",
+                            dag_run_id, task_run_id, agent.agent_id
                         );
                     }
-                    // Remove the assignment from the worker.
+                    // Remove the assignment from the agent.
                     let _: () = conn.srem(&key, assignment).await?;
                 }
-                // Optionally remove the dead worker from the global set.
-                let _: () = conn.srem("workers", &worker.worker_id).await?;
-                info!("Worker {} removed from active workers.", worker.worker_id);
+                // Optionally remove the dead agent from the global set.
+                let _: () = conn.srem("agents", &agent.agent_id).await?;
+                let agent_key = Self::agent_key(&agent.agent_id);
+                let _:() = conn.del(&agent_key).await?;
+                debug!("Agent {} removed from active agents.", agent.agent_id);
             }
         }
         Ok(())

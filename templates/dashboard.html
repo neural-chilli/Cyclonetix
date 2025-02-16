@@ -22,8 +22,8 @@
                   <i class="ti ti-users"></i>
                 </span>
                             <div>
-                                <div class="text-muted">Workers</div>
-                                <h2 class="mb-0">{{ workers_count }}</h2>
+                                <div class="text-muted">Agents</div>
+                                <h2 class="mb-0">{{ agent_count }}</h2>
                             </div>
                         </div>
                     </div>
@@ -56,31 +56,31 @@
                 </div>
             </div>
 
-            <!-- Workers Table -->
+            <!-- Agents Table -->
             <div class="row pb-2">
                 <div class="card pb-2">
                     <div class="card-header">
-                        <h3 class="card-title">Workers</h3>
+                        <h3 class="card-title">Agents</h3>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-vcenter card-table">
                             <thead>
                             <tr>
-                                <th>Worker ID</th>
+                                <th>Agent ID</th>
 <!--                                <th>Last Heartbeat</th>-->
                                 <th>Assigned Task</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for worker in workers %}
+                            {% for agent in agents %}
                             <tr>
-                                <td>{{ worker.worker_id }}</td>
-<!--                                <td>{{ worker.last_heartbeat }}</td>-->
+                                <td>{{ agent.agent_id }}</td>
+<!--                                <td>{{ agent.last_heartbeat }}</td>-->
                                 <td>
-                                    {% if worker.task_count == 0 %}
+                                    {% if agent.task_count == 0 %}
                                     None
                                     {% else %}
-                                        {% for task in worker.tasks %}
+                                        {% for task in agent.tasks %}
                                         {{ task }}
                                         {% endfor %}
                                     {% endif %}

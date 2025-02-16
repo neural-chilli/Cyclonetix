@@ -8,17 +8,17 @@ use crate::utils::app_state::AppState;
 #[derive(Template)]
 #[template(path = "dashboard.html")]
 pub struct DashboardTemplate {
-    pub workers: Vec<WorkerOverview>,
+    pub agents: Vec<AgentOverview>,
     pub queues: Vec<QueueInfo>,
     pub scheduled_dags: Vec<DAGOverview>,
     pub total_queue_tasks: usize,
-    pub workers_count: usize,
+    pub agent_count: usize,
     pub scheduled_dags_count: usize,
 }
 
-/// A simplified view of a worker.
-pub struct WorkerOverview {
-    pub worker_id: String,
+/// A simplified view of a agent.
+pub struct AgentOverview {
+    pub agent_id: String,
     pub last_heartbeat: i64,
     pub tasks: Vec<String>,  // The actual list of assigned tasks
     pub task_count: usize,   // Precomputed count of tasks
@@ -43,16 +43,16 @@ pub struct DAGOverview {
 pub async fn dashboard(app_state: web::Data<Arc<AppState>>) -> impl Responder {
     let state_manager = &app_state.state_manager;
 
-    // Get workers and convert to overview type.
-    let workers_raw = state_manager.get_all_workers().await;
-    let workers: Vec<WorkerOverview> = workers_raw.into_iter().map(|w| WorkerOverview {
-        worker_id: w.worker_id,
+    // Get agents and convert to overview type.
+    let agents_raw = state_manager.get_all_agents().await;
+    let agents: Vec<AgentOverview> = agents_raw.into_iter().map(|w| AgentOverview {
+        agent_id: w.agent_id,
         last_heartbeat: w.last_heartbeat,
         tasks: w.tasks.clone(),
         task_count: w.tasks.len(),
     }).collect();
 
-    let workers_count = workers.len();
+    let agents_count = agents.len();
 
     // Fixed list of queues for demonstration.
     let queues = vec![
@@ -86,11 +86,11 @@ pub async fn dashboard(app_state: web::Data<Arc<AppState>>) -> impl Responder {
     let total_queue_tasks = state_manager.get_queue_tasks("work_queue").await.len();
 
     let dashboard = DashboardTemplate {
-        workers,
+        agents,
         queues,
         scheduled_dags,
         total_queue_tasks,
-        workers_count,
+        agent_count: agents_count,
         scheduled_dags_count,
     };
 

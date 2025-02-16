@@ -20,7 +20,7 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
     state_manager: Arc<S>,
     dag_execution: &DAGInstance,
 ) {
-    info!("Evaluating DAG execution: {}", dag_execution.run_id);
+    debug!("Evaluating DAG execution: {}", dag_execution.run_id);
 
     let execution_graph = ExecutionGraph::from_dag_execution(dag_execution);
     let executable_tasks = execution_graph
@@ -46,7 +46,7 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
                 .are_dependencies_completed(&state_manager, task_instance)
                 .await
             {
-                info!("Task {} is ready, scheduling it...", task_instance.run_id);
+                debug!("Task {} is ready, scheduling it...", task_instance.run_id);
                 // Mark the task as "queued" to prevent re-scheduling.
                 state_manager
                     .update_task_status(&task_instance.run_id, "queued")
@@ -55,7 +55,7 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
                     .enqueue_task_instance(task_instance, &dag_execution.run_id)
                     .await;
             } else {
-                info!("Task {} is waiting for dependencies...", task_instance.run_id);
+                debug!("Task {} is waiting for dependencies...", task_instance.run_id);
             }
         } else {
             warn!(
@@ -94,7 +94,7 @@ pub async fn recover_orchestrator<S: StateManager + ?Sized>(state_manager: Arc<S
                 info!("Recovering DAG execution: {}", dag_execution.run_id);
                 evaluate_graph(state_manager.clone(), &dag_execution).await;
             } else {
-                info!(
+                debug!(
                     "DAG execution {} is already completed. Skipping.",
                     dag_execution.run_id
                 );
@@ -135,7 +135,7 @@ pub async fn monitor_scheduled_dags<S: StateManager + ?Sized>(state_manager: Arc
                 let task_run_ids: Vec<String> = dag_execution.tasks.iter().map(|t| t.run_id.clone()).collect();
                 let _ = state_manager.cleanup_dag_execution(&dag_execution.run_id, &task_run_ids).await;
             } else {
-                info!(
+                debug!(
                     "DAG {} still has {} tasks to execute. Running evaluation.",
                     dag_execution.run_id,
                     executable_tasks.len()
@@ -144,8 +144,8 @@ pub async fn monitor_scheduled_dags<S: StateManager + ?Sized>(state_manager: Arc
             }
         }
 
-        if let Err(e) = state_manager.reset_tasks_from_dead_workers(15).await {
-            error!("Error resetting tasks from dead workers: {}", e);
+        if let Err(e) = state_manager.reset_tasks_from_downed_agents(15).await {
+            error!("Error resetting tasks from downed agents: {}", e);
         }
 
         tokio::time::sleep(std::time::Duration::from_secs(5)).await;

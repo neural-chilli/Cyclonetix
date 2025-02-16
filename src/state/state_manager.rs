@@ -6,17 +6,17 @@ use async_trait::async_trait;
 use std::error::Error;
 use std::sync::Arc;
 
-/// A struct representing the status of a worker.
+/// A struct representing the status of a agent.
 #[derive(Debug, Clone)]
-pub struct WorkerStatus {
-    pub worker_id: String,
+pub struct AgentStatus {
+    pub agent_id: String,
     pub last_heartbeat: i64, // Unix timestamp in seconds.
-    pub tasks: Vec<String>,  // Task instance run IDs assigned to this worker.
+    pub tasks: Vec<String>,  // Task instance run IDs assigned to this agent.
 }
 
 /// The StateManager trait defines asynchronous methods for both executing and querying workflow state.
 /// It is designed to be backend-agnostic so that UIs (or recovery code) can query the current queues,
-/// worker statuses, scheduled DAGs, and even a DAG visualization.
+/// agent statuses, scheduled DAGs, and even a DAG visualization.
 #[async_trait]
 pub trait StateManager: Send + Sync {
     // ----- Existing Methods -----
@@ -48,22 +48,22 @@ pub trait StateManager: Send + Sync {
     async fn get_orchestrator_count(&self) -> Result<u32, Box<dyn Error + Send + Sync>>;
     async fn get_orchestrator_id(&self) -> Result<u32, Box<dyn Error + Send + Sync>>;
 
-    // ----- New Methods for Worker Tracking & UI -----
-    /// Registers a worker with the given worker_id and records its first heartbeat.
-    async fn register_worker(&self, worker_id: &str);
-    /// Updates the heartbeat timestamp for the given worker.
-    async fn update_worker_heartbeat(&self, worker_id: &str);
-    /// Assigns a task (by run_id) to a worker.
-    async fn assign_task_to_worker(&self, worker_id: &str, task_run_id: &str);
-    /// Removes a task (by run_id) from a worker's assignment list.
-    async fn remove_task_from_worker(&self, worker_id: &str, task_run_id: &str);
-    /// Returns a list of all registered workers along with their last heartbeat and assigned tasks.
-    async fn get_all_workers(&self) -> Vec<WorkerStatus>;
+    // ----- New Methods for Agent Tracking & UI -----
+    /// Registers a agent with the given agent_id and records its first heartbeat.
+    async fn register_agent(&self, agent_id: &str);
+    /// Updates the heartbeat timestamp for the given agent.
+    async fn update_agent_heartbeat(&self, agent_id: &str);
+    /// Assigns a task (by run_id) to a agent.
+    async fn assign_task_to_agent(&self, agent_id: &str, task_run_id: &str);
+    /// Removes a task (by run_id) from a agent's assignment list.
+    async fn remove_task_from_agent(&self, agent_id: &str, task_run_id: &str);
+    /// Returns a list of all registered agents along with their last heartbeat and assigned tasks.
+    async fn get_all_agents(&self) -> Vec<AgentStatus>;
     /// Returns a list of task instance run IDs currently in the specified queue.
     async fn get_queue_tasks(&self, queue: &str) -> Vec<String>;
     /// Returns a JSON string representing the DAG visualization (nodes with statuses and edges).
     async fn get_dag_visualization(&self, dag_run_id: &str) -> Option<String>;
-    async fn reset_tasks_from_dead_workers(
+    async fn reset_tasks_from_downed_agents(
         &self,
         heartbeat_threshold: u64,
     ) -> Result<(), Box<dyn Error + Send + Sync>>;

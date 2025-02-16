@@ -5,7 +5,7 @@ use cyclonetix::utils::logging::init_tracing;
 use cyclonetix::{
     orchestrator::orchestrator::*, server, state::bootstrapper::Bootstrapper,
     state::redis_state_manager::RedisStateManager, state::state_manager::StateManager,
-    utils::config::CyclonetixConfig, worker::worker::Worker,
+    utils::config::CyclonetixConfig, agent::agent::Agent,
 };
 use std::sync::Arc;
 use tracing::{error, info};
@@ -57,9 +57,9 @@ async fn main() -> std::io::Result<()> {
     // Spawn services based on CLI flags or run all in development mode.
     let mut handles = Vec::new();
 
-    if !cli.ui && !cli.worker && !cli.orchestrator {
+    if !cli.ui && !cli.agent && !cli.orchestrator {
         info!("No specific services enabled, running all in development mode.");
-        handles.push(tokio::spawn(start_worker(app_state.clone(), config.clone())));
+        handles.push(tokio::spawn(start_agent(app_state.clone(), config.clone())));
         handles.push(tokio::spawn(start_orchestrator(app_state.clone())));
         handles.push(tokio::spawn(start_dag_monitor(app_state.clone())));
         handles.push(tokio::spawn(start_update_listener(app_state.clone())));
@@ -69,8 +69,8 @@ async fn main() -> std::io::Result<()> {
         if cli.ui {
             handles.push(tokio::spawn(start_ui(app_state.clone())));
         }
-        if cli.worker {
-            handles.push(tokio::spawn(start_worker(app_state.clone(), config.clone())));
+        if cli.agent {
+            handles.push(tokio::spawn(start_agent(app_state.clone(), config.clone())));
         }
         if cli.orchestrator {
             handles.push(tokio::spawn(start_orchestrator(app_state.clone())));
@@ -93,11 +93,11 @@ async fn start_ui(app_state: Arc<AppState>) {
     }
 }
 
-/// Starts a worker process.
-async fn start_worker(app_state: Arc<AppState>, config: Arc<CyclonetixConfig>) {
-    info!("Starting worker process...");
+/// Starts an agent process.
+async fn start_agent(app_state: Arc<AppState>, config: Arc<CyclonetixConfig>) {
+    info!("Starting agent process...");
 
-    let worker = Arc::new(Worker::new(app_state.state_manager.clone()));
+    let agent = Arc::new(Agent::new(app_state.state_manager.clone()));
 
     // Get queues from config, fallback to default if empty
     let queues = if config.queues.is_empty() {
@@ -106,7 +106,7 @@ async fn start_worker(app_state: Arc<AppState>, config: Arc<CyclonetixConfig>) {
         config.queues.clone()
     };
 
-    worker.run(queues).await;
+    agent.run(queues).await;
 }
 
 /// Starts an orchestrator process.

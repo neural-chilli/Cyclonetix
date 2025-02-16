@@ -28,9 +28,9 @@ pub struct Cli {
     #[arg(long, action = ArgAction::SetTrue)]
     pub ui: bool,
 
-    /// Start a worker process
+    /// Start a agent process
     #[arg(long, action = ArgAction::SetTrue)]
-    pub worker: bool,
+    pub agent: bool,
 
     /// Start an orchestrator process
     #[arg(long, action = ArgAction::SetTrue)]

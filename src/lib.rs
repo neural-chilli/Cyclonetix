@@ -3,4 +3,4 @@ pub mod orchestrator;
 pub mod server;
 pub mod state;
 pub mod utils;
-pub mod worker;
+pub mod agent;

@@ -8,36 +8,36 @@ use tokio::time::sleep;
 use tracing::{error, info};
 use uuid::Uuid;
 
-pub struct Worker<S: 'static + StateManager + ?Sized> {
+pub struct Agent<S: 'static + StateManager + ?Sized> {
     state_manager: Arc<S>,
-    worker_id: String,
+    agent_id: String,
 }
 
-impl<S: 'static + StateManager + ?Sized> Worker<S> {
-    /// Creates a new worker with a generated worker_id.
+impl<S: 'static + StateManager + ?Sized> Agent<S> {
+    /// Creates a new agent with a generated agent_id.
     pub fn new(state_manager: Arc<S>) -> Self {
-        let worker_id = Uuid::new_v4().to_string();
-        Worker {
+        let agent_id = Uuid::new_v4().to_string();
+        Agent {
             state_manager,
-            worker_id,
+            agent_id,
         }
     }
 
-    /// Starts the worker process:
-    /// - Registers the worker  
+    /// Starts the agent process:
+    /// - Registers the agent  
     /// - Spawns a background heartbeat updater  
     /// - Enters a loop processing queues
     pub async fn run(&self, queues: Vec<String>) {
         // Register self with the state manager.
-        self.state_manager.register_worker(&self.worker_id).await;
-        info!("Worker {} registered.", self.worker_id);
+        self.state_manager.register_agent(&self.agent_id).await;
+        info!("Agent {} registered.", self.agent_id);
 
-        // Spawn a heartbeat task to update the worker's heartbeat every 5 seconds.
+        // Spawn a heartbeat task to update the agent's heartbeat every 5 seconds.
         let heartbeat_sm = self.state_manager.clone();
-        let worker_id_clone = self.worker_id.clone();
+        let agent_id_clone = self.agent_id.clone();
         tokio::spawn(async move {
             loop {
-                heartbeat_sm.update_worker_heartbeat(&worker_id_clone).await;
+                heartbeat_sm.update_agent_heartbeat(&agent_id_clone).await;
                 sleep(Duration::from_secs(5)).await;
             }
         });
@@ -54,13 +54,13 @@ impl<S: 'static + StateManager + ?Sized> Worker<S> {
     /// Processes one queue iteration:
     /// - Pops a task from the queue  
     /// - Retrieves the corresponding DAG execution and task instance  
-    /// - Registers assignment to this worker  
+    /// - Registers assignment to this agent  
     /// - Executes the task, then removes the assignment
     async fn process_queue(&self, queue: &str) {
         if let Some((task_run_id, dag_run_id)) = self.state_manager.get_work_from_queue(queue).await {
             info!(
-                "Worker {} picked up task instance: {} (DAG Run: {}) from queue: {}",
-                self.worker_id, task_run_id, dag_run_id, queue
+                "Agent {} picked up task instance: {} (DAG Run: {}) from queue: {}",
+                self.agent_id, task_run_id, dag_run_id, queue
             );
 
             // Retrieve the DAG execution. If missing, the DAG is likely complete.
@@ -87,10 +87,10 @@ impl<S: 'static + StateManager + ?Sized> Worker<S> {
                 }
             };
 
-            // Register assignment of this task to our worker.
+            // Register assignment of this task to our agent.
             let assignment = format!("{}|{}", task_run_id, dag_run_id);
             self.state_manager
-                .assign_task_to_worker(&self.worker_id, &assignment)
+                .assign_task_to_agent(&self.agent_id, &assignment)
                 .await;
 
             // Retrieve context and extract environment variables.
@@ -113,7 +113,7 @@ impl<S: 'static + StateManager + ?Sized> Worker<S> {
                     task_instance.run_id
                 );
                 self.state_manager
-                    .remove_task_from_worker(&self.worker_id, &assignment)
+                    .remove_task_from_agent(&self.agent_id, &assignment)
                     .await;
                 return;
             }
@@ -132,9 +132,9 @@ impl<S: 'static + StateManager + ?Sized> Worker<S> {
                 .update_task_status(&task_instance.run_id, new_status)
                 .await;
 
-            // Remove task assignment from worker.
+            // Remove task assignment from agent.
             self.state_manager
-                .remove_task_from_worker(&self.worker_id, &assignment)
+                .remove_task_from_agent(&self.agent_id, &assignment)
                 .await;
 
             // If task succeeded, notify graph update.
