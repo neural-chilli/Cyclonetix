@@ -203,7 +203,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Builds execution graphs, evaluates task readiness, and schedules work.</td>
 </tr>
 <tr class="even">
-<td><strong>Worker</strong></td>
+<td><strong>Agent</strong></td>
 <td>Picks up tasks from queues and executes them.</td>
 </tr>
 <tr class="odd">
@@ -230,7 +230,7 @@ ul.task-list li input[type="checkbox"] {
 <ol type="1">
 <li><strong>Users schedule an “Outcome” (final goal/task)</strong></li>
 <li><strong>Orchestrator determines required tasks to complete the Outcome (self-assembling DAG)</strong></li>
-<li><strong>Tasks are assigned to queues, picked up by workers, executed, and tracked in Redis or another backend</strong></li>
+<li><strong>Tasks are assigned to queues, picked up by agents, executed, and tracked in Redis or another backend</strong></li>
 <li><strong>Completed tasks trigger evaluations for the next executable tasks via events</strong></li>
 <li><strong>Execution continues until the full DAG is completed</strong></li>
 </ol>
@@ -272,10 +272,10 @@ ul.task-list li input[type="checkbox"] {
 <section id="scaling-model-kubernetes-auto-scaling" class="level3">
 <h3 class="anchored" data-anchor-id="scaling-model-kubernetes-auto-scaling"><strong>Scaling Model (Kubernetes, Auto-Scaling)</strong></h3>
 <ul>
-<li><strong>Workers dynamically scale based on queue depth on Kubernetes using Prometheus and HPA</strong>.</li>
+<li><strong>Agents dynamically scale based on queue depth on Kubernetes using Prometheus and HPA</strong>.</li>
 <li><strong>Orchestrators self-distribute workloads using modulo hashing to allow for orchestrator scale-out on huge deployments</strong>.</li>
-<li><strong>Affinity Rules allow specific tasks to be bound to specific worker pools (e.g., GPU workers, high-memory workers, compute intensive tasks)</strong>.</li>
-<li><strong>Labelling of tasks, queues, workers to support cost attribution in cloud environments</strong>.</li>
+<li><strong>Affinity Rules allow specific tasks to be bound to specific agent pools (e.g., GPU agents, high-memory agents, compute intensive tasks)</strong>.</li>
+<li><strong>Labelling of tasks, queues, agents to support cost attribution in cloud environments</strong>.</li>
 </ul>
 </section>
 <section id="git-integration-for-code-execution" class="level3">
