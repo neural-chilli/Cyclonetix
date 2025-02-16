@@ -1,46 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyclonetix DAG</title>
-    <link rel="stylesheet" href="/static/css/tabler.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.23.0/dist/cytoscape.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.3.2/cytoscape-dagre.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            cytoscape.use(cytoscapeDagre);
+{% extends "base.html" %}
 
-            let cy = cytoscape({
-                container: document.getElementById('cy'),
-                elements: [
-                    { data: { id: 'task_1' } },
-                    { data: { id: 'task_2' } },
-                    { data: { id: 'task_3' } },
-                    { data: { id: 'task_4' } },
-                    { data: { source: 'task_1', target: 'task_2' } },
-                    { data: { source: 'task_1', target: 'task_3' } },
-                    { data: { source: 'task_2', target: 'task_4' } },
-                    { data: { source: 'task_3', target: 'task_4' } },
-                ],
-                style: [
-                    { selector: 'node', style: { label: 'data(id)', 'background-color': '#007bff', 'color': 'white', 'text-valign': 'center' } },
-                    { selector: 'edge', style: { 'curve-style': 'bezier', 'target-arrow-shape': 'triangle' } }
-                ],
-                layout: { name: 'dagre' }
-            });
-        });
-    </script>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="/">Cyclonetix</a>
-</nav>
-<div class="container mt-4">
-    <h1 class="text-center">Execution Graph</h1>
-    <div id="cy" style="width: 100%; height: 500px; border: 1px solid white;"></div>
-</div>
-<script src="/static/js/tabler.min.js"></script>
-</body>
-</html>
+{% block title %}Dashboard - Cyclonetix{% endblock %}
+
+{% block head %}
+    <style>
+        .summary-cards-row > [class^="col-"]:first-child {
+            padding-left: 0 !important;
+        }
+        .summary-cards-row > [class^="col-"]:last-child {
+            padding-right: 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+            <div class="row summary-cards-row pb-2">
+                <div class="col-sm-4">
+                    <div class="card summary-card">
+                        <div class="card-body d-flex align-items-center">
+                <span class="avatar avatar-lg bg-primary me-3">
+                  <i class="ti ti-users"></i>
+                </span>
+                            <div>
+                                <div class="text-muted">Workers</div>
+                                <h2 class="mb-0">{{ workers_count }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card summary-card">
+                        <div class="card-body d-flex align-items-center">
+                <span class="avatar avatar-lg bg-orange me-3">
+                  <i class="ti ti-alert-circle"></i>
+                </span>
+                            <div>
+                                <div class="text-muted">Queue Tasks</div>
+                                <h2 class="mb-0">{{ total_queue_tasks }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card summary-card">
+                        <div class="card-body d-flex align-items-center">
+                <span class="avatar avatar-lg bg-green me-3">
+                  <i class="ti ti-playlist"></i>
+                </span>
+                            <div>
+                                <div class="text-muted">Scheduled DAGs</div>
+                                <h2 class="mb-0">{{ scheduled_dags_count }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workers Table -->
+            <div class="row pb-2">
+                <div class="card pb-2">
+                    <div class="card-header">
+                        <h3 class="card-title">Workers</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                            <tr>
+                                <th>Worker ID</th>
+<!--                                <th>Last Heartbeat</th>-->
+                                <th>Assigned Task</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for worker in workers %}
+                            <tr>
+                                <td>{{ worker.worker_id }}</td>
+<!--                                <td>{{ worker.last_heartbeat }}</td>-->
+                                <td>
+                                    {% if worker.task_count == 0 %}
+                                    None
+                                    {% else %}
+                                        {% for task in worker.tasks %}
+                                        {{ task }}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Scheduled DAGs Table -->
+            <div class="row pb-2">
+                <div class="card pb-2">
+                    <div class="card-header">
+                        <h3 class="card-title">Scheduled DAGs</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                            <tr>
+                                <th>DAG ID</th>
+                                <th>DAG Name</th>
+                                <th>Status</th>
+                                <th>Pending Tasks</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for dag in scheduled_dags %}
+                            <tr>
+                                <td>{{ dag.run_id }}</td>
+                                <td>{{ dag.dag_name }}</td>
+                                <td>{{ dag.status }}</td>
+                                <td>{{ dag.pending_tasks }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue Tasks Table -->
+            <div class="row pb-2">
+                <div class="card pb-2">
+                    <div class="card-header">
+                        <h3 class="card-title">Queue Tasks</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                            <tr>
+                                <th>Queue Name</th>
+                                <th>Task Count</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for queue in queues %}
+                            <tr>
+                                <td>{{ queue.name }}</td>
+                                <td>{{ queue.task_count }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+
+{% block scripts %}{% endblock %}
+

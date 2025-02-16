@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cyclonetix{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="/static/img/favicon.ico">
+    <link rel="stylesheet" href="/static/css/tabler.min.css">
+    <link rel="stylesheet" href="/static/css/tabler-flags.min.css">
+    <style>
+        .navbar {
+            background-color: #375a7f !important;
+        }
+        .container-xl {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+<header class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container-xl">
+        <a class="navbar-brand navbar-brand-autodark p-0" href="/">
+            <img class="rounded-3 pb2" src="/static/img/logo.webp" style="max-height: 60px;" alt="Cyclonetix">
+            Cyclonetix
+        </a>
+        <!-- Right-justified group -->
+        <div class="navbar-nav ms-auto flex-row order-md-last">
+            <!-- DAGs Dropdown -->
+            <div class="nav-item dropdown me-2">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDAGs" data-bs-toggle="dropdown" aria-expanded="false">
+                    DAGs
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownDAGs">
+                    <li><a class="dropdown-item" href="/dags/schedule">Schedule</a></li>
+                    <li><a class="dropdown-item" href="/dags/schedule">Edit</a></li>
+                    <li><a class="dropdown-item" href="/dags/running">Running</a></li>
+                    <li><a class="dropdown-item" href="/dags/completed">Completed</a></li>
+                    <li><a class="dropdown-item" href="/dags/failed">Failed</a></li>
+                </ul>
+            </div>
+            <!-- Workers Dropdown -->
+            <div class="nav-item dropdown me-2">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWorkers" data-bs-toggle="dropdown" aria-expanded="false">
+                    Workers
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownWorkers">
+                    <li><a class="dropdown-item" href="/workers/manage">Manage</a></li>
+                    <li><a class="dropdown-item" href="/workers/current">Current Work</a></li>
+                </ul>
+            </div>
+            <!-- Orchestrators Dropdown -->
+            <div class="nav-item dropdown me-2">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownOrchestrators" data-bs-toggle="dropdown" aria-expanded="false">
+                    Orchestrators
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownOrchestrators">
+                    <li><a class="dropdown-item" href="/orchestrators/manage">Manage</a></li>
+                </ul>
+            </div>
+            <!-- Config Dropdown -->
+            <div class="nav-item dropdown me-2">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownConfig" data-bs-toggle="dropdown" aria-expanded="false">
+                    Config
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownConfig">
+                    <li><a class="dropdown-item" href="/config/dags">Dags</a></li>
+                    <li><a class="dropdown-item" href="/config/tasks">Tasks</a></li>
+                    <li><a class="dropdown-item" href="/config/task-parameters">Task Parameters</a></li>
+                    <li><a class="dropdown-item" href="/config/contexts">Contexts</a></li>
+                    <li><a class="dropdown-item" href="/config/schedules">Schedules</a></li>
+                </ul>
+            </div>
+            <!-- Direct Docs Link -->
+            <div class="nav-item me-2">
+                <a class="nav-link" href="https://neural-chilli.github.io/Cyclonetix" target="_blank">Docs</a>
+            </div>
+            <!-- Theme Toggle -->
+            <div class="nav-item d-md-flex p-2">
+                <a class="nav-link px-0" aria-label="Toggle theme" onclick="toggleTheme()">
+                    <span id="theme-icon-sun" style="display: none;">☀️</span>
+                    <span id="theme-icon-moon" style="display: inline-block;">🌙</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <div class="page-body">
+        <div class="container-xl">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</main>
+<script src="/static/js/tabler.min.js"></script>
+<script src="/static/js/cyclonetix.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
