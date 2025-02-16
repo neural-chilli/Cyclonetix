@@ -1,5 +1,5 @@
 use crate::models::context::Context;
-use crate::models::task::{TaskTemplate, TaskInstance};
+use crate::models::task::{TaskInstance, TaskTemplate};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -17,6 +17,8 @@ pub struct DAGTemplate {
 
     /// List of tasks in the DAG, with their dependencies
     pub tasks: Vec<TaskTemplate>,
+    
+    pub tags: Option<Vec<String>>,
 }
 
 /// Represents a DAG execution, whether predefined or dynamically created.
@@ -27,16 +29,18 @@ pub struct DAGInstance {
     pub context: Context,         // Execution context (e.g., env variables)
     pub tasks: Vec<TaskInstance>, // Tasks within this DAG
     pub scheduled_at: DateTime<Utc>,
+    pub tags: Option<Vec<String>>,
 }
 
 impl DAGTemplate {
     /// Creates a new DAG definition
-    pub fn new(id: &str, name:&str, description: Option<String>, tasks: Vec<TaskTemplate>) -> Self {
+    pub fn new(id: &str, name:&str, description: Option<String>, tasks: Vec<TaskTemplate>, tags: Option<Vec<String>>) -> Self {
         Self {
             id: id.to_string(),
             name : name.to_string(),
             description,
             tasks,
+            tags,
         }
     }
 

@@ -99,6 +99,7 @@ fn create_dag_execution<T: TaskInstanceFields>(dag_id: &str, tasks: &[T]) -> DAG
         },
         tasks: map_tasks(tasks),
         scheduled_at: Utc::now(),
+        tags: None,
     }
 }
 

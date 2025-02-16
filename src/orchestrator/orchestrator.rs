@@ -190,6 +190,7 @@ pub async fn build_dag_from_task<S: StateManager + ?Sized>(
         context,
         tasks,
         scheduled_at: Utc::now(),
+        tags: None,
     }
 }
 
