@@ -20,20 +20,20 @@ Unlike traditional orchestrators, Cyclonetix aims to be:
 ### **Core Components**
 Cyclonetix consists of the following key components:
 
-| Component | Description |
-|-----------|------------|
-| **Orchestrator** | Builds execution graphs, evaluates task readiness, and schedules work. |
-| **Worker** | Picks up tasks from queues and executes them. |
-| **Execution Graph** | Self-assembled DAG built from tasks, outcomes, and dependencies. |
+| Component                                                 | Description |
+|-----------------------------------------------------------|------------|
+| **Orchestrator**                                          | Builds execution graphs, evaluates task readiness, and schedules work. |
+| **Agent**                                                 | Picks up tasks from queues and executes them. |
+| **Execution Graph**                                       | Self-assembled DAG built from tasks, outcomes, and dependencies. |
 | **State Manager (Redis, PostgreSQL, In-Memory Dev Mode)** | Stores task states, execution metadata, and scheduled outcomes. Supports different backends for different environments. |
-| **UI (Axum SSR + Tabler + Cytoscape.js)** | Provides real-time execution tracking and DAG visualization. |
-| **Authentication (OAuth, Basic Auth, API Keys)** | Ensures secure access to Cyclonetix resources. |
+| **UI (Axum SSR + Tabler + Cytoscape.js)**                 | Provides real-time execution tracking and DAG visualization. |
+| **Authentication (OAuth, Basic Auth, API Keys)**          | Ensures secure access to Cyclonetix resources. |
 
 
 ### **Execution Flow**
 1. **Users schedule an "Outcome" (final goal/task)**
 2. **Orchestrator determines required tasks to complete the Outcome (self-assembling DAG)**
-3. **Tasks are assigned to queues, picked up by workers, executed, and tracked in Redis or another backend**
+3. **Tasks are assigned to queues, picked up by agents, executed, and tracked in Redis or another backend**
 4. **Completed tasks trigger evaluations for the next executable tasks via events**
 5. **Execution continues until the full DAG is completed**
 
@@ -71,10 +71,10 @@ Cyclonetix supports two scheduling models:
 
 
 ### **Scaling Model (Kubernetes, Auto-Scaling)**
-- **Workers dynamically scale based on queue depth on Kubernetes using Prometheus and HPA**.
+- **Agents dynamically scale based on queue depth on Kubernetes using Prometheus and HPA**.
 - **Orchestrators self-distribute workloads using modulo hashing to allow for orchestrator scale-out on huge deployments**.
-- **Affinity Rules allow specific tasks to be bound to specific worker pools (e.g., GPU workers, high-memory workers, compute intensive tasks)**.
-- **Labelling of tasks, queues, workers to support cost attribution in cloud environments**.
+- **Affinity Rules allow specific tasks to be bound to specific agent pools (e.g., GPU agents, high-memory agents, compute intensive tasks)**.
+- **Labelling of tasks, queues, agents to support cost attribution in cloud environments**.
 
 
 ### **Git Integration for Code Execution**
