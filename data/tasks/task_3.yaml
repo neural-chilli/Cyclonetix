@@ -1,5 +1,5 @@
 id: "task_3"
 name: "Generate Reports"
-command: "sleep 15"
+command: "echo 'Task 3'"
 dependencies: ["task_1"]
 parameters: {}

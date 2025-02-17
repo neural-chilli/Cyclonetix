@@ -1,12 +1,13 @@
 use crate::models::context::Context;
-use crate::state::state_manager::StateManager;
 use crate::models::task::TaskInstance;
+use crate::state::state_manager::StateManager;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::process::Command;
 use tokio::time::sleep;
 use tracing::{error, info};
 use uuid::Uuid;
+use crate::utils::constants::{COMPLETED_STATUS, FAILED_STATUS, PENDING_STATUS, RUNNING_STATUS};
 
 pub struct Agent<S: 'static + StateManager + ?Sized> {
     state_manager: Arc<S>,
@@ -57,7 +58,8 @@ impl<S: 'static + StateManager + ?Sized> Agent<S> {
     /// - Registers assignment to this agent  
     /// - Executes the task, then removes the assignment
     async fn process_queue(&self, queue: &str) {
-        if let Some((task_run_id, dag_run_id)) = self.state_manager.get_work_from_queue(queue).await {
+        if let Some((task_run_id, dag_run_id)) = self.state_manager.get_work_from_queue(queue).await
+        {
             info!(
                 "Agent {} picked up task instance: {} (DAG Run: {}) from queue: {}",
                 self.agent_id, task_run_id, dag_run_id, queue
@@ -106,8 +108,8 @@ impl<S: 'static + StateManager + ?Sized> Agent<S> {
                 .state_manager
                 .get_task_status(&task_instance.run_id)
                 .await
-                .unwrap_or_else(|| "pending".to_string());
-            if task_status == "completed" {
+                .unwrap_or_else(|| PENDING_STATUS.to_string());
+            if task_status == COMPLETED_STATUS {
                 info!(
                     "Task {} is already completed, skipping execution.",
                     task_instance.run_id
@@ -120,14 +122,14 @@ impl<S: 'static + StateManager + ?Sized> Agent<S> {
 
             // Mark the task as running.
             self.state_manager
-                .update_task_status(&task_instance.run_id, "running")
+                .update_task_status(&task_instance.run_id, RUNNING_STATUS)
                 .await;
 
             // Execute the task.
             let success = self.execute_task(task_instance, env_vars).await;
 
             // Update the task status based on execution result.
-            let new_status = if success { "completed" } else { "failed" };
+            let new_status = if success { COMPLETED_STATUS } else { FAILED_STATUS };
             self.state_manager
                 .update_task_status(&task_instance.run_id, new_status)
                 .await;
@@ -150,7 +152,10 @@ impl<S: 'static + StateManager + ?Sized> Agent<S> {
         task: &TaskInstance,
         env_vars: std::collections::HashMap<String, String>,
     ) -> bool {
-        info!("Executing task: {} (Command: {})", task.task_id, task.command);
+        info!(
+            "Executing task: {} (Command: {})",
+            task.task_id, task.command
+        );
 
         let mut cmd = Command::new("sh");
         cmd.arg("-c").arg(&task.command);

@@ -1,3 +1,4 @@
+use crate::utils::constants::{DEFAULT_CLUSTER_ID, DEFAULT_CONTEXT_ID, DEFAULT_QUEUE};
 use clap::Parser;
 use serde::Deserialize;
 use std::fs;
@@ -22,6 +23,7 @@ pub struct CyclonetixConfig {
     pub backend_url: String,
     pub default_context: String,
     pub queues: Vec<String>,
+    pub cluster_id: String,
 }
 
 impl Default for CyclonetixConfig {
@@ -33,8 +35,9 @@ impl Default for CyclonetixConfig {
             dag_directory: "dags/".to_string(),
             backend: "redis".to_string(),
             backend_url: "redis://127.0.0.1:6379".to_string(),
-            default_context: "default_ctx".to_string(),
-            queues: vec!["default".to_string()],
+            default_context: DEFAULT_CONTEXT_ID.to_string(),
+            queues: vec![DEFAULT_QUEUE.to_string()],
+            cluster_id: DEFAULT_CLUSTER_ID.to_string(),
         }
     }
 }

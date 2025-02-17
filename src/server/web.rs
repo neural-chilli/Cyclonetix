@@ -1,16 +1,15 @@
+use crate::server::dashboard;
 use crate::utils::app_state::AppState;
 use actix_web::{http::header, web, App, HttpResponse, HttpServer, Responder};
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 use std::borrow::Cow;
 use std::sync::Arc;
-use crate::server::dashboard;
 
 /// Embedded static assets from the `static/` folder.
 #[derive(RustEmbed, Clone)]
 #[folder = "static/"]
 pub struct StaticAssets;
-
 
 /// Starts the Actix‑web server.
 pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {

@@ -1,15 +1,15 @@
 use clap::Parser;
 use cyclonetix::utils::app_state::AppState;
 use cyclonetix::utils::cli::{ensure_config_exists, handle_scheduling, Cli};
+use cyclonetix::utils::constants::DEFAULT_QUEUE;
 use cyclonetix::utils::logging::init_tracing;
 use cyclonetix::{
-    orchestrator::orchestrator::*, server, state::bootstrapper::Bootstrapper,
+    agent::agent::Agent, orchestrator::orchestrator::*, server, state::bootstrapper::Bootstrapper,
     state::redis_state_manager::RedisStateManager, state::state_manager::StateManager,
-    utils::config::CyclonetixConfig, agent::agent::Agent,
+    utils::config::CyclonetixConfig,
 };
 use std::sync::Arc;
 use tracing::{error, info};
-use cyclonetix::utils::constants::DEFAULT_QUEUE;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -26,7 +26,7 @@ async fn main() -> std::io::Result<()> {
 
     // Initialize state manager based on the config.
     let state_manager: Arc<dyn StateManager> = match config.backend.as_str() {
-        "redis" => Arc::new(RedisStateManager::new(&config.backend_url).await),
+        "redis" => Arc::new(RedisStateManager::new(&config.backend_url, &config.cluster_id).await),
         "memory" => unimplemented!("In-memory backend"),
         "postgresql" => unimplemented!("PostgreSQL backend"),
         other => panic!("Unsupported backend: {}", other),
@@ -78,7 +78,7 @@ async fn main() -> std::io::Result<()> {
             handles.push(tokio::spawn(start_update_listener(app_state.clone())));
         }
     }
-    
+
     // Wait for all services to finish.
     futures::future::join_all(handles).await;
 
@@ -123,5 +123,9 @@ async fn start_dag_monitor(app_state: Arc<AppState>) {
 
 async fn start_update_listener(app_state: Arc<AppState>) {
     info!("Starting update listener...");
-    app_state.state_manager.clone().listen_for_graph_updates().await;
+    app_state
+        .state_manager
+        .clone()
+        .listen_for_graph_updates()
+        .await;
 }

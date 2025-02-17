@@ -1,7 +1,9 @@
 use crate::models::context::Context;
 use crate::models::dag::{DAGInstance, DAGTemplate};
+use crate::models::task::TaskInstance;
 use crate::orchestrator::orchestrator::build_dag_from_task;
 use crate::state::state_manager::StateManager;
+use crate::utils::constants::DEFAULT_QUEUE;
 use chrono::Utc;
 use clap::{ArgAction, Parser, Subcommand};
 use std::collections::HashMap;
@@ -10,8 +12,6 @@ use std::path::Path;
 use std::sync::Arc;
 use tracing::{error, info, warn};
 use uuid::Uuid;
-use crate::models::task::TaskInstance;
-use crate::utils::constants::DEFAULT_QUEUE;
 
 /// CLI arguments and subcommands.
 #[derive(Parser)]
@@ -78,9 +78,13 @@ fn map_tasks<T: TaskInstanceFields>(tasks: &[T]) -> Vec<TaskInstance> {
             name: t.name().clone(),
             description: Some(t.description().clone().expect("REASON")),
             parameters: HashMap::new(),
-            queue: t.queue().clone().unwrap_or_else(|| DEFAULT_QUEUE.to_string()),
+            queue: t
+                .queue()
+                .clone()
+                .unwrap_or_else(|| DEFAULT_QUEUE.to_string()),
             dependencies: t.dependencies().clone(),
             command: t.command().clone(),
+            evaluation_point: t.evaluation_point().clone(),
         })
         .collect()
 }
@@ -111,6 +115,7 @@ pub trait TaskInstanceFields {
     fn queue(&self) -> &Option<String>;
     fn dependencies(&self) -> &Vec<String>;
     fn command(&self) -> &String;
+    fn evaluation_point(&self) -> &bool;
 }
 
 // Implement the trait for the types used in your DAG definitions.
@@ -120,7 +125,10 @@ pub trait TaskInstanceFields {
 pub fn ensure_config_exists(config_path: &str) {
     let config_file = Path::new(config_path);
     if !config_file.exists() {
-        warn!("Config file {} not found, creating default config.", config_path);
+        warn!(
+            "Config file {} not found, creating default config.",
+            config_path
+        );
 
         let default_config = r#"
 task_directory: "./data/tasks"
@@ -134,7 +142,12 @@ dag_directory: "./data/dags"
         }
 
         // Ensure required directories exist
-        for dir in &["./data/tasks", "./data/contexts", "./data/parameters", "./data/dags"] {
+        for dir in &[
+            "./data/tasks",
+            "./data/contexts",
+            "./data/parameters",
+            "./data/dags",
+        ] {
             if let Err(e) = fs::create_dir_all(dir) {
                 error!("Failed to create directory {}: {}", dir, e);
             }
@@ -164,7 +177,10 @@ pub async fn handle_scheduling(command: Commands, state_manager: Arc<dyn StateMa
             info!("Scheduling Task: {}", task_id);
             let dag_execution = build_dag_from_task(state_manager.clone(), &task_id, None).await;
             state_manager.store_dag_execution(&dag_execution).await;
-            info!("Scheduled DAG execution from task: {}", dag_execution.run_id);
+            info!(
+                "Scheduled DAG execution from task: {}",
+                dag_execution.run_id
+            );
         }
 
         Commands::ScheduleDagFile { file_path } => {
@@ -187,7 +203,10 @@ pub async fn handle_scheduling(command: Commands, state_manager: Arc<dyn StateMa
 
             let dag_execution = create_dag_execution(&dag_definition.id, &dag_definition.tasks);
             state_manager.store_dag_execution(&dag_execution).await;
-            info!("Scheduled DAG execution from file: {}", dag_execution.run_id);
+            info!(
+                "Scheduled DAG execution from file: {}",
+                dag_execution.run_id
+            );
         }
     }
 }

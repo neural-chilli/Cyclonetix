@@ -1,9 +1,9 @@
+use crate::utils::cli::TaskInstanceFields;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tracing::log::warn;
-use tracing::debug;
 use std::collections::HashMap;
-use crate::utils::cli::TaskInstanceFields;
+use tracing::debug;
+use tracing::log::warn;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum TaskStatus {
@@ -22,6 +22,8 @@ pub struct TaskTemplate {
     pub parameters: Value,
     pub dependencies: Vec<String>,
     pub queue: Option<String>,
+    #[serde(default)]
+    pub evaluation_point: bool,
 }
 
 impl TaskTemplate {
@@ -46,7 +48,7 @@ impl TaskTemplate {
 /// Represents a single task instance within a DAG execution.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TaskInstance {
-    pub run_id: String,            
+    pub run_id: String,
     pub task_id: String,
     pub name: String,
     pub description: Option<String>,
@@ -54,6 +56,7 @@ pub struct TaskInstance {
     pub parameters: HashMap<String, String>,
     pub dependencies: Vec<String>,
     pub queue: String,
+    pub evaluation_point: bool,
 }
 
 impl TaskInstanceFields for TaskTemplate {
@@ -74,5 +77,9 @@ impl TaskInstanceFields for TaskTemplate {
     }
     fn command(&self) -> &String {
         &self.command
+    }
+
+    fn evaluation_point(&self) -> &bool {
+        &self.evaluation_point
     }
 }

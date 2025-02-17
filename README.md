@@ -5,7 +5,7 @@
 # Cyclonetix
 
 ## **Overview**
-Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be **fast, easy to use, and highly scalable**. It is built for **both cloud-native and on-premises deployments**, supporting **outcome-based scheduling, self-assembling DAGs, and manual DAG execution**.
+Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be **fast, easy to use, and highly scalable**. It is built for **both cloud-native and on-premises deployments**, supporting **outcome-based scheduling, self-assembling DAGs, and user-specified DAG execution**.
 
 Unlike traditional orchestrators, Cyclonetix aims to be:
 - **Effortlessly simple to get started with**

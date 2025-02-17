@@ -3,7 +3,7 @@ use crate::models::dag::DAGInstance;
 use crate::models::task::TaskInstance;
 use crate::orchestrator::execution_graph::ExecutionGraph;
 use crate::state::state_manager::StateManager;
-use crate::utils::constants::DEFAULT_QUEUE;
+use crate::utils::constants::{COMPLETED_STATUS, DEFAULT_QUEUE, PENDING_STATUS};
 use async_recursion::async_recursion;
 use chrono::Utc;
 use std::collections::{HashMap, HashSet};
@@ -33,8 +33,8 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
             let current_status = state_manager
                 .get_task_status(&task_instance.run_id)
                 .await
-                .unwrap_or_else(|| "pending".to_string());
-            if current_status != "pending" {
+                .unwrap_or_else(|| PENDING_STATUS.to_string());
+            if current_status != PENDING_STATUS {
                 debug!(
                     "Task {} is already in status '{}', skipping scheduling.",
                     task_instance.run_id, current_status
@@ -55,7 +55,10 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
                     .enqueue_task_instance(task_instance, &dag_execution.run_id)
                     .await;
             } else {
-                debug!("Task {} is waiting for dependencies...", task_instance.run_id);
+                debug!(
+                    "Task {} is waiting for dependencies...",
+                    task_instance.run_id
+                );
             }
         } else {
             warn!(
@@ -65,7 +68,6 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
         }
     }
 }
-
 
 /// Recovers orchestrator state by re-evaluating scheduled DAG executions.
 pub async fn recover_orchestrator<S: StateManager + ?Sized>(state_manager: Arc<S>) {
@@ -88,9 +90,9 @@ pub async fn recover_orchestrator<S: StateManager + ?Sized>(state_manager: Arc<S
             let dag_status = state_manager
                 .get_dag_status(&dag_execution.run_id)
                 .await
-                .unwrap_or_else(|_| "pending".to_string());
+                .unwrap_or_else(|_| PENDING_STATUS.to_string());
 
-            if dag_status != "completed" {
+            if dag_status != COMPLETED_STATUS {
                 info!("Recovering DAG execution: {}", dag_execution.run_id);
                 evaluate_graph(state_manager.clone(), &dag_execution).await;
             } else {
@@ -132,8 +134,14 @@ pub async fn monitor_scheduled_dags<S: StateManager + ?Sized>(state_manager: Arc
                     "DAG {} is fully executed. Removing from schedule.",
                     dag_execution.run_id
                 );
-                let task_run_ids: Vec<String> = dag_execution.tasks.iter().map(|t| t.run_id.clone()).collect();
-                let _ = state_manager.cleanup_dag_execution(&dag_execution.run_id, &task_run_ids).await;
+                let task_run_ids: Vec<String> = dag_execution
+                    .tasks
+                    .iter()
+                    .map(|t| t.run_id.clone())
+                    .collect();
+                let _ = state_manager
+                    .cleanup_dag_execution(&dag_execution.run_id, &task_run_ids)
+                    .await;
             } else {
                 debug!(
                     "DAG {} still has {} tasks to execute. Running evaluation.",
@@ -175,7 +183,7 @@ pub async fn build_dag_from_task<S: StateManager + ?Sized>(
         &mut visited,
         &mut run_ids,
     )
-        .await;
+    .await;
 
     let context = provided_context.unwrap_or_else(|| Context {
         id: dag_run_id.clone(),
@@ -238,7 +246,11 @@ async fn resolve_task_dependencies<S: StateManager + ?Sized>(
             command: task.command.clone(),
             parameters: HashMap::new(),
             dependencies: dependency_run_ids,
-            queue: task.queue.clone().unwrap_or_else(|| DEFAULT_QUEUE.to_string()),
+            queue: task
+                .queue
+                .clone()
+                .unwrap_or_else(|| DEFAULT_QUEUE.to_string()),
+            evaluation_point: task.evaluation_point
         };
 
         tasks.push(task_instance);

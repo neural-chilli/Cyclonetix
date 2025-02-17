@@ -1,5 +1,5 @@
 use crate::models::dag::DAGInstance;
-use crate::models::task::{TaskTemplate, TaskInstance};
+use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::state::state_manager::StateManager;
 use petgraph::algo::toposort;
 use petgraph::graph::{DiGraph, NodeIndex};
@@ -7,6 +7,7 @@ pub use petgraph::prelude::EdgeRef;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::debug;
+use crate::utils::constants::{COMPLETED_STATUS, PENDING_STATUS};
 
 pub struct ExecutionGraph {
     pub graph: DiGraph<String, ()>,           // Directed graph of task IDs
@@ -60,7 +61,12 @@ impl ExecutionGraph {
                 for dep_run_id in &task_instance.dependencies {
                     if let Some(&dep_node) = node_map.get(dep_run_id) {
                         graph.add_edge(dep_node, task_node, ());
-                        tracing::debug!("Added edge: {} -> {} in DAG {}", dep_run_id, task_run_id, dag_execution.run_id);
+                        tracing::debug!(
+                            "Added edge: {} -> {} in DAG {}",
+                            dep_run_id,
+                            task_run_id,
+                            dag_execution.run_id
+                        );
                     }
                 }
             }
@@ -68,9 +74,6 @@ impl ExecutionGraph {
 
         ExecutionGraph { graph, node_map }
     }
-
-
-
 
     /// Perform topological sorting to determine execution order
     pub fn get_execution_order(&self) -> Vec<String> {
@@ -105,9 +108,16 @@ impl ExecutionGraph {
             let task_run_id = &self.graph[node]; // Now using task_run_id directly!
 
             // Retrieve task instance from DAG execution
-            let task_instance = dag_execution.tasks.iter().find(|t| t.run_id == *task_run_id);
+            let task_instance = dag_execution
+                .tasks
+                .iter()
+                .find(|t| t.run_id == *task_run_id);
             if task_instance.is_none() {
-                tracing::warn!("TaskInstance {} not found in DAG Execution {}", task_run_id, dag_execution.run_id);
+                tracing::warn!(
+                    "TaskInstance {} not found in DAG Execution {}",
+                    task_run_id,
+                    dag_execution.run_id
+                );
                 continue;
             }
             let task_instance = task_instance.unwrap();
@@ -116,27 +126,28 @@ impl ExecutionGraph {
             let status = state_manager
                 .get_task_status(&task_instance.run_id)
                 .await
-                .unwrap_or("pending".to_string());
+                .unwrap_or(PENDING_STATUS.to_string());
 
-            if status == "completed" {
+            if status == COMPLETED_STATUS {
                 continue; // Already done
             }
 
             // Check if dependencies are met
-            let ready = self.are_dependencies_completed(state_manager, task_instance).await;
+            let ready = self
+                .are_dependencies_completed(state_manager, task_instance)
+                .await;
 
             if ready {
                 executable.push(task_instance.run_id.clone());
             } else {
                 debug!(
-                "Task {} is waiting for dependencies in DAG {}",
-                task_instance.run_id, dag_execution.run_id
-            );
+                    "Task {} is waiting for dependencies in DAG {}",
+                    task_instance.run_id, dag_execution.run_id
+                );
             }
         }
         executable
     }
-
 
     /// Checks if all dependencies for a given task are completed.
     pub async fn is_task_ready<S: StateManager + ?Sized>(
@@ -154,8 +165,8 @@ impl ExecutionGraph {
                 let dep_status = state_manager
                     .get_task_status(run_id)
                     .await
-                    .unwrap_or_else(|| "pending".to_string());
-                if dep_status != "completed" {
+                    .unwrap_or_else(|| PENDING_STATUS.to_string());
+                if dep_status != COMPLETED_STATUS {
                     return false;
                 }
             }
@@ -206,17 +217,16 @@ impl ExecutionGraph {
             let dep_status = state_manager
                 .get_task_status(dep_run_id)
                 .await
-                .unwrap_or("pending".to_string());
+                .unwrap_or(PENDING_STATUS.to_string());
 
-            if dep_status != "completed" {
+            if dep_status != COMPLETED_STATUS {
                 debug!(
-                "Dependency {} is not completed for task {}",
-                dep_run_id, task_instance.run_id
-            );
+                    "Dependency {} is not completed for task {}",
+                    dep_run_id, task_instance.run_id
+                );
                 return false;
             }
         }
         true
     }
-
 }

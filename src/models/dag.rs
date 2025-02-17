@@ -9,7 +9,7 @@ use std::collections::HashMap;
 pub struct DAGTemplate {
     /// Unique identifier for the DAG
     pub id: String,
-    
+
     pub name: String,
 
     /// Optional description of the DAG
@@ -17,7 +17,7 @@ pub struct DAGTemplate {
 
     /// List of tasks in the DAG, with their dependencies
     pub tasks: Vec<TaskTemplate>,
-    
+
     pub tags: Option<Vec<String>>,
 }
 
@@ -34,10 +34,16 @@ pub struct DAGInstance {
 
 impl DAGTemplate {
     /// Creates a new DAG definition
-    pub fn new(id: &str, name:&str, description: Option<String>, tasks: Vec<TaskTemplate>, tags: Option<Vec<String>>) -> Self {
+    pub fn new(
+        id: &str,
+        name: &str,
+        description: Option<String>,
+        tasks: Vec<TaskTemplate>,
+        tags: Option<Vec<String>>,
+    ) -> Self {
         Self {
             id: id.to_string(),
-            name : name.to_string(),
+            name: name.to_string(),
             description,
             tasks,
             tags,

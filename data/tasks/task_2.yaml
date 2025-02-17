@@ -1,5 +1,5 @@
 id: "task_2"
 name: "Train Model"
-command: "sleep 20"
+command: "echo 'Task 2'"
 dependencies: ["task_1"]
 parameters: {}

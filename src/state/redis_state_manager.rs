@@ -3,40 +3,47 @@ use crate::models::dag::{DAGInstance, DAGTemplate};
 use crate::models::parameters::ParameterSet;
 use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::orchestrator::orchestrator::evaluate_graph;
-use crate::state::state_manager::{StateManager, AgentStatus};
+use crate::state::state_manager::{AgentStatus, StateManager};
 use async_trait::async_trait;
 use futures_util::stream::StreamExt;
+use deadpool_redis::{Config as RedisConfig, Pool, Runtime};
+use deadpool_redis::redis::{self, AsyncCommands};
 use redis::aio::PubSub;
-use redis::{aio::MultiplexedConnection, AsyncCommands};
 use std::collections::HashMap;
 use std::error::Error;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
-use tracing::{debug, error, info};
 use tracing::log::warn;
+use tracing::{debug, error, info};
+use crate::utils::constants::PENDING_STATUS;
 
 pub struct RedisStateManager {
     client: redis::Client,
-    //queues: Vec<String>,
+    pool: Pool,
+    cluster_id: String,
 }
 
 impl RedisStateManager {
-    pub async fn new(redis_url: &str) -> Self {
-        let client = redis::Client::open(redis_url).expect("Failed to connect to Redis");
+    pub async fn new(redis_url: &str, cluster_id: &String) -> Self {
+        let mut cfg = RedisConfig::from_url(redis_url);
+        // Set the maximum pool size if desired:
+        let pool = cfg
+            .create_pool(Some(Runtime::Tokio1))
+            .expect("Failed to create Redis pool");
+        pool.resize(16);
         RedisStateManager {
-            client,
-            //queues: queues.to_owned(),
+            client: redis::Client::open(redis_url).expect("Failed to create Redis client"),
+            pool,
+            cluster_id: cluster_id.clone(),
         }
     }
 
-    async fn get_connection(&self) -> MultiplexedConnection {
-        self.client
-            .get_multiplexed_async_connection()
-            .await
-            .expect("Failed to get Redis connection")
+    async fn get_connection(&self) -> deadpool_redis::Connection {
+        self.pool.get().await.expect("Failed to get Redis connection")
     }
 
     async fn get_pubsub_connection(&self) -> PubSub {
+        // Use a direct async connection from the underlying client.
         self.client
             .get_async_pubsub()
             .await
@@ -44,26 +51,41 @@ impl RedisStateManager {
     }
 
     // Key builders
-    fn build_task_key(task_id: &str) -> String {
-        format!("task:{}", task_id)
+    fn build_task_key(&self, task_id: &str) -> String {
+        format!("Cyclonetix:{}:task:{}", self.cluster_id, task_id)
     }
-    fn build_context_key(context_id: &str) -> String {
-        format!("context:{}", context_id)
+    fn build_context_key(&self, context_id: &str) -> String {
+        format!("Cyclonetix:{}:context:{}", self.cluster_id, context_id)
     }
-    fn build_parameter_set_key(parameter_set_id: &str) -> String {
-        format!("parameter_set:{}", parameter_set_id)
+    fn build_parameter_set_key(&self, parameter_set_id: &str) -> String {
+        format!(
+            "Cyclonetix:{}:parameter_set:{}",
+            self.cluster_id, parameter_set_id
+        )
     }
-    fn task_instance_key(run_id: &str) -> String {
-        format!("task_instance:{}", run_id)
+    fn task_instance_key(&self, run_id: &str) -> String {
+        format!("Cyclonetix:{}:task_instance:{}", self.cluster_id, run_id)
     }
-    fn dag_status_key(dag_run_id: &str) -> String {
-        format!("dag_status:{}", dag_run_id)
+    fn dag_status_key(&self, dag_run_id: &str) -> String {
+        format!("Cyclonetix:{}:dag_status:{}", self.cluster_id, dag_run_id)
     }
-    fn agent_key(agent_id: &str) -> String {
-        format!("agent:{}", agent_id)
+    fn dag_execution_key(&self, dag_run_id: &str) -> String {
+        format!("Cyclonetix:{}:dag_execution:{}", self.cluster_id, dag_run_id)
     }
-    fn agent_tasks_key(agent_id: &str) -> String {
-        format!("agent:{}:tasks", agent_id)
+    fn dag_execution_set_key(&self) -> String {
+        format!("Cyclonetix:{}:dag_execution", self.cluster_id)
+    }
+    fn agent_key(&self, agent_id: &str) -> String {
+        format!("Cyclonetix:{}:agent:{}", self.cluster_id, agent_id)
+    }
+    fn agent_tasks_key(&self, agent_id: &str) -> String {
+        format!("Cyclonetix:{}:agent:{}:tasks", self.cluster_id, agent_id)
+    }
+    fn agents_key(&self, agent_id: &str) -> String {
+        format!("Cyclonetix:{}:agents:{}", self.cluster_id, agent_id)
+    }
+    fn agents_set_key(&self) -> String {
+        format!("Cyclonetix:{}:agents", self.cluster_id)
     }
 }
 
@@ -88,7 +110,7 @@ impl StateManager for RedisStateManager {
 
     async fn store_task(&self, task: &TaskTemplate) {
         let mut conn = self.get_connection().await;
-        let key = Self::build_task_key(&task.id);
+        let key = Self::build_task_key(self, &task.id);
         let _: () = conn
             .set(key, serde_json::to_string(task).unwrap())
             .await
@@ -97,7 +119,7 @@ impl StateManager for RedisStateManager {
 
     async fn get_task_definition(&self, task_id: &str) -> Option<TaskTemplate> {
         let mut conn = self.get_connection().await;
-        let key = Self::build_task_key(task_id);
+        let key = Self::build_task_key(self, task_id);
 
         if let Ok(task_json) = conn.get::<_, String>(key).await {
             serde_json::from_str(&task_json).ok()
@@ -137,13 +159,13 @@ impl StateManager for RedisStateManager {
 
     async fn get_task_status(&self, task_instance_run_id: &str) -> Option<String> {
         let mut conn = self.get_connection().await;
-        let key = Self::task_instance_key(task_instance_run_id);
+        let key = Self::task_instance_key(self, task_instance_run_id);
         conn.get(key).await.unwrap_or(None)
     }
 
     async fn update_task_status(&self, task_instance_run_id: &str, status: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::task_instance_key(task_instance_run_id);
+        let key = Self::task_instance_key(self, task_instance_run_id);
         conn.set::<String, String, ()>(key, status.to_string())
             .await
             .unwrap();
@@ -160,7 +182,7 @@ impl StateManager for RedisStateManager {
 
     async fn store_context(&self, context: &Context) {
         let mut conn = self.get_connection().await;
-        let key = Self::build_context_key(&context.id);
+        let key = Self::build_context_key(self, &context.id);
         let _: () = conn
             .set(key, serde_json::to_string(context).unwrap())
             .await
@@ -178,7 +200,7 @@ impl StateManager for RedisStateManager {
 
     async fn store_parameter_set(&self, parameter_set: &ParameterSet) {
         let mut conn = self.get_connection().await;
-        let key = Self::build_parameter_set_key(&parameter_set.id);
+        let key = Self::build_parameter_set_key(self, &parameter_set.id);
         let _: () = conn
             .set(key, serde_json::to_string(parameter_set).unwrap())
             .await
@@ -190,7 +212,7 @@ impl StateManager for RedisStateManager {
         let mut conn = self.get_connection().await;
 
         // Try to remove by run_id directly
-        let removed: i32 = conn.hdel("dag_execution", run_id).await.unwrap_or(0);
+        let removed: i32 = conn.hdel(self.dag_execution_set_key(), run_id).await.unwrap_or(0);
 
         if removed > 0 {
             info!("Successfully removed scheduled DAG: {}", run_id);
@@ -201,16 +223,19 @@ impl StateManager for RedisStateManager {
 
     async fn get_dag_status(&self, run_id: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
         let mut conn = self.get_connection().await;
-        let key = Self::dag_status_key(run_id);
+        let key = Self::dag_status_key(self, run_id);
         // Map any error to a boxed error.
-        let status: Option<String> = conn.get(&key).await.map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
-        Ok(status.unwrap_or_else(|| "pending".to_string()))
+        let status: Option<String> = conn
+            .get(&key)
+            .await
+            .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
+        Ok(status.unwrap_or_else(|| PENDING_STATUS.to_string()))
     }
 
     async fn get_scheduled_dags(&self) -> Vec<DAGInstance> {
         let mut conn = self.get_connection().await;
         let dag_map: HashMap<String, String> =
-            conn.hgetall("dag_execution").await.unwrap_or_default();
+            conn.hgetall(self.dag_execution_set_key()).await.unwrap_or_default();
 
         let parsed_dags: Vec<DAGInstance> = dag_map
             .values()
@@ -234,13 +259,13 @@ impl StateManager for RedisStateManager {
         let mut conn = self.get_connection().await;
 
         let dag_json = serde_json::to_string(dag_execution).unwrap();
-        conn.hset::<&str, &str, String, ()>("dag_execution", &dag_execution.run_id, dag_json)
+        conn.hset::<&str, &str, String, ()>(self.dag_execution_set_key().as_str(), &dag_execution.run_id, dag_json)
             .await
             .unwrap();
 
         // Set initial DAG execution status
-        let status_key = format!("dag_status:{}", dag_execution.run_id);
-        conn.set::<String, String, ()>(status_key, "pending".to_string())
+        let status_key = self.dag_status_key(&dag_execution.run_id);
+        conn.set::<String, String, ()>(status_key, PENDING_STATUS.to_string())
             .await
             .unwrap();
 
@@ -249,7 +274,7 @@ impl StateManager for RedisStateManager {
 
     async fn get_dag_execution(&self, run_id: &str) -> Option<DAGInstance> {
         let mut conn = self.get_connection().await;
-        let key = "dag_execution";
+        let key = self.dag_execution_set_key();
 
         match conn.hget::<_, _, String>(key, run_id).await {
             Ok(dag_json) => match serde_json::from_str::<DAGInstance>(&dag_json) {
@@ -297,12 +322,12 @@ impl StateManager for RedisStateManager {
         let mut pipe = redis::pipe();
 
         // Delete the dag_status key.
-        let dag_status_key = format!("dag_status:{}", dag_run_id);
+        let dag_status_key = self.dag_status_key(dag_run_id);
         pipe.del(dag_status_key);
 
         // Delete each task_instance key.
         for task_run_id in task_run_ids {
-            let task_instance_key = Self::task_instance_key(task_run_id);
+            let task_instance_key = Self::task_instance_key(self, task_run_id);
             pipe.del(task_instance_key);
         }
 
@@ -330,7 +355,6 @@ impl StateManager for RedisStateManager {
         }
         info!("Subscribed to graph updates.");
         let mut message_stream = pubsub_conn.into_on_message();
-
         while let Some(msg) = message_stream.next().await {
             let dag_run_id: String = match msg.get_payload() {
                 Ok(id) => id,
@@ -340,8 +364,6 @@ impl StateManager for RedisStateManager {
                 }
             };
             info!("Graph update received for DAG: {}", dag_run_id);
-
-            // Retrieve the DAG execution based on the run ID and immediately evaluate it.
             if let Some(dag_execution) = self.get_dag_execution(&dag_run_id).await {
                 evaluate_graph(self.clone(), &dag_execution).await;
             } else {
@@ -370,17 +392,21 @@ impl StateManager for RedisStateManager {
 
     async fn register_agent(&self, agent_id: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::agent_key(agent_id);
-        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
+        let key = self.agent_key(agent_id);
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
         let _: () = conn.hset(key.clone(), "last_heartbeat", timestamp).await.unwrap();
-        // Also add the agent to a global set of agents.
-        let _: () = conn.sadd("agents", agent_id).await.unwrap();
+        // Add the agent to the global set of agents.
+        let agents_key = self.agents_set_key();
+        let _: () = conn.sadd(agents_key, agent_id).await.unwrap();
         info!("Registered agent {}", agent_id);
     }
 
     async fn update_agent_heartbeat(&self, agent_id: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::agent_key(agent_id);
+        let key = Self::agent_key(self, agent_id);
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
@@ -391,27 +417,27 @@ impl StateManager for RedisStateManager {
 
     async fn assign_task_to_agent(&self, agent_id: &str, assignment: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::agent_tasks_key(agent_id);
+        let key = Self::agent_tasks_key(self, agent_id);
         let _: () = conn.sadd(key, assignment).await.unwrap();
         debug!("Assigned task {} to agent {}", assignment, agent_id);
     }
 
     async fn remove_task_from_agent(&self, agent_id: &str, assignment: &str) {
         let mut conn = self.get_connection().await;
-        let key = Self::agent_tasks_key(agent_id);
+        let key = Self::agent_tasks_key(self, agent_id);
         let _: () = conn.srem(key, assignment).await.unwrap();
         debug!("Removed task {} from agent {}", assignment, agent_id);
     }
 
     async fn get_all_agents(&self) -> Vec<AgentStatus> {
         let mut conn = self.get_connection().await;
-        let agent_ids: Vec<String> = conn.smembers("agents").await.unwrap_or_default();
+        let agent_ids: Vec<String> = conn.smembers(self.agents_set_key()).await.unwrap_or_default();
         let mut agents = Vec::new();
         for agent_id in agent_ids {
-            let key = Self::agent_key(&agent_id);
+            let key = Self::agent_key(self, &agent_id);
             let heartbeat: Option<i64> = conn.hget(&key, "last_heartbeat").await.unwrap_or(None);
             let tasks: Vec<String> = conn
-                .smembers(Self::agent_tasks_key(&agent_id))
+                .smembers(Self::agent_tasks_key(self, &agent_id))
                 .await
                 .unwrap_or_default();
             if let Some(ts) = heartbeat {
@@ -465,21 +491,18 @@ impl StateManager for RedisStateManager {
         None
     }
 
-
     async fn reset_tasks_from_downed_agents(
         &self,
         heartbeat_threshold: u64,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let current_time = SystemTime::now()
-            .duration_since(UNIX_EPOCH)?
-            .as_secs() as i64;
+        let current_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() as i64;
         // Get all agents with their statuses.
         let agents = self.get_all_agents().await;
         for agent in agents {
             if current_time - agent.last_heartbeat > heartbeat_threshold as i64 {
                 info!("Agent {} is down. Resetting its tasks.", agent.agent_id);
                 let mut conn = self.get_connection().await;
-                let key = Self::agent_tasks_key(&agent.agent_id);
+                let key = Self::agent_tasks_key(self, &agent.agent_id);
                 // Get the composite assignment strings.
                 let assignments: Vec<String> = conn.smembers(&key).await.unwrap_or_default();
                 for assignment in assignments {
@@ -496,20 +519,17 @@ impl StateManager for RedisStateManager {
                     let dag_run_id = parts[1];
                     // Retrieve the DAG execution.
                     if let Some(dag_execution) = self.get_dag_execution(dag_run_id).await {
-                        if let Some(task_instance) = dag_execution
-                            .tasks
-                            .iter()
-                            .find(|t| t.run_id == task_run_id)
+                        if let Some(task_instance) =
+                            dag_execution.tasks.iter().find(|t| t.run_id == task_run_id)
                         {
                             info!(
                                 "Resetting task {} from downed agent {}",
                                 task_run_id, agent.agent_id
                             );
                             // Update task status to "pending".
-                            self.update_task_status(task_run_id, "pending").await;
+                            self.update_task_status(task_run_id, PENDING_STATUS).await;
                             // Re-enqueue the task.
-                            self.enqueue_task_instance(task_instance, dag_run_id)
-                                .await;
+                            self.enqueue_task_instance(task_instance, dag_run_id).await;
                         } else {
                             warn!(
                                 "Task instance {} not found in DAG {} for downed agent {}",
@@ -526,9 +546,9 @@ impl StateManager for RedisStateManager {
                     let _: () = conn.srem(&key, assignment).await?;
                 }
                 // Optionally remove the dead agent from the global set.
-                let _: () = conn.srem("agents", &agent.agent_id).await?;
-                let agent_key = Self::agent_key(&agent.agent_id);
-                let _:() = conn.del(&agent_key).await?;
+                let _: () = conn.srem(self.agents_set_key(), &agent.agent_id).await?;
+                let agent_key = Self::agent_key(self, &agent.agent_id);
+                let _: () = conn.del(&agent_key).await?;
                 debug!("Agent {} removed from active agents.", agent.agent_id);
             }
         }

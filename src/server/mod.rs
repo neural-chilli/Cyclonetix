@@ -1,2 +1,2 @@
-pub mod web;
 mod dashboard;
+pub mod web;
