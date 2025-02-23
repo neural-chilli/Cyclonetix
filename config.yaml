@@ -3,7 +3,15 @@ context_directory: "./data/contexts"
 parameter_set_directory: "./data/parameter_sets"
 dag_directory: "./data/dags"
 
+backend: "redis"
+backend_url: "redis://localhost:6379"
+
+#backend: "memory"
+
+default_context: "default"
+
 queues:
   - "gpu_tasks"
   - "high_memory"
   - "work_queue"
+  - "default"

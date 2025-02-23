@@ -1,10 +1,11 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::models::task::TaskInstance;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Context {
-    pub id: String,
+    pub dag_instance_id: String,
     pub variables: HashMap<String, String>,
 
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -14,21 +15,10 @@ pub struct Context {
     pub updated_at: DateTime<Utc>,
 }
 
-impl Default for Context {
-    fn default() -> Self {
-        Context {
-            id: "default".to_string(),
-            variables: HashMap::new(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-        }
-    }
-}
-
 impl Context {
-    pub fn new(id: &str) -> Self {
+    pub fn new(dag_instance_id: &str) -> Self {
         Self {
-            id: id.to_string(),
+            dag_instance_id: dag_instance_id.to_string(),
             variables: HashMap::new(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
@@ -47,29 +37,18 @@ impl Context {
     /// Retrieves all environment variables for a specific task instance
     pub fn get_task_env(
         &self,
-        task_id: &str,
-        param_set: Option<&str>,
-        is_global_task: bool,
+        task_instance: TaskInstance,
     ) -> HashMap<String, String> {
-        let param_set = param_set.unwrap_or("default");
         let mut env = HashMap::new();
-        let instance_key = format!("{}|{}", task_id, param_set);
 
         for (key, value) in &self.variables {
-            if key.starts_with('~') {
-                // Expose global variables to all tasks
-                let clean_key = key.trim_start_matches('~').to_string();
-                env.insert(clean_key, value.clone());
-            } else if key.starts_with(&instance_key) {
-                // Expose instance-specific variables
-                let clean_key = key.split_once(':').unwrap().1.to_string();
-                env.insert(clean_key, value.clone());
-            } else if !is_global_task {
-                // Expose non-prefixed variables to non-global tasks
+            task_instance.parameters.iter().for_each(|(_param_key, _)| {
+                    env.insert(key.clone(), value.clone());
+            });
+            self.variables.iter().for_each(|(key, value)| {
                 env.insert(key.clone(), value.clone());
-            }
+            });
         }
-
         env
     }
 }

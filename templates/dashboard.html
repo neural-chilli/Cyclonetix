@@ -1,157 +1,141 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Cyclonetix{% endblock %}
+{% block title %}Dashboard - Cyclonetix{% endblock title %}
 
 {% block head %}
-    <style>
-        .summary-cards-row > [class^="col-"]:first-child {
-            padding-left: 0 !important;
-        }
-        .summary-cards-row > [class^="col-"]:last-child {
-            padding-right: 0 !important;
-        }
-    </style>
-{% endblock %}
+<style>
+    /* Dashboard Styles */
+    .summary-cards-row {
+        margin-bottom: 1.5rem;
+    }
+    .card-summary {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+    .card-summary:hover {
+        transform: scale(1.03);
+    }
+    .summary-title {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock head %}
 
 {% block content %}
-            <div class="row summary-cards-row pb-2">
-                <div class="col-sm-4">
-                    <div class="card summary-card">
-                        <div class="card-body d-flex align-items-center">
-                <span class="avatar avatar-lg bg-primary me-3">
-                  <i class="ti ti-users"></i>
-                </span>
-                            <div>
-                                <div class="text-muted">Agents</div>
-                                <h2 class="mb-0">{{ agent_count }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="card summary-card">
-                        <div class="card-body d-flex align-items-center">
-                <span class="avatar avatar-lg bg-orange me-3">
-                  <i class="ti ti-alert-circle"></i>
-                </span>
-                            <div>
-                                <div class="text-muted">Queue Tasks</div>
-                                <h2 class="mb-0">{{ total_queue_tasks }}</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="card summary-card">
-                        <div class="card-body d-flex align-items-center">
-                <span class="avatar avatar-lg bg-green me-3">
-                  <i class="ti ti-playlist"></i>
-                </span>
-                            <div>
-                                <div class="text-muted">Scheduled DAGs</div>
-                                <h2 class="mb-0">{{ scheduled_dags_count }}</h2>
-                            </div>
-                        </div>
-                    </div>
+<div class="container-fluid">
+    <!-- Summary Cards -->
+    <div class="row summary-cards-row">
+        <div class="col-md-4">
+            <div class="card card-summary">
+                <div class="card-body text-center">
+                    <div class="summary-title">Agents</div>
+                    <div class="summary-value">{{ agent_count }}</div>
                 </div>
             </div>
-
-            <!-- Agents Table -->
-            <div class="row pb-2">
-                <div class="card pb-2">
-                    <div class="card-header">
-                        <h3 class="card-title">Agents</h3>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-vcenter card-table">
-                            <thead>
-                            <tr>
-                                <th>Agent ID</th>
-<!--                                <th>Last Heartbeat</th>-->
-                                <th>Assigned Task</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for agent in agents %}
-                            <tr>
-                                <td>{{ agent.agent_id }}</td>
-<!--                                <td>{{ agent.last_heartbeat }}</td>-->
-                                <td>
-                                    {% if agent.task_count == 0 %}
-                                    None
-                                    {% else %}
-                                        {% for task in agent.tasks %}
-                                        {{ task }}
-                                        {% endfor %}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-summary">
+                <div class="card-body text-center">
+                    <div class="summary-title">Queue Tasks</div>
+                    <div class="summary-value">{{ total_queue_tasks }}</div>
                 </div>
             </div>
-
-
-            <!-- Scheduled DAGs Table -->
-            <div class="row pb-2">
-                <div class="card pb-2">
-                    <div class="card-header">
-                        <h3 class="card-title">Scheduled DAGs</h3>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-vcenter card-table">
-                            <thead>
-                            <tr>
-                                <th>DAG ID</th>
-                                <th>DAG Name</th>
-                                <th>Status</th>
-                                <th>Pending Tasks</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for dag in scheduled_dags %}
-                            <tr>
-                                <td>{{ dag.run_id }}</td>
-                                <td>{{ dag.dag_name }}</td>
-                                <td>{{ dag.status }}</td>
-                                <td>{{ dag.pending_tasks }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-summary">
+                <div class="card-body text-center">
+                    <div class="summary-title">Scheduled DAGs</div>
+                    <div class="summary-value">{{ scheduled_dags_count }}</div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Queue Tasks Table -->
-            <div class="row pb-2">
-                <div class="card pb-2">
-                    <div class="card-header">
-                        <h3 class="card-title">Queue Tasks</h3>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-vcenter card-table">
-                            <thead>
-                            <tr>
-                                <th>Queue Name</th>
-                                <th>Task Count</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for queue in queues %}
-                            <tr>
-                                <td>{{ queue.name }}</td>
-                                <td>{{ queue.task_count }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <!-- Agents Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">Agents</h5>
+        </div>
+        <div class="card-body">
+            {% if agents | length == 0 %}
+            <p>No agents registered.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Agent ID</th>
+                        <th>Last Heartbeat</th>
+                        <th>Assigned Tasks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for agent in agents %}
+                    <tr>
+                        <td>{{ agent.agent_id }}</td>
+                        <td>{{ agent.last_heartbeat }}</td>
+                        <td>
+                            {% if agent.task_count == 0 %}
+                            <span class="text-muted">None</span>
+                            {% else %}
+                            <ul class="list-unstyled mb-0">
+                                {% for task in agent.tasks %}
+                                <li>{{ task }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
-{% endblock %}
+            {% endif %}
+        </div>
+    </div>
 
-{% block scripts %}{% endblock %}
+    <!-- Queue Tasks Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">Queue Tasks</h5>
+        </div>
+        <div class="card-body">
+            {% if queues | length == 0 %}
+            <p>No queue information available.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Queue Name</th>
+                        <th>Task Count</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for queue in queues %}
+                    <tr>
+                        <td>{{ queue.name }}</td>
+                        <td>{{ queue.task_count }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
 
+{% block scripts %}{% endblock scripts %}
