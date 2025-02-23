@@ -1,7 +1,5 @@
 use crate::utils::app_state::AppState;
-use crate::utils::constants::PENDING_STATUS;
 use actix_web::{web, HttpResponse, Responder};
-use futures_util::future::join_all;
 use serde::Serialize;
 use std::sync::Arc;
 use tera::{Context, Tera};

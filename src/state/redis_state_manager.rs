@@ -172,7 +172,8 @@ impl StateManager for RedisStateManager {
 
     async fn is_task_scheduled(&self, task_instance_run_id: &str) -> bool {
         let mut conn = self.get_connection().await;
-        let queue_key = "work_queue".to_string();
+        let task_instance = self.load_task_instance(task_instance_run_id).await.unwrap();
+        let queue_key = self.queue_key(task_instance.queue.clone().as_str());
         let instance_id = task_instance_run_id.to_string();
         let queue_items: Vec<String> = conn.lrange(queue_key, 0, -1).await.unwrap_or_default();
         queue_items.contains(&instance_id)

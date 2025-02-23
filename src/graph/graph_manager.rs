@@ -2,7 +2,8 @@ use crate::models::context::Context;
 use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
 use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::state::state_manager::StateManager;
-use crate::utils::constants::{COMPLETED_STATUS, PENDING_STATUS};
+use crate::utils::constants::{COMPLETED_STATUS, DEFAULT_QUEUE, PENDING_STATUS};
+use crate::utils::id_tools::{generate_compound_run_id};
 use chrono::Utc;
 use petgraph::algo::toposort;
 use petgraph::graph::{DiGraph, NodeIndex};
@@ -10,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use tracing::debug;
-use crate::utils::id_tools::generate_run_id;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExecutionGraph {
@@ -23,9 +23,8 @@ impl ExecutionGraph {
         dag_template: DagTemplate,
         provided_context: Option<Context>,
     ) -> (DagInstance, Vec<TaskInstance>, GraphInstance) {
-        
         // Create a new dag_run_id
-        let dag_run_id = generate_run_id();
+        let dag_run_id =  generate_compound_run_id(dag_template.name.clone().as_str());
 
         // Create TaskInstances for each task in DagTemplate.
         let now = Utc::now();
@@ -34,7 +33,7 @@ impl ExecutionGraph {
         let mut node_map: HashMap<String, NodeIndex> = HashMap::new();
 
         for task in &dag_template.tasks {
-            let instance_run_id = generate_run_id();
+            let instance_run_id =  generate_compound_run_id(task.name.clone().as_str());
             let parameters_map = if let Some(obj) = task.parameters.as_object() {
                 obj.iter()
                     .map(|(k, v)| (k.clone(), v.to_string()))
@@ -50,13 +49,16 @@ impl ExecutionGraph {
                 description: task.description.clone(),
                 command: task.command.clone(),
                 parameters: parameters_map,
-                queue: task.queue.clone().unwrap_or_else(|| "default".to_string()),
+                queue: task
+                    .queue
+                    .clone()
+                    .unwrap_or_else(|| DEFAULT_QUEUE.to_string()),
                 status: PENDING_STATUS.to_string(),
                 last_updated: now,
                 started_at: None,
                 completed_at: None,
                 error_message: None,
-                evaluation_point: task.evaluation_point.clone(),
+                evaluation_point: task.evaluation_point,
             };
             task_instances.push(instance);
         }
@@ -155,7 +157,7 @@ impl ExecutionGraph {
         // For example, you might perform a topological sort here.
 
         // Create a new dag_run_id and use the root task's id as the dag_id (or generate a new one).
-        let dag_run_id = generate_run_id();
+        let dag_run_id = generate_compound_run_id(root.name.clone().as_str());
         let dag_id = root.id.clone();
 
         // Create TaskInstances for each resolved TaskTemplate.
@@ -165,7 +167,7 @@ impl ExecutionGraph {
         let mut node_map: HashMap<String, NodeIndex> = HashMap::new();
 
         for task in &relevant_tasks {
-            let instance_run_id = generate_run_id();
+            let instance_run_id = generate_compound_run_id(task.name.clone().as_str());
             let parameters_map = if let Some(obj) = task.parameters.as_object() {
                 obj.iter()
                     .map(|(k, v)| (k.clone(), v.to_string()))
@@ -181,13 +183,16 @@ impl ExecutionGraph {
                 description: task.description.clone(),
                 command: task.command.clone(),
                 parameters: parameters_map,
-                queue: task.queue.clone().unwrap_or_else(|| "default".to_string()),
+                queue: task
+                    .queue
+                    .clone()
+                    .unwrap_or_else(|| DEFAULT_QUEUE.to_string()),
                 status: PENDING_STATUS.to_string(),
                 last_updated: now,
                 started_at: None,
                 completed_at: None,
                 error_message: None,
-                evaluation_point: task.evaluation_point.clone(),
+                evaluation_point: task.evaluation_point,
             };
             task_instances.push(instance);
         }

@@ -5,3 +5,4 @@ pub mod constants;
 pub mod logging;
 pub mod parsing;
 pub mod id_tools;
+pub mod hostname_helper;
