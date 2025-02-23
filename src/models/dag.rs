@@ -1,83 +1,36 @@
 use crate::models::context::Context;
-use crate::models::task::{TaskInstance, TaskTemplate};
+use crate::models::task::TaskTemplate;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
-/// Represents a manually defined DAG in Cyclonetix
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-pub struct DAGTemplate {
-    /// Unique identifier for the DAG
-    pub id: String,
-
-    pub name: String,
-
-    /// Optional description of the DAG
-    pub description: Option<String>,
-
-    /// List of tasks in the DAG, with their dependencies
-    pub tasks: Vec<TaskTemplate>,
-
-    pub tags: Option<Vec<String>>,
-}
-
-/// Represents a DAG execution, whether predefined or dynamically created.
+/// Represents a manually defined DAG template.
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DAGInstance {
-    pub run_id: String,           // Unique identifier for this DAG execution
-    pub dag_id: String,           // Original DAG ID (if predefined) or generated
-    pub context: Context,         // Execution context (e.g., env variables)
-    pub tasks: Vec<TaskInstance>, // Tasks within this DAG
-    pub scheduled_at: DateTime<Utc>,
+pub struct DagTemplate {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub tasks: Vec<TaskTemplate>,
     pub tags: Option<Vec<String>>,
 }
 
-impl DAGTemplate {
-    /// Creates a new DAG definition
-    pub fn new(
-        id: &str,
-        name: &str,
-        description: Option<String>,
-        tasks: Vec<TaskTemplate>,
-        tags: Option<Vec<String>>,
-    ) -> Self {
-        Self {
-            id: id.to_string(),
-            name: name.to_string(),
-            description,
-            tasks,
-            tags,
-        }
-    }
-
-    /// Checks if the DAG is valid (e.g., no circular dependencies)
-    pub fn validate(&self) -> Result<(), String> {
-        let mut visited = HashMap::new();
-        for task in &self.tasks {
-            if self.has_cycle(task.id.clone(), &mut visited) {
-                return Err(format!("Cycle detected in DAG: {}", self.id));
-            }
-        }
-        Ok(())
-    }
-
-    /// Recursively checks for circular dependencies
-    fn has_cycle(&self, task_id: String, visited: &mut HashMap<String, bool>) -> bool {
-        if let Some(&true) = visited.get(&task_id) {
-            return true; // Cycle detected
-        }
-        visited.insert(task_id.clone(), true);
-
-        for task in &self.tasks {
-            if task.id == task_id {
-                for dep in &task.dependencies {
-                    if self.has_cycle(dep.clone(), visited) {
-                        return true;
-                    }
-                }
-            }
-        }
-        visited.insert(task_id, false);
-        false
-    }
+/// Represents the mutable execution state of a DAG.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DagInstance {
+    pub run_id: String,
+    pub dag_id: String,
+    pub context: Context,
+    pub task_count: usize,       // total number of tasks scheduled
+    pub completed_tasks: usize,
+    pub status: String,
+    pub last_updated: DateTime<Utc>,
+    pub tags: Option<Vec<String>>,
 }
+
+/// Represents the immutable dependency graph for a DAG instance.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct GraphInstance {
+    pub run_id: String, // Should be identical to the DagInstance run_id.
+    pub dag_id: String,
+    pub graph: crate::graph::graph_manager::ExecutionGraph,
+}
+

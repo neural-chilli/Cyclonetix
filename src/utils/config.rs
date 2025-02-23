@@ -1,4 +1,4 @@
-use crate::utils::constants::{DEFAULT_CLUSTER_ID, DEFAULT_CONTEXT_ID, DEFAULT_QUEUE};
+use crate::utils::constants::{DEFAULT_CLUSTER_ID, DEFAULT_QUEUE};
 use clap::Parser;
 use serde::Deserialize;
 use std::fs;
@@ -17,11 +17,9 @@ pub struct Config {
 pub struct CyclonetixConfig {
     pub task_directory: String,
     pub context_directory: String,
-    pub parameter_set_directory: String,
     pub dag_directory: String,
     pub backend: String,
     pub backend_url: String,
-    pub default_context: String,
     pub queues: Vec<String>,
     pub cluster_id: String,
 }
@@ -31,11 +29,9 @@ impl Default for CyclonetixConfig {
         CyclonetixConfig {
             task_directory: "tasks/".to_string(),
             context_directory: "contexts/".to_string(),
-            parameter_set_directory: "params/".to_string(),
             dag_directory: "dags/".to_string(),
             backend: "redis".to_string(),
             backend_url: "redis://127.0.0.1:6379".to_string(),
-            default_context: DEFAULT_CONTEXT_ID.to_string(),
             queues: vec![DEFAULT_QUEUE.to_string()],
             cluster_id: DEFAULT_CLUSTER_ID.to_string(),
         }
