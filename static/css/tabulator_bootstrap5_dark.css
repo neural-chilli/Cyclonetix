@@ -1,0 +1,100 @@
+html[data-bs-theme="dark"] .tabulator {
+    background-color: #040a11 !important; /* Deep dark blue */
+    border: 1px solid #25384f;
+    font-size: 90%;
+    text-align: left;
+    border-radius: 4px;
+    color: #dce1e7;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-header {
+    font-size: 90%;
+    background-color: #0e1722 !important; /* Darker header background */
+    color: #eef3f6 !important;
+    font-weight: bold;
+    border-bottom: 2px solid #25384f;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    padding: 0;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-header-filter  input {
+    font-size: 90%;
+    padding: 2px;
+    border-radius: 4px;
+    background-color: lightgray;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col {
+    background: #0e1722 !important; /* Ensure dark mode consistency */
+    border-right: 1px solid #25384f;
+    padding: 2px;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+    font-size: 90%;
+    font-weight: bold;
+    color: #eef3f6 !important;
+    text-transform: uppercase;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-header .tabulator-col .tabulator-col-sorter {
+    right: 8px;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-row {
+    background-color: #040a11 !important;
+    border-bottom: 1px solid #25384f;
+    min-height: 20px;
+    align-items: center !important;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-row:nth-child(even) {
+    background-color: #0e1722 !important; /* Slightly lighter dark */
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-row:hover {
+    background-color: #182433 !important; /* Highlighted hover */
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-row .tabulator-cell {
+    font-size: 90%;
+    padding: 4px 4px 4px 16px;
+    height: 28px;
+    color: #dce1e7 !important;
+    border-right: 1px solid #25384f;
+    align-items: center !important;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-row .tabulator-cell:last-child {
+    border-right: none;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-row.tabulator-selected {
+    background-color: #066fd1 !important; /* Tabler Primary Blue */
+    color: #040a11 !important;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-footer {
+    background-color: #0e1722 !important; /* Matches header */
+    color: #eef3f6 !important;
+    font-weight: bold;
+    border-top: 2px solid #25384f;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding: 2px;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-page {
+    background: #182433 !important;
+    color: #eef3f6 !important;
+    padding: 2px;
+    border-radius: 4px;
+    border: 1px solid #25384f;
+    font-size: 90%;
+}
+
+html[data-bs-theme="dark"] .tabulator .tabulator-page.active {
+    background: #066fd1 !important;
+    color: #040a11 !important;
+}

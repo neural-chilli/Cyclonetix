@@ -1,5 +1,5 @@
 id: "task_4"
 name: "Deploy Model"
-command: "echo 'Task 4'"
+command: "sleep 10"
 dependencies: ["task_2", "task_3"]
 parameters: {}

@@ -88,7 +88,7 @@ impl ExecutionGraph {
             if let Some(context) = provided_context {
                 context
             } else {
-                Context::new(&dag_run_id.clone())
+                Context::new()
             }
         };
 
@@ -224,7 +224,7 @@ impl ExecutionGraph {
             if let Some(context) = provided_context {
                 context
             } else {
-                Context::new(&dag_run_id.clone())
+                Context::new()
             }
         };
 

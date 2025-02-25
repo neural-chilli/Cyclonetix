@@ -8,12 +8,16 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="180x1280" href="/static/img/apple-touch-icon.png">
     <link rel="stylesheet" href="/static/css/tabler.min.css">
-    <link rel="stylesheet" href="/static/css/cyclonetix.css">
+    <link rel="stylesheet" href="/static/css/tabulator_bootstrap5.min.css">
+    <link rel="stylesheet" href="/static/css/cyclonetix-light.css" id="cyclonetix-light">
+    <link rel="stylesheet" href="/static/css/cyclonetix-dark.css" id="cyclonetix-dark">
+    <link rel="stylesheet" href="/static/css/tabulator_bootstrap5_light.css" id="tabulator-light">
+    <link rel="stylesheet" href="/static/css/tabulator_bootstrap5_dark.css" id="tabulator-dark">
     {% block head %}{% endblock head %}
 </head>
 <body>
 <header class="navbar navbar-expand-md navbar-dark bg-dark">
-    <div class="container-xl">
+    <div class="container-fluid">
         <a class="navbar-brand navbar-brand-autodark p-0" href="/">
             <img class="pb-1 pt-1" src="/static/img/android-chrome-512x512.png" style="max-height: 56px;" alt="Cyclonetix">
             Cyclonetix
@@ -27,7 +31,7 @@
 
 <main class="page-wrapper">
     <div class="page-body">
-        <div class="container-xl">
+        <div class="container-fluid">
             {% block content %}{% endblock content %}
         </div>
     </div>

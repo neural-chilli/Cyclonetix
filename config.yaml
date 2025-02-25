@@ -5,6 +5,7 @@ dag_directory: "./data/dags"
 
 backend: "redis"
 backend_url: "redis://localhost:6379"
+#serialization_format: "binary"
 
 #backend: "memory"
 
@@ -15,3 +16,22 @@ queues:
   - "high_memory"
   - "work_queue"
   - "default"
+
+security:
+  enabled: true
+  oauth:
+    provider: "google"
+    client_id: "your-client-id"
+    client_secret: "your-client-secret"
+    redirect_url: "http://localhost:3000/auth/callback"
+    allowed_domains: []  # Optional: restrict by domain
+    allowed_emails: []   # Optional: restrict by email
+  cookie_secret: "use-a-random-string-here"
+  session_timeout_minutes: 120
+  public_paths:
+    - "/static/*"
+    - "/login"
+    - "/auth/*"
+    - "/health"
+  api_paths:
+    - "/api/*"

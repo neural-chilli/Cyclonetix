@@ -5,3 +5,6 @@
     padding-left: 0;
     padding-right: 0;
 }
+html[data-bs-theme="light"] body {
+    background-color: #eeeeee;
+}

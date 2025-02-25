@@ -29,9 +29,6 @@ pub async fn schedule_dag_from_task<S: StateManager + ?Sized>(
     );
     state_manager.save_dag_instance(&dag).await;
     state_manager.save_graph_instance(&graph).await;
-    if provided_context.is_some() {
-        state_manager.save_context(&provided_context.unwrap()).await;
-    }
     GRAPH_CACHE.insert(dag.run_id.clone(), graph.clone());
     for task in tasks {
         state_manager.save_task_instance(&task).await;
@@ -48,9 +45,6 @@ pub async fn schedule_dag<S: StateManager + ?Sized>(
         graph_manager::ExecutionGraph::create_execution_from_dag(dag_template, provided_context.clone());
     state_manager.save_dag_instance(&dag).await;
     state_manager.save_graph_instance(&graph).await;
-    if provided_context.is_some() {
-        state_manager.save_context(&provided_context.unwrap()).await;
-    }
     GRAPH_CACHE.insert(dag.run_id.clone(), graph.clone());
     for task in tasks {
         state_manager.save_task_instance(&task).await;
@@ -97,9 +91,9 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
         // Retrieve task definition (or summary) so that we can extract details like command and queue.
         if let Some(task_def) = state_manager.load_task_instance(&task_run_id).await {
             let env_vars = state_manager
-                .load_context(&graph_instance.run_id)
+                .load_dag_instance(&graph_instance.run_id)
                 .await
-                .map(|ctx| ctx.get_task_env(task_def.clone()))
+                .map(|dag| dag.context.get_task_env(task_def.clone()))
                 .unwrap_or_default();
 
             let task_payload = TaskPayload {

@@ -1,5 +1,5 @@
 id: "task_1"
 name: "Prepare Data"
-command: "echo 'Task 1'"
+command: "sleep 10"
 dependencies: []
 parameters: {}

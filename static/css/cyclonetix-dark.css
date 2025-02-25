@@ -1,0 +1,13 @@
+.navbar {
+    background-color: #375a7f !important;
+}
+.container-xl {
+    padding-left: 0;
+    padding-right: 0;
+}
+html[data-bs-theme="dark"] body {
+    background-color: #040a11;
+}
+html[data-bs-theme="dark"] .page-wrapper {
+    background-color: #040a11 !important;
+}

@@ -1,16 +1,19 @@
-use crate::utils::app_state::AppState;
-use actix_web::{web, HttpResponse, Responder};
+use crate::server::state::AppStateWithTera;
+use axum::{
+    extract::State,
+    http::StatusCode,
+    response::{Html, IntoResponse},
+};
 use serde::Serialize;
-use std::sync::Arc;
-use tera::{Context, Tera};
+use tera::Context;
 
 /// A simplified view of an agent.
 #[derive(Serialize)]
 pub struct AgentOverview {
     pub agent_id: String,
     pub last_heartbeat: i64,
-    pub tasks: Vec<String>, // List of assigned task IDs (or names)
-    pub task_count: usize,  // Precomputed count of tasks
+    pub tasks: Vec<String>,
+    pub task_count: usize,
 }
 
 /// Information about a queue.
@@ -31,11 +34,8 @@ pub struct DAGOverview {
 }
 
 /// Handler for the dashboard page.
-pub async fn dashboard(
-    app_state: web::Data<Arc<AppState>>,
-    tera: web::Data<Tera>,
-) -> impl Responder {
-    let state_manager = &app_state.state_manager;
+pub async fn dashboard(State(state): State<AppStateWithTera>) -> impl IntoResponse {
+    let state_manager = &state.app_state.state_manager;
 
     // Get agents and convert to overview type.
     let agents_raw = state_manager.load_all_agents().await;
@@ -60,28 +60,6 @@ pub async fn dashboard(
 
     // Retrieve mutable DagInstances.
     let scheduled = state_manager.load_scheduled_dag_instances().await;
-    // let scheduled_dags: Vec<DAGOverview> = join_all(scheduled.into_iter().map(|dag| async move {
-    //     let status = state_manager
-    //         .load_dag_status(&dag.run_id)
-    //         .await
-    //         .unwrap_or_else(|_| PENDING_STATUS.to_string());
-    //     // Retrieve the DAG template to get a friendly name.
-    //     let dag_template = state_manager.load_dag_template(&dag.dag_id).await;
-    //     let dag_name = if let Some(template) = dag_template {
-    //         template.name
-    //     } else {
-    //         dag.dag_id.clone()
-    //     };
-    //     DAGOverview {
-    //         run_id: dag.run_id,
-    //         dag_id: dag.dag_id,
-    //         dag_name,
-    //         status,
-    //         pending_tasks: 0,
-    //     }
-    // }))
-    // .await;
-
     let scheduled_dags_count = scheduled.len();
     let total_queue_tasks = work_queue_tasks.len();
 
@@ -89,17 +67,16 @@ pub async fn dashboard(
     let mut context = Context::new();
     context.insert("agents", &agents);
     context.insert("queues", &queues);
-    //context.insert("scheduled_dags", &scheduled_dags);
     context.insert("total_queue_tasks", &total_queue_tasks);
     context.insert("agent_count", &agents_count);
     context.insert("scheduled_dags_count", &scheduled_dags_count);
 
     // Render the dashboard template.
-    match tera.render("dashboard.html", &context) {
-        Ok(html) => HttpResponse::Ok().content_type("text/html").body(html),
+    match state.tera.render("dashboard.html", &context) {
+        Ok(html) => Html(html).into_response(),
         Err(err) => {
             eprintln!("Template rendering error: {}", err);
-            HttpResponse::InternalServerError().body("Error rendering page")
+            (StatusCode::INTERNAL_SERVER_ERROR, "Error rendering page").into_response()
         }
     }
 }

@@ -6,3 +6,4 @@ pub mod logging;
 pub mod parsing;
 pub mod id_tools;
 pub mod hostname_helper;
+pub mod serialization;

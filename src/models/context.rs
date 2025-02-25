@@ -5,7 +5,8 @@ use crate::models::task::TaskInstance;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Context {
-    pub dag_instance_id: String,
+    pub id: String,
+    
     pub variables: HashMap<String, String>,
 
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -15,10 +16,16 @@ pub struct Context {
     pub updated_at: DateTime<Utc>,
 }
 
+impl Default for Context {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Context {
-    pub fn new(dag_instance_id: &str) -> Self {
+    pub fn new() -> Self {
         Self {
-            dag_instance_id: dag_instance_id.to_string(),
+            id: "".to_string(),
             variables: HashMap::new(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
