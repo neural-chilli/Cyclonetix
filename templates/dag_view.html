@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}DAG Visualization - Cyclonetix{% endblock title %}
+
+{% block head %}
+
+{% endblock head %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header with Title and Controls -->
+    <div class="d-flex justify-content-between align-items-center p-0 m-0 border-bottom">
+        <div class="dag-title">
+            <h1 id="dag-name">Loading DAG...</h1>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="refresh-timer me-3">Auto-refresh in <span id="refresh-countdown">10</span>s</span>
+            <button id="refresh-btn" class="btn btn-outline-primary me-2">
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- DAG Visualization Container -->
+    <div id="dag-container" class="visualization-container mt-3" style="height: 70vh; position: relative;">
+        <!-- Legend overlay positioned in the top right corner -->
+        <div class="legend-overlay">
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #6c757d; box-shadow: none !important;"></div>
+                    <span>Pending</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #007bff; box-shadow: none !important;"></div>
+                    <span>Running</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #28a745; box-shadow: none !important;"></div>
+                    <span>Completed</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #dc3545; box-shadow: none !important;"></div>
+                    <span>Failed</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cytoscape will render here -->
+
+        <!-- Task Info Panel (hidden by default) -->
+        <div id="task-info-panel" class="task-info-panel info-panel"
+             style="display: none; position: absolute; top: 20px; right: 20px; width: 350px; z-index: 10;">
+            <h5 id="task-info-title">Task Details</h5>
+            <hr>
+            <dl class="task-details">
+                <dt>Task ID</dt>
+                <dd id="task-info-id">-</dd>
+                <dt>Status</dt>
+                <dd id="task-info-status">-</dd>
+                <dt>Started</dt>
+                <dd id="task-info-started">-</dd>
+                <dt>Duration</dt>
+                <dd id="task-info-duration">-</dd>
+                <dt>Command</dt>
+                <dd><code id="task-info-command" class="small">-</code></dd>
+                <dt>Parameters</dt>
+                <dd>
+                    <pre id="task-info-parameters" class="small">-</pre>
+                </dd>
+            </dl>
+            <div class="text-end">
+                <button id="close-task-info" class="btn btn-sm btn-outline-light">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<!-- Include Cytoscape.js and dagre dependencies -->
+<script src="/static/js/cytoscape.min.js"></script>
+<script src="/static/js/dagre.min.js"></script>
+<script>
+    // Define cytoscapeDagre globally before loading the plugin
+    let cytoscapeDagre = null;
+</script>
+<script src="/static/js/cytoscape-dagre.min.js"></script>
+<script>
+    const dagRunId = new URLSearchParams(window.location.search).get('run_id');
+    if (!dagRunId) {
+        document.getElementById('dag-container').innerHTML =
+            '<div class="alert alert-danger m-3">No DAG run ID provided</div>';
+    }
+
+    let cy;
+    let refreshCountdown = 10;
+    let refreshTimer;
+    let selectedTask = null;
+    let initialLoad = true;
+
+    const statusColors = {
+        'pending': '#6c757d',
+        'running': '#007bff',
+        'completed': '#28a745',
+        'failed': '#dc3545'
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initCytoscape();
+        loadDagData();
+        startRefreshTimer();
+
+        document.getElementById('refresh-btn').addEventListener('click', function () {
+            loadDagData();
+            resetRefreshTimer();
+        });
+
+        document.getElementById('close-task-info').addEventListener('click', function () {
+            hideTaskInfo();
+        });
+    });
+
+    function initCytoscape() {
+        cytoscapeDagre = window.cytoscapeDagre;
+        cytoscape.use(cytoscapeDagre);
+
+        cy = cytoscape({
+            container: document.getElementById('dag-container'),
+            zoom: 1,
+            minZoom: 0.2,
+            maxZoom: 2,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#666',
+                        'label': 'data(label)',
+                        'color': '#fff',
+                        'font-size': '12px',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '80px',
+                        'width': '80px',
+                        'height': '50px',
+                        'shape': 'roundrectangle',
+                        'border-width': '2px',
+                        'border-color': '#fff',
+                        'text-margin-y': '0'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#ccc',
+                        'target-arrow-color': '#ccc',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier'
+                    }
+                },
+                {
+                    selector: '.status-pending',
+                    style: { 'background-color': statusColors.pending }
+                },
+                {
+                    selector: '.status-running',
+                    style: { 'background-color': statusColors.running }
+                },
+                {
+                    selector: '.status-completed',
+                    style: { 'background-color': statusColors.completed }
+                },
+                {
+                    selector: '.status-failed',
+                    style: { 'background-color': statusColors.failed }
+                },
+                {
+                    selector: '.selected',
+                    style: {
+                        'border-width': '3px',
+                        'border-color': '#f8f9fa',
+                        'box-shadow': '0 0 15px #f8f9fa'
+                    }
+                }
+            ],
+            layout: {
+                name: 'dagre',
+                rankDir: 'LR',
+                padding: 50,
+                spacingFactor: 1.25
+            }
+        });
+
+        cy.on('tap', 'node', function (event) {
+            const node = event.target;
+            selectTask(node);
+        });
+
+        cy.on('tap', function (event) {
+            if (event.target === cy) {
+                hideTaskInfo();
+            }
+        });
+    }
+
+    function loadDagData() {
+        if (!dagRunId) return;
+        fetch(`/api/dag/${dagRunId}`)
+            .then(response => response.json())
+            .then(data => {
+                updateDagInfo(data.dag);
+                renderDag(data.tasks, data.graph);
+            })
+            .catch(error => {
+                console.error('Error loading DAG data:', error);
+                document.getElementById('dag-container').innerHTML =
+                    `<div class="alert alert-danger m-3">Error loading DAG: ${error.message}</div>`;
+            });
+    }
+
+    function updateDagInfo(dag) {
+        if (!dag) return;
+        document.getElementById('dag-name').textContent = dag.dag_id;
+    }
+
+    function renderDag(tasks, graph) {
+        if (!cy) return;
+
+        const currentPan = cy.pan();
+        const currentZoom = cy.zoom();
+
+        cy.batch(() => {
+            cy.elements().remove();
+
+            if (graph && graph.graph && graph.graph.graph && graph.graph.node_map) {
+                const nodesArray = graph.graph.graph.nodes;
+                const nodeMap = graph.graph.node_map;
+                const reverseNodeMap = {};
+                Object.entries(nodeMap).forEach(([taskId, index]) => {
+                    reverseNodeMap[index] = taskId;
+                });
+
+                Object.entries(nodeMap).forEach(([taskId, nodeIndex]) => {
+                    let fullLabel = nodesArray[nodeIndex] || taskId;
+                    let label = fullLabel.includes('||') ? fullLabel.split('||')[0].trim() : fullLabel;
+                    cy.add({
+                        group: 'nodes',
+                        data: { id: taskId, label: label, fullLabel: fullLabel },
+                        classes: 'status-pending'
+                    });
+                });
+
+                const edgesArray = graph.graph.graph.edges;
+                edgesArray.forEach(edgeArr => {
+                    let sourceIndex = edgeArr[0];
+                    let targetIndex = edgeArr[1];
+                    let sourceId = reverseNodeMap[sourceIndex];
+                    let targetId = reverseNodeMap[targetIndex];
+                    if (sourceId && targetId) {
+                        cy.add({
+                            group: 'edges',
+                            data: { id: `e-${sourceId}-${targetId}`, source: sourceId, target: targetId }
+                        });
+                    }
+                });
+            } else if (tasks && tasks.length > 0) {
+                tasks.forEach(task => {
+                    cy.add({
+                        group: 'nodes',
+                        data: { id: task.run_id, label: task.name, task: task },
+                        classes: `status-${task.status.toLowerCase()}`
+                    });
+                });
+                tasks.forEach(task => {
+                    if (task.dependencies && Array.isArray(task.dependencies)) {
+                        task.dependencies.forEach(depId => {
+                            cy.add({
+                                group: 'edges',
+                                data: { source: depId, target: task.run_id }
+                            });
+                        });
+                    }
+                });
+            } else {
+                console.log("No graph or tasks data available to render nodes.");
+            }
+        });
+
+        const layoutOptions = {
+            name: 'dagre',
+            rankDir: 'LR',
+            padding: 50,
+            spacingFactor: 1.25
+        };
+        cy.layout(layoutOptions).run();
+
+        if (initialLoad) {
+            cy.fit();
+            initialLoad = false;
+        } else {
+            cy.zoom(currentZoom);
+            cy.pan(currentPan);
+        }
+    }
+
+    function selectTask(node) {
+        cy.nodes().removeClass('selected');
+        node.addClass('selected');
+        const data = node.data();
+        selectedTask = data;
+        showTaskInfo(data);
+    }
+
+    function showTaskInfo(data) {
+        const panel = document.getElementById('task-info-panel');
+        document.getElementById('task-info-title').textContent = data.label || data.id;
+        document.getElementById('task-info-id').textContent = data.id;
+        document.getElementById('task-info-status').textContent = 'No additional info';
+        document.getElementById('task-info-command').textContent = data.fullLabel || '-';
+        document.getElementById('task-info-parameters').textContent = 'No parameters available';
+        document.getElementById('task-info-started').textContent = '-';
+        document.getElementById('task-info-duration').textContent = '-';
+        panel.style.display = 'block';
+    }
+
+    function hideTaskInfo() {
+        document.getElementById('task-info-panel').style.display = 'none';
+        cy.nodes().removeClass('selected');
+        selectedTask = null;
+    }
+
+    function startRefreshTimer() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        refreshCountdown = 10;
+        document.getElementById('refresh-countdown').textContent = refreshCountdown;
+        refreshTimer = setInterval(() => {
+            refreshCountdown--;
+            document.getElementById('refresh-countdown').textContent = refreshCountdown;
+            if (refreshCountdown <= 0) {
+                loadDagData();
+                resetRefreshTimer();
+            }
+        }, 1000);
+    }
+
+    function resetRefreshTimer() {
+        refreshCountdown = 10;
+        document.getElementById('refresh-countdown').textContent = refreshCountdown;
+    }
+
+    window.addEventListener('beforeunload', function () {
+        if (refreshTimer) clearInterval(refreshTimer);
+    });
+</script>
+{% endblock scripts %}

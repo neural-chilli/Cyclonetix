@@ -1,6 +1,6 @@
 use crate::server::dashboard::dashboard;
 use crate::server::state::AppStateWithTera;
-use crate::server::tasks::{schedule_task, tasks_api, tasks_page};
+use crate::server::tasks::{schedule_task, tasks_api, tasks_page, dag_view_page, dag_api};
 use crate::utils::app_state::AppState;
 use axum::{
     extract::State,
@@ -86,8 +86,10 @@ pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {
     let mut app = Router::new()
         .route("/", get(dashboard))
         .route("/tasks", get(tasks_page))
+        .route("/dag", get(dag_view_page))
         .route("/api/tasks", get(tasks_api))
         .route("/api/schedule-task", post(schedule_task))
+        .route("/api/dag/{run_id}", get(dag_api))
         .nest_service("/static", ServeDir::new("static"))
         .with_state(state.clone());
         

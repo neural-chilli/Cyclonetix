@@ -582,27 +582,52 @@
             if (data.success) {
                 modal.hide();
                 
-                // Show success message
-                const toastEl = document.createElement('div');
-                toastEl.className = 'toast position-fixed top-0 end-0 m-3';
-                toastEl.innerHTML = `
-                    <div class="toast-header bg-success text-white">
-                        <strong class="me-auto">Success</strong>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-                    </div>
-                    <div class="toast-body">
-                        Task scheduled successfully!<br>
-                        Run ID: ${data.run_id || runId}
-                    </div>
-                `;
-                document.body.appendChild(toastEl);
-                const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-                toast.show();
-                
-                // Remove toast after it's hidden
-                toastEl.addEventListener('hidden.bs.toast', () => {
-                    toastEl.remove();
-                });
+                // If we have a DAG run ID, redirect to the DAG view
+                if (data.dag_run_id) {
+                    // Show a brief success message before redirecting
+                    const toastEl = document.createElement('div');
+                    toastEl.className = 'toast position-fixed top-0 end-0 m-3';
+                    toastEl.innerHTML = `
+                        <div class="toast-header bg-success text-white">
+                            <strong class="me-auto">Success</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            Task scheduled successfully!<br>
+                            Redirecting to DAG view...
+                        </div>
+                    `;
+                    document.body.appendChild(toastEl);
+                    const toast = new bootstrap.Toast(toastEl, { delay: 1500 });
+                    toast.show();
+                    
+                    // Redirect to DAG view after a short delay
+                    setTimeout(() => {
+                        window.location.href = `/dag?run_id=${data.dag_run_id}`;
+                    }, 1000);
+                } else {
+                    // If no DAG run ID, just show a success message
+                    const toastEl = document.createElement('div');
+                    toastEl.className = 'toast position-fixed top-0 end-0 m-3';
+                    toastEl.innerHTML = `
+                        <div class="toast-header bg-success text-white">
+                            <strong class="me-auto">Success</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            Task scheduled successfully!<br>
+                            Run ID: ${data.run_id || runId}
+                        </div>
+                    `;
+                    document.body.appendChild(toastEl);
+                    const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+                    toast.show();
+                    
+                    // Remove toast after it's hidden
+                    toastEl.addEventListener('hidden.bs.toast', () => {
+                        toastEl.remove();
+                    });
+                }
             } else {
                 alert(`Error: ${data.error}`);
             }

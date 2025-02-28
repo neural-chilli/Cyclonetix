@@ -12,11 +12,12 @@ use tracing::{debug, error, info, warn};
 use twox_hash::XxHash64;
 
 /// Builds a mutable DagInstance from a given root task by resolving dependencies.
+/// Returns the run_id of the created DAG instance
 pub async fn schedule_dag_from_task<S: StateManager + ?Sized>(
     state_manager: Arc<S>,
     root_task_id: &str,
     provided_context: Option<Context>,
-) {
+) -> String {
     let tasks = state_manager.load_all_tasks().await;
     let root_task = state_manager
         .load_task(root_task_id)
@@ -27,13 +28,17 @@ pub async fn schedule_dag_from_task<S: StateManager + ?Sized>(
         &tasks,
         provided_context.clone(),
     );
+    let run_id = dag.run_id.clone();
     state_manager.save_dag_instance(&dag).await;
     state_manager.save_graph_instance(&graph).await;
-    GRAPH_CACHE.insert(dag.run_id.clone(), graph.clone());
+    GRAPH_CACHE.insert(run_id.clone(), graph.clone());
     for task in tasks {
         state_manager.save_task_instance(&task).await;
     }
     evaluate_graph(state_manager, &graph).await;
+    
+    // Return the run_id
+    run_id
 }
 
 pub async fn schedule_dag<S: StateManager + ?Sized>(

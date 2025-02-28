@@ -1,0 +1,212 @@
+/* Consolidated CSS for Cyclonetix */
+
+/* --- Dashboard Cards and General Layout --- */
+.card-stats {
+  background: linear-gradient(to right, #375a7f, #2c3e50);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  color: white;
+}
+
+.stat-card {
+  padding: 0.75rem;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-card:last-child {
+  border-right: none;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* --- Status Badges --- */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  border-radius: 30px;
+  min-width: 80px;
+  text-align: center;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: #6c757d;
+  color: white;
+}
+
+.status-running {
+  background-color: #007bff;
+  color: white;
+}
+
+.status-completed {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-failed {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* --- Visualization Containers --- */
+.visualization-container {
+  height: 70vh;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+#dag-container {
+  height: 70vh;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  position: relative;
+  width: 100%;
+}
+
+/* --- DAG Info and Controls --- */
+.dag-info {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: rgba(33, 37, 41, 0.05);
+  border-radius: 8px;
+}
+
+.dag-title {
+  display: flex;
+  align-items: center;
+}
+
+.task-count {
+  margin-left: 15px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.dag-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.dag-stat {
+  text-align: center;
+  flex: 1;
+  padding: 10px;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dag-stat:last-child {
+  border-right: none;
+}
+
+.dag-stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.dag-stat-label {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.refresh-timer {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* --- Info Panels --- */
+.info-panel {
+  background-color: rgba(33, 37, 41, 0.9);
+  border-radius: 8px;
+  padding: 1rem;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Task details */
+.task-details dt {
+  font-weight: 600;
+  margin-bottom: 5px;
+  opacity: 0.8;
+}
+.task-details dd {
+  margin-bottom: 12px;
+}
+.task-details pre,
+.task-details code {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 8px;
+  max-height: 150px;
+  overflow: auto;
+}
+
+/* --- Legend Overlay for DAG View --- */
+/* This section applies only to the DAG view */
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  margin-right: 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-overlay {
+  position: absolute;
+  top: 2px;
+  right: 80px;
+  padding: 10px;
+  z-index: 5;
+}
+
+.legend-overlay .legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  padding: 0 !important;
+  margin: -12px 5px -2px -2px !important;
+  position: relative;
+  z-index: 10;
+}
+
+/* Add this new rule to adjust the text position */
+.legend-overlay .legend-item span {
+  position: relative;
+  top: -5px; /* Match the top value used for the color boxes */
+  display: inline-block; /* Ensures the positioning works */
+}
+
+/* --- Additional Styles from Your Page (if any) --- */
+/* You can add more dag_view‑specific rules here if needed */
