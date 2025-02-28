@@ -72,11 +72,19 @@ pub async fn dashboard(State(state): State<AppStateWithTera>) -> impl IntoRespon
     context.insert("scheduled_dags_count", &scheduled_dags_count);
 
     // Render the dashboard template.
-    match state.tera.render("dashboard.html", &context) {
-        Ok(html) => Html(html).into_response(),
+    match state.tera.lock() {
+        Ok(tera) => {
+            match tera.render("dashboard.html", &context) {
+                Ok(html) => Html(html).into_response(),
+                Err(err) => {
+                    tracing::error!("Template rendering error: {}", err);
+                    (StatusCode::INTERNAL_SERVER_ERROR, "Error rendering page").into_response()
+                }
+            }
+        },
         Err(err) => {
-            eprintln!("Template rendering error: {}", err);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Error rendering page").into_response()
+            tracing::error!("Failed to lock Tera instance: {}", err);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Server error").into_response()
         }
     }
 }

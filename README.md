@@ -115,6 +115,24 @@ Cyclonetix supports two scheduling models:
 - **Live Execution Tracking UI with WebSockets** (Real-time updates on DAG execution state)
 - **Multi-tenancy support for organizations running shared workloads**
 
+---
+
+## **Development**
+
+### **UI Development Mode**
+
+For UI development, you can set `DEV_MODE=true` to enable template hot-reloading:
+
+```bash
+DEV_MODE=true cargo run
+```
+
+This disables Tera template caching and reloads templates on each request, allowing you to:
+
+- Edit templates directly and see changes on refresh
+- Avoid server restarts when modifying UI code
+- Speed up the UI development workflow
+
 
 
 

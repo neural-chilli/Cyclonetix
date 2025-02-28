@@ -136,7 +136,7 @@ impl StateManager for RedisStateManager {
         if let Ok(queue_item) = conn.rpop::<_, Vec<u8>>(queue_key, None).await {
             // If the queue item is empty, assume there's no work and return None.
             if queue_item.is_empty() {
-                debug!("Received empty payload from queue; treating as no work available");
+                //debug!("Received empty payload from queue; treating as no work available");
                 return None;
             }
             match deserialize::<TaskPayload>(&queue_item, &self.serialization_format) {

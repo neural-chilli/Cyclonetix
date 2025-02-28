@@ -5,51 +5,168 @@
 {% block head %}{% endblock head %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <h2>Task Templates</h2>
+<div class="container-fluid p-0 mt-0">
+    
+    <!-- Tab Navigation -->
+    <div class="tab-navigation mt-0">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#tasks" data-bs-toggle="tab">Tasks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#recent-runs" data-bs-toggle="tab">Recent Runs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#schedules" data-bs-toggle="tab">Schedules</a>
+            </li>
+        </ul>
     </div>
 
-    <div class="card task-table">
-        <div class="table-responsive">
-            <div id="tasks-table"></div> <!-- Tabulator container -->
+    <!-- Task Table Card -->
+    <div class="card task-card mb-0">
+        <div class="task-header d-flex justify-content-end">
+            <span class="text-muted"><span id="taskCount">0</span> task templates</span>
+        </div>
+        <div class="table-responsive mb-0">
+            <div id="tasks-table" ></div> <!-- Tabulator container -->
         </div>
     </div>
 </div>
 
 <!-- Schedule Task Modal -->
 <div class="modal" id="scheduleTaskModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Schedule Task</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="scheduleTaskForm">
                     <input type="hidden" id="taskId" name="taskId">
-                    <div class="mb-3">
-                        <label class="form-label">Task Name</label>
-                        <input type="text" class="form-control" id="taskName" readonly>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Task Name</label>
+                            <input type="text" class="form-control" id="taskName" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Queue</label>
+                            <input type="text" class="form-control" id="taskQueue" readonly>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Environment Variables</label>
-                        <div id="envVars">
-                            <div class="input-group mb-2">
-                                <input type="text" class="form-control" placeholder="Key" name="envKey[]">
-                                <input type="text" class="form-control" placeholder="Value" name="envValue[]">
-                                <button type="button" class="btn btn-outline-danger" onclick="removeEnvVar(this)">×</button>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Run ID</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="runId" placeholder="Auto-generated if empty">
+                                <button class="btn btn-outline-secondary" type="button" onclick="generateRunId()">Generate</button>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addEnvVar()">
-                            Add Environment Variable
-                        </button>
+                        <div class="col-md-6">
+                            <label class="form-label">Execution Date</label>
+                            <input type="datetime-local" class="form-control" id="executionDate">
+                        </div>
+                    </div>
+                    
+                    <ul class="nav nav-tabs mb-3" id="taskConfigTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="env-vars-tab" data-bs-toggle="tab" data-bs-target="#env-vars" type="button" role="tab" aria-controls="env-vars" aria-selected="true">Environment Variables</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="parameters-tab" data-bs-toggle="tab" data-bs-target="#parameters" type="button" role="tab" aria-controls="parameters" aria-selected="false">Parameters</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button" role="tab" aria-controls="config" aria-selected="false">Configuration</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="taskConfigContent">
+                        <div class="tab-pane fade show active" id="env-vars" role="tabpanel" aria-labelledby="env-vars-tab">
+                            <div id="envVars">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" placeholder="Key" name="envKey[]">
+                                    <input type="text" class="form-control" placeholder="Value" name="envValue[]">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removeEnvVar(this)">×</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addEnvVar()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 5l0 14"></path>
+                                    <path d="M5 12l14 0"></path>
+                                </svg>
+                                Add Environment Variable
+                            </button>
+                        </div>
+                        <div class="tab-pane fade" id="parameters" role="tabpanel" aria-labelledby="parameters-tab">
+                            <div id="taskParameters">
+                                <!-- Task specific parameters will be loaded here -->
+                                <div class="alert alert-info">
+                                    Parameters will be loaded based on the selected task.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Timeout (seconds)</label>
+                                    <input type="number" class="form-control" id="timeout" value="3600">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Retries</label>
+                                    <input type="number" class="form-control" id="retries" value="3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Retry Delay (seconds)</label>
+                                    <input type="number" class="form-control" id="retryDelay" value="300">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Priority</label>
+                                    <select class="form-select" id="priority">
+                                        <option value="1">Highest</option>
+                                        <option value="2">High</option>
+                                        <option value="3" selected>Medium</option>
+                                        <option value="4">Low</option>
+                                        <option value="5">Lowest</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="scheduleTask()">Schedule</button>
+                <button type="button" class="btn btn-primary" onclick="scheduleTask()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M7 4v16l13 -8z"></path>
+                    </svg>
+                    Schedule Task
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Task Details Modal -->
+<div class="modal" id="taskDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Task Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="taskDetailsContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="showScheduleModalFromDetails()">Schedule</button>
             </div>
         </div>
     </div>
@@ -62,34 +179,243 @@
 
 <script>
     let modal;
+    let detailsModal;
+    let currentTaskDetails = null;
+    let tasksTable;
 
     document.addEventListener('DOMContentLoaded', function() {
         let modalElement = document.getElementById('scheduleTaskModal');
         if (modalElement) {
             modal = new bootstrap.Modal(modalElement);
         }
+        
+        let detailsModalElement = document.getElementById('taskDetailsModal');
+        if (detailsModalElement) {
+            detailsModal = new bootstrap.Modal(detailsModalElement);
+        }
+        
+        // Initialize with current date and time for execution date
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 5); // Set to 5 minutes from now
+        document.getElementById('executionDate').value = now.toISOString().slice(0, 16);
+        
         loadTasksTable();
     });
 
-    function showScheduleModal(taskId, taskName) {
+    
+    function updateTaskCounts() {
+        const visibleRows = tasksTable.getRows("active").length;
+        const totalRows = tasksTable.getRows().length;
+        
+        document.getElementById('taskCount').textContent = visibleRows;
+        document.getElementById('totalTasks').textContent = totalRows;
+    }
+
+    function showScheduleModal(taskId, taskName, taskQueue) {
         document.getElementById('taskId').value = taskId;
         document.getElementById('taskName').value = taskName;
+        document.getElementById('taskQueue').value = taskQueue || 'default';
+        
+        // Load task parameters if any
+        loadTaskParameters(taskId);
+        
         modal.show();
+    }
+    
+    function showTaskDetails(taskId) {
+        // Fetch task details from API
+        fetch(`/api/tasks/${taskId}`)
+            .then(res => res.json())
+            .then(task => {
+                currentTaskDetails = task;
+                const detailsHtml = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Basic Information</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">ID:</dt>
+                                <dd class="col-sm-8">${task.id}</dd>
+                                
+                                <dt class="col-sm-4">Name:</dt>
+                                <dd class="col-sm-8">${task.name}</dd>
+                                
+                                <dt class="col-sm-4">Queue:</dt>
+                                <dd class="col-sm-8"><span class="badge bg-${getQueueColor(task.queue)}">${task.queue}</span></dd>
+                                
+                                <dt class="col-sm-4">Created:</dt>
+                                <dd class="col-sm-8">${formatDate(task.created_at || '2024-01-01')}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Details</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Description:</dt>
+                                <dd class="col-sm-8">${task.description || 'No description'}</dd>
+                                
+                                <dt class="col-sm-4">Dependencies:</dt>
+                                <dd class="col-sm-8">${formatDependencies(task.dependencies)}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <h6 class="border-bottom pb-2">Command</h6>
+                    <pre class="bg-dark text-light p-3 rounded"><code>${escapeHtml(task.command)}</code></pre>
+                    
+                    <h6 class="border-bottom pb-2">Parameters</h6>
+                    <pre class="bg-dark text-light p-3 rounded"><code>${JSON.stringify(task.parameters, null, 2) || '{}'}</code></pre>
+                `;
+                
+                document.getElementById('taskDetailsContent').innerHTML = detailsHtml;
+                detailsModal.show();
+            })
+            .catch(error => {
+                console.error("Error fetching task details:", error);
+                alert("Error fetching task details");
+            });
+    }
+    
+    function showScheduleModalFromDetails() {
+        if (currentTaskDetails) {
+            detailsModal.hide();
+            showScheduleModal(currentTaskDetails.id, currentTaskDetails.name, currentTaskDetails.queue);
+        }
+    }
+    
+    function getQueueColor(queue) {
+        const queueColors = {
+            'etl_default': 'primary',
+            'ml_compute': 'purple',
+            'data_processing': 'warning',
+            'api_default': 'success',
+            'deployment': 'info',
+            'data_quality': 'danger'
+        };
+        return queueColors[queue] || 'secondary';
+    }
+    
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
+    
+    function formatDependencies(dependencies) {
+        if (!dependencies || dependencies.length === 0) {
+            return '<em>None</em>';
+        }
+        return dependencies.map(d => `<span class="badge bg-info me-1">${d}</span>`).join(' ');
+    }
+    
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
+    function loadTaskParameters(taskId) {
+        // Simulate loading parameters from API
+        fetch(`/api/tasks/${taskId}`)
+            .then(res => res.json())
+            .then(task => {
+                const params = task.parameters || {};
+                let paramsHtml = '';
+                
+                for (const [key, value] of Object.entries(params)) {
+                    paramsHtml += `
+                        <div class="mb-3">
+                            <label class="form-label">${key}</label>
+                            <input type="text" class="form-control" name="param_${key}" value="${value}">
+                        </div>
+                    `;
+                }
+                
+                if (paramsHtml === '') {
+                    paramsHtml = '<div class="alert alert-info">No parameters found for this task.</div>';
+                }
+                
+                document.getElementById('taskParameters').innerHTML = paramsHtml;
+            })
+            .catch(error => {
+                console.error("Error loading task parameters:", error);
+                document.getElementById('taskParameters').innerHTML = 
+                    '<div class="alert alert-danger">Error loading parameters</div>';
+            });
     }
 
     function loadTasksTable() {
-        let table = new Tabulator("#tasks-table", {
-            ajaxURL: "/api/tasks",  // Fetch task data from this endpoint
+        function calculateRowsPerPage() {
+            const container = document.getElementById("tasks-table");
+            if (!container) return 20; // Default fallback
+
+            const availableHeight = window.innerHeight - container.getBoundingClientRect().top - 116; // 100px for padding/margins
+            const rowHeight = 30; // Estimated row height (adjust as needed)
+
+            return Math.max(5, Math.floor(availableHeight / rowHeight)); // Minimum of 5 rows
+        }
+
+        window.addEventListener("resize", function() {
+            const newSize = calculateRowsPerPage();
+            tasksTable.setPageSize(newSize);
+        });
+
+        const dynamicPageSize = calculateRowsPerPage();
+        // Define custom queue formatter to handle null values gracefully
+        function queueFormatter(cell, formatterParams, onRendered) {
+            const value = cell.getValue();
+            if (!value) return "<span class='text-muted'>N/A</span>";
+
+            let cssClass = "queue-badge queue-badge-default";
+            if (value.includes("api")) {
+                cssClass = "queue-badge queue-badge-api";
+            } else if (value.includes("ml")) {
+                cssClass = "queue-badge queue-badge-ml";
+            } else if (value.includes("data")) {
+                cssClass = "queue-badge queue-badge-data";
+            }
+
+            return `<span class="${cssClass}">${value}</span>`;
+        }
+
+        // Define custom sorter for handling null queue values properly
+        function queueSorter(a, b, aRow, bRow, column, dir, sorterParams) {
+            return (a || "").localeCompare(b || "");
+        }
+
+        // Initialize Tabulator
+        tasksTable = new Tabulator("#tasks-table", {
+            ajaxURL: "/api/tasks",  // Fetch task data from API (replace with local JSON if needed)
             layout: "fitColumns",
             pagination: "local",
-            paginationSize: 10,
+            paginationSize: dynamicPageSize,
             responsiveLayout: "collapse",  // Adjusts for small screens
-            headerSort: true,
+            rowClick: function(e, row) {
+                showTaskDetails(row.getData().id);
+            },
             columns: [
-                { title: "Name", field: "name", headerFilter: "input", headerSort: true },
-                { title: "Description", field: "description", headerFilter: "input", headerSort: true },
-                { title: "Command", field: "command", formatter: "plaintext" },
-                { title: "Queue", field: "queue", formatter: "badge", formatterParams: { color: "blue" }},
+                {
+                    title: "Name",
+                    field: "name",
+                    sorter: "string",
+                    headerFilter: "input"
+                },
+                {
+                    title: "Description",
+                    field: "description",
+                    sorter: "string",
+                    headerFilter: "input",
+                    formatter: function(cell) {
+                        return cell.getValue() || "<em>No Description</em>";
+                    }
+                },
+                {
+                    title: "Queue",
+                    field: "queue",
+                    formatter: queueFormatter,
+                    sorter: queueSorter,
+                    headerFilter: "input"
+                },
                 {
                     title: "Actions",
                     field: "id",
@@ -97,19 +423,57 @@
                     formatter: function(cell) {
                         let taskId = cell.getValue();
                         let taskName = cell.getRow().getData().name;
-                        return `<button class="btn btn-primary btn-sm action-button" onclick="showScheduleModal('${taskId}', '${taskName}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M7 4v16l13 -8z"></path>
-                                    </svg>
-                                </button>`;
+                        let taskQueue = cell.getRow().getData().queue || "default";
+                        return `
+                        <div class="actions-column">
+                            <button class="btn btn-primary btn-sm action-button"
+                                onclick="event.stopPropagation(); showScheduleModal('${taskId}', '${taskName}', '${taskQueue}')"
+                                title="Schedule Task">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M7 4v16l13 -8z"></path>
+                                </svg>
+                            </button>
+                            <button class="btn btn-secondary btn-sm action-button"
+                                onclick="event.stopPropagation(); showTaskDetails('${taskId}')"
+                                title="View Details">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                                </svg>
+                            </button>
+                            <button class="btn btn-info btn-sm action-button"
+                                onclick="event.stopPropagation(); copyTaskId('${taskId}')"
+                                title="Copy ID">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copy" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path>
+                                    <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path>
+                                </svg>
+                            </button>
+                        </div>`;
                     }
                 }
-            ]
+            ],
+            initialSort: [
+                { column: "name", dir: "asc" }
+            ],
+            ajaxResponse: function(url, params, response) {
+                // Update the task counts after data is loaded
+                setTimeout(() => {
+                    updateTaskCounts();
+                }, 100);
+                return response;
+            }
         });
 
-        applyTabulatorTheme(); // Ensure correct theme is applied
+        // Ensure pagination resets when sorting to avoid blank screens
+        tasksTable.on("dataSorted", function(){
+            tasksTable.setPage(1);
+        });
     }
+
 
     function addEnvVar() {
         const div = document.createElement('div');
@@ -126,20 +490,137 @@
         button.parentElement.remove();
     }
 
+    function generateRunId() {
+        const timestamp = new Date().getTime().toString(36);
+        const random = Math.random().toString(36).substring(2, 10);
+        document.getElementById('runId').value = `run-${timestamp}-${random}`;
+    }
+
+    function copyTaskId(taskId) {
+        navigator.clipboard.writeText(taskId)
+            .then(() => {
+                // Show toast notification
+                const toastEl = document.createElement('div');
+                toastEl.className = 'toast position-fixed top-0 end-0 m-3';
+                toastEl.innerHTML = `
+                    <div class="toast-header bg-success text-white">
+                        <strong class="me-auto">Success</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        Task ID copied to clipboard
+                    </div>
+                `;
+                document.body.appendChild(toastEl);
+                const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+                toast.show();
+                
+                // Remove toast after it's hidden
+                toastEl.addEventListener('hidden.bs.toast', () => {
+                    toastEl.remove();
+                });
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+    }
+
     function scheduleTask() {
         const taskId = document.getElementById('taskId').value;
+        const runId = document.getElementById('runId').value;
+        const executionDate = document.getElementById('executionDate').value;
+        const timeout = document.getElementById('timeout').value;
+        const retries = document.getElementById('retries').value;
+        const retryDelay = document.getElementById('retryDelay').value;
+        const priority = document.getElementById('priority').value;
+        
+        // Collect env vars
         const envVars = Object.fromEntries(
-            [...document.getElementsByName('envKey[]')].map((el, i) => [el.value, document.getElementsByName('envValue[]')[i].value]).filter(([k]) => k)
+            [...document.getElementsByName('envKey[]')].map((el, i) => [
+                el.value, 
+                document.getElementsByName('envValue[]')[i].value
+            ]).filter(([k]) => k)
         );
+        
+        // Collect parameters
+        const parameters = {};
+        document.querySelectorAll('[name^="param_"]').forEach(input => {
+            const paramName = input.name.replace('param_', '');
+            parameters[paramName] = input.value;
+        });
 
+        // Prepare request payload
+        const payload = {
+            task_id: taskId,
+            run_id: runId,
+            execution_date: executionDate,
+            env_vars: envVars,
+            parameters: parameters,
+            config: {
+                timeout: parseInt(timeout),
+                retries: parseInt(retries),
+                retry_delay: parseInt(retryDelay),
+                priority: parseInt(priority)
+            }
+        };
+
+        // Show loading state
+        const scheduleBtn = document.querySelector('.modal-footer .btn-primary');
+        const originalBtnHtml = scheduleBtn.innerHTML;
+        scheduleBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Scheduling...
+        `;
+        scheduleBtn.disabled = true;
+
+        // Send request to API
         fetch('/api/schedule-task', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ task_id: taskId, env_vars: envVars })
+            body: JSON.stringify(payload)
         }).then(res => res.json()).then(data => {
-            if (data.success) modal.hide();
-            alert(data.success ? "Task scheduled successfully!" : `Error: ${data.error}`);
-        }).catch(error => alert("Error scheduling task: " + error));
+            if (data.success) {
+                modal.hide();
+                
+                // Show success message
+                const toastEl = document.createElement('div');
+                toastEl.className = 'toast position-fixed top-0 end-0 m-3';
+                toastEl.innerHTML = `
+                    <div class="toast-header bg-success text-white">
+                        <strong class="me-auto">Success</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        Task scheduled successfully!<br>
+                        Run ID: ${data.run_id || runId}
+                    </div>
+                `;
+                document.body.appendChild(toastEl);
+                const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+                toast.show();
+                
+                // Remove toast after it's hidden
+                toastEl.addEventListener('hidden.bs.toast', () => {
+                    toastEl.remove();
+                });
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        }).catch(error => {
+            console.error("Error scheduling task:", error);
+            alert("Error scheduling task: " + error);
+        }).finally(() => {
+            // Restore button state
+            scheduleBtn.innerHTML = originalBtnHtml;
+            scheduleBtn.disabled = false;
+        });
+    }
+    
+    // Function to apply tabulator theme based on current dark/light mode
+    function applyTabulatorTheme() {
+        const theme = document.documentElement.getAttribute("data-bs-theme");
+        document.getElementById("tabulator-light").disabled = theme === "dark";
+        document.getElementById("tabulator-dark").disabled = theme !== "dark";
     }
 </script>
 {% endblock scripts %}

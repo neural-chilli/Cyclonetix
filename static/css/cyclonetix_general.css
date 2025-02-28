@@ -1,0 +1,121 @@
+.task-stats {
+    background: linear-gradient(to right, #375a7f, #2c3e50);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+.stat-card {
+    padding: 0.75rem;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.stat-card:last-child {
+    border-right: none;
+}
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+.stat-label {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+.task-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.task-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+    background-color: rgba(55, 90, 127, 0.1);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.actions-column {
+    display: flex;
+    gap: 5px;
+}
+.badge-custom {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    border-radius: 30px;
+}
+.status-badge {
+    min-width: 80px;
+    text-align: center;
+}
+.search-filters {
+    background-color: rgba(55, 90, 127, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.tab-navigation {
+    margin-bottom: 1rem;
+}
+.nav-tabs .nav-link {
+    border: none;
+    color: #adb5bd;
+    padding: 0.75rem 1rem;
+    border-bottom: 3px solid transparent;
+}
+.nav-tabs .nav-link.active {
+    color: #fff;
+    background: transparent;
+    border-bottom: 3px solid #375a7f;
+}
+.nav-tabs .nav-link:hover:not(.active) {
+    border-bottom: 3px solid rgba(55, 90, 127, 0.3);
+}
+.quick-actions {
+    display: flex;
+    gap: 10px;
+}
+.tabulator .tabulator-header {
+    background-color: rgba(55, 90, 127, 0.1);
+    border-bottom: 2px solid #375a7f;
+}
+.tabulator-row.tabulator-selected {
+    background-color: rgba(55, 90, 127, 0.2) !important;
+}
+.tabulator-row:hover {
+    background-color: rgba(55, 90, 127, 0.1) !important;
+}
+.tabulator-row .tabulator-cell {
+    padding: 10px 8px;
+}
+.queue-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.queue-badge-default {
+    background-color: #375a7f;
+    color: white;
+}
+.queue-badge-api {
+    background-color: #20c997;
+    color: black;
+}
+.queue-badge-ml {
+    background-color: #6f42c1;
+    color: white;
+}
+.queue-badge-data {
+    background-color: #fd7e14;
+    color: black;
+}
+.action-button {
+    margin: 0 2px;
+}

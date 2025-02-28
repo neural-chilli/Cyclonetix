@@ -32,11 +32,19 @@ pub async fn tasks_page(State(state): State<AppStateWithTera>) -> impl IntoRespo
     context.insert("tasks", &tasks);
 
     // Render the tasks template
-    match state.tera.render("tasks.html", &context) {
-        Ok(html) => Html(html).into_response(),
+    match state.tera.lock() {
+        Ok(tera) => {
+            match tera.render("tasks.html", &context) {
+                Ok(html) => Html(html).into_response(),
+                Err(err) => {
+                    tracing::error!("Template rendering error: {}", err);
+                    (StatusCode::INTERNAL_SERVER_ERROR, "Error rendering page").into_response()
+                }
+            }
+        },
         Err(err) => {
-            eprintln!("Template rendering error: {}", err);
-            (StatusCode::INTERNAL_SERVER_ERROR, "Error rendering page").into_response()
+            tracing::error!("Failed to lock Tera instance: {}", err);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Server error").into_response()
         }
     }
 }
