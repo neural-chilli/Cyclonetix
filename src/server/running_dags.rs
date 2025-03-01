@@ -11,7 +11,7 @@ use tera::Context;
 use crate::server::dashboard::DAGOverview;
 
 /// Handler for the dashboard page.
-pub async fn dags(State(state): State<AppStateWithTera>) -> impl IntoResponse {
+pub async fn running_dags(State(state): State<AppStateWithTera>) -> impl IntoResponse {
     let state_manager = &state.app_state.state_manager;
 
     // Retrieve mutable DagInstances.
@@ -55,7 +55,7 @@ pub async fn dags(State(state): State<AppStateWithTera>) -> impl IntoResponse {
 
     // Render the dashboard template.
     match state.tera.lock() {
-        Ok(tera) => match tera.render("dag_list.html", &context) {
+        Ok(tera) => match tera.render("running_dags.html", &context) {
             Ok(html) => Html(html).into_response(),
             Err(err) => {
                 tracing::error!("Template rendering error: {}", err);
