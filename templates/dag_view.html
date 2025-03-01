@@ -31,7 +31,11 @@
                     <span>Pending</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background-color: #007bff; box-shadow: none !important;"></div>
+                    <div class="legend-color" style="background-color: #17a2b8; box-shadow: none !important;"></div>
+                    <span>Queued</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #dc8845; box-shadow: none !important;"></div>
                     <span>Running</span>
                 </div>
                 <div class="legend-item">
@@ -100,7 +104,8 @@
 
     const statusColors = {
         'pending': '#6c757d',
-        'running': '#007bff',
+        'queued': '#17a2b8',
+        'running': '#dc8845',
         'completed': '#28a745',
         'failed': '#dc3545'
     };
@@ -244,10 +249,31 @@
                 Object.entries(nodeMap).forEach(([taskId, nodeIndex]) => {
                     let fullLabel = nodesArray[nodeIndex] || taskId;
                     let label = fullLabel.includes('||') ? fullLabel.split('||')[0].trim() : fullLabel;
+
+                    // First try to find the task by task_id
+                    let matchingTask = tasks.find(t => t.task_id === taskId);
+
+                    // If not found, try to find by run_id matching the fullLabel
+                    if (!matchingTask) {
+                        matchingTask = tasks.find(t => t.run_id === fullLabel);
+                    }
+
+                    const statusClass = matchingTask ? `status-${matchingTask.status.toLowerCase()}` : 'status-pending';
+
+                    // Add debugging
+                    console.log(`Node ${taskId} (${fullLabel}) - Status: ${matchingTask?.status || 'unknown'}`);
+
                     cy.add({
                         group: 'nodes',
-                        data: { id: taskId, label: label, fullLabel: fullLabel },
-                        classes: 'status-pending'
+                        data: {
+                            id: taskId,
+                            label: label,
+                            fullLabel: fullLabel,
+                            taskId: taskId,
+                            runId: fullLabel,
+                            status: matchingTask?.status || 'pending'
+                        },
+                        classes: statusClass
                     });
                 });
 

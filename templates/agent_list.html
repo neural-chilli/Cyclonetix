@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Cyclonetix{% endblock title %}
+
+{% block head %}
+<style>
+    /* Dashboard Styles */
+    .summary-cards-row {
+        margin-bottom: 1.5rem;
+    }
+    .card-summary {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+    .card-summary:hover {
+        transform: scale(1.03);
+    }
+    .summary-title {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Agents Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">Agents</h5>
+        </div>
+        <div class="card-body">
+            {% if agents | length == 0 %}
+            <p>No agents registered.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Agent ID</th>
+                        <th>Last Heartbeat</th>
+                        <th>Assigned Tasks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for agent in agents %}
+                    <tr>
+                        <td>{{ agent.agent_id }}</td>
+                        <td>{{ agent.last_heartbeat }}</td>
+                        <td>
+                            {% if agent.task_count == 0 %}
+                            <span class="text-muted">None</span>
+                            {% else %}
+                            <ul class="list-unstyled mb-0">
+                                {% for task in agent.tasks %}
+                                <li>{{ task }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock content %}
+
+{% block scripts %}{% endblock scripts %}

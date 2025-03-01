@@ -14,6 +14,8 @@ use std::{sync::{Arc, Mutex}, time::Instant};
 use tera::Tera;
 use tower_http::services::ServeDir;
 use axum::http::Request;
+use crate::server::agents::agents;
+use crate::server::dags::dags;
 
 /// Embedded static assets from the `static/` folder.
 #[derive(RustEmbed, Clone)]
@@ -87,6 +89,8 @@ pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {
         .route("/", get(dashboard))
         .route("/tasks", get(tasks_page))
         .route("/dag", get(dag_view_page))
+        .route("/dag-list", get(dags))
+        .route("/agent-list", get(agents))
         .route("/api/tasks", get(tasks_api))
         .route("/api/schedule-task", post(schedule_task))
         .route("/api/dag/{run_id}", get(dag_api))

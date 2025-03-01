@@ -6,6 +6,7 @@ use axum::{
     http::StatusCode,
     response::{Html, IntoResponse},
 };
+use petgraph::visit::IntoNodeReferences;
 use serde::{Deserialize, Serialize};
 use crate::graph::cache::GRAPH_CACHE;
 use tera::Context;
@@ -112,7 +113,7 @@ pub async fn dag_api(
     
     // If we have a graph, fetch all tasks referenced by it
     if let Some(graph_instance) = &graph {
-        for (task_id, _) in &graph_instance.graph.node_map {
+        for task_id in graph_instance.graph.graph.node_weights() {
             if let Some(task) = state_manager.load_task_instance(task_id).await {
                 tasks.push(task);
             }

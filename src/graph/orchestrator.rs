@@ -3,7 +3,7 @@ use crate::models::dag::{DagTemplate, GraphInstance};
 use crate::graph::cache::GRAPH_CACHE;
 use crate::graph::graph_manager;
 use crate::state::state_manager::{StateManager, TaskPayload};
-use crate::utils::constants::{COMPLETED_STATUS, PENDING_STATUS};
+use crate::utils::constants::{COMPLETED_STATUS, FAILED_STATUS, PENDING_STATUS, QUEUED_STATUS, RUNNING_STATUS};
 use futures::stream::{FuturesUnordered, StreamExt};
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
@@ -90,7 +90,7 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
 
         // Mark the task as queued.
         state_manager
-            .save_task_status(&task_run_id, "queued")
+            .save_task_status(&task_run_id, QUEUED_STATUS)
             .await;
 
         // Retrieve task definition (or summary) so that we can extract details like command and queue.
@@ -114,6 +114,117 @@ pub async fn evaluate_graph<S: StateManager + ?Sized>(
                 .await;
         } else {
             warn!("No task definition found for task id {}.", task_run_id);
+        }
+    }
+
+    // Check if all tasks in the DAG are completed and update the DAG status if necessary
+    check_and_update_dag_status(state_manager, graph_instance).await;
+}
+
+/// Checks if all tasks in the DAG are completed and updates the DAG status accordingly
+async fn check_and_update_dag_status<S: StateManager + ?Sized>(
+    state_manager: Arc<S>,
+    graph_instance: &GraphInstance,
+) {
+    let dag_run_id = &graph_instance.run_id;
+    let exec_graph = &graph_instance.graph;
+    
+    // Get all task run IDs from the graph
+    let all_task_ids: Vec<String> = exec_graph.graph.node_indices()
+        .map(|idx| exec_graph.graph[idx].clone())
+        .collect();
+    
+    if all_task_ids.is_empty() {
+        debug!("No tasks found in graph {}, skipping status check", dag_run_id);
+        return;
+    }
+    
+    debug!("Checking status of {} tasks in DAG {}", all_task_ids.len(), dag_run_id);
+    
+    // Get the status of all tasks in parallel for better performance
+    let mut futures = FuturesUnordered::new();
+    
+    for task_id in &all_task_ids {
+        let task_id = task_id.clone();
+        let sm = state_manager.clone();
+        futures.push(async move {
+            let status = sm.load_task_status(&task_id).await
+                .unwrap_or_else(|| PENDING_STATUS.to_string());
+            (task_id, status)
+        });
+    }
+    
+    let mut all_completed = true;
+    let mut any_failed = false;
+    let mut completed_count = 0;
+    let mut task_statuses = Vec::new();
+    
+    while let Some((task_id, status)) = futures.next().await {
+        debug!("Task {} status: {}", task_id, status);
+        task_statuses.push((task_id, status.clone()));
+        
+        if status == FAILED_STATUS {
+            any_failed = true;
+        }
+        
+        if status == COMPLETED_STATUS || status == FAILED_STATUS {
+            completed_count += 1;
+        }
+        
+        if status != COMPLETED_STATUS && status != FAILED_STATUS {
+            all_completed = false;
+        }
+    }
+    
+    // If all tasks are completed (or failed), update the DAG status
+    if all_completed {
+        let current_dag_status = state_manager.load_dag_status(dag_run_id).await
+            .unwrap_or_else(|_| PENDING_STATUS.to_string());
+        
+        // Only update if current status is not already completed or failed
+        if current_dag_status != COMPLETED_STATUS && current_dag_status != FAILED_STATUS {
+            let new_status = if any_failed { FAILED_STATUS } else { COMPLETED_STATUS };
+            
+            info!(
+                "All tasks in DAG {} are complete. Marking DAG as {}.",
+                dag_run_id, new_status
+            );
+            
+            // Update the DAG status
+            if let Some(mut dag_instance) = state_manager.load_dag_instance(dag_run_id).await {
+                dag_instance.status = new_status.to_string();
+                dag_instance.completed_tasks = all_task_ids.len();
+                dag_instance.last_updated = chrono::Utc::now();
+                state_manager.save_dag_instance(&dag_instance).await;
+                
+                // Update the DAG status directly as well
+                if let Err(e) = state_manager.save_dag_status(dag_run_id, new_status).await {
+                    error!("Failed to update DAG status: {}", e);
+                }
+            }
+        }
+    } else {
+        // If not all tasks are completed, update the count of completed tasks
+        if let Some(mut dag_instance) = state_manager.load_dag_instance(dag_run_id).await {
+            // Only update if the count has changed
+            if completed_count != dag_instance.completed_tasks {
+                debug!(
+                    "Updating DAG {} completed task count: {}/{}",
+                    dag_run_id, completed_count, all_task_ids.len()
+                );
+                
+                dag_instance.completed_tasks = completed_count;
+                dag_instance.last_updated = chrono::Utc::now();
+                
+                // If any task is running, mark the DAG as running
+                let has_running_task = task_statuses.iter().any(|(_, status)| status == RUNNING_STATUS);
+                if has_running_task && dag_instance.status != RUNNING_STATUS {
+                    dag_instance.status = RUNNING_STATUS.to_string();
+                    debug!("Marking DAG {} as running", dag_run_id);
+                }
+                
+                state_manager.save_dag_instance(&dag_instance).await;
+            }
         }
     }
 }

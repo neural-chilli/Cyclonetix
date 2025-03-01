@@ -166,25 +166,6 @@ impl StateManager for RedisStateManager {
         );
     }
 
-    async fn save_context(&self, context: &Context) {
-        let mut conn = self.get_connection().await;
-        let key = self.build_context_key(&context.id);
-        let encoded = serialize(context, &self.serialization_format)
-            .expect("Failed to serialize TaskTemplate");
-        let _: () = conn.set(key, encoded).await.unwrap();
-    }
-
-    async fn load_context(&self, context_id: &str) -> Option<Context> {
-        let mut conn = self.get_connection().await;
-        let key = self.build_context_key(context_id);
-        info!("Loading task with key: {}", key);
-        if let Ok(encoded) = conn.get::<_, Vec<u8>>(key).await {
-            deserialize::<Context>(&encoded, &self.serialization_format).ok()
-        } else {
-            None
-        }
-    }
-
     async fn save_task(&self, task: &TaskTemplate) {
         let mut conn = self.get_connection().await;
         let key = self.build_task_key(&task.id);
@@ -274,6 +255,25 @@ impl StateManager for RedisStateManager {
         let _: () = conn.set(key, encoded).await.unwrap();
     }
 
+    async fn save_context(&self, context: &Context) {
+        let mut conn = self.get_connection().await;
+        let key = self.build_context_key(&context.id);
+        let encoded = serialize(context, &self.serialization_format)
+            .expect("Failed to serialize TaskTemplate");
+        let _: () = conn.set(key, encoded).await.unwrap();
+    }
+
+    async fn load_context(&self, context_id: &str) -> Option<Context> {
+        let mut conn = self.get_connection().await;
+        let key = self.build_context_key(context_id);
+        info!("Loading task with key: {}", key);
+        if let Ok(encoded) = conn.get::<_, Vec<u8>>(key).await {
+            deserialize::<Context>(&encoded, &self.serialization_format).ok()
+        } else {
+            None
+        }
+    }
+
     async fn save_dag_instance(&self, dag_instance: &DagInstance) {
         let mut conn = self.get_connection().await;
         let dag_bytes =
@@ -335,6 +335,27 @@ impl StateManager for RedisStateManager {
             .await
             .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
         info!("Cleaned up DagInstance: {}", run_id);
+        Ok(())
+    }
+
+    async fn load_dag_status(&self, run_id: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
+        let mut conn = self.get_connection().await;
+        let key = self.dag_status_key(run_id);
+        let status: Option<String> = conn
+            .get(&key)
+            .await
+            .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
+        Ok(status.unwrap_or_else(|| PENDING_STATUS.to_string()))
+    }
+
+    async fn save_dag_status(&self, run_id: &str, status: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let mut conn = self.get_connection().await;
+        let key = self.dag_status_key(run_id);
+        let _: () = conn
+            .set(&key, status)
+            .await
+            .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
+        debug!("Updated DAG status for {}: {}", run_id, status);
         Ok(())
     }
 
@@ -578,15 +599,5 @@ impl StateManager for RedisStateManager {
         conn.hkeys(self.dag_instance_set_key())
             .await
             .unwrap_or_default()
-    }
-
-    async fn load_dag_status(&self, run_id: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
-        let mut conn = self.get_connection().await;
-        let key = self.dag_status_key(run_id);
-        let status: Option<String> = conn
-            .get(&key)
-            .await
-            .map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)?;
-        Ok(status.unwrap_or_else(|| PENDING_STATUS.to_string()))
     }
 }
