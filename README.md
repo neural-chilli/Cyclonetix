@@ -213,4 +213,4 @@ Contributions are welcome! See the [Developer Guide](https://neural-chilli.githu
 
 ## License
 
-Cyclonetix is licensed under the [MIT License](LICENSE).
+Cyclonetix is licensed under the [Apache 2 License](LICENSE).
