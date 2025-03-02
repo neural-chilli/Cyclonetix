@@ -1,0 +1,203 @@
+# Scheduling Workflows
+
+This guide covers the different ways to schedule and execute workflows in Cyclonetix.
+
+## Manual Scheduling
+
+### Command Line Interface
+
+Cyclonetix provides a CLI for scheduling workflows:
+
+#### Schedule by Outcome
+
+To schedule a workflow by specifying the desired outcome (final task):
+
+```bash
+./cyclonetix schedule-task <task_id>
+```
+
+Example:
+```bash
+./cyclonetix schedule-task deploy_model
+```
+
+This will automatically resolve all dependencies of `deploy_model` and execute them in the correct order.
+
+#### Schedule a DAG
+
+To schedule a predefined DAG:
+
+```bash
+./cyclonetix schedule-dag <dag_id>
+```
+
+Example:
+```bash
+./cyclonetix schedule-dag ml_training_pipeline
+```
+
+#### Schedule with Context
+
+You can provide a context when scheduling:
+
+```bash
+./cyclonetix schedule-dag ml_training_pipeline --context production
+```
+
+### Web UI
+
+The Cyclonetix web UI provides a user-friendly way to schedule workflows:
+
+1. Navigate to the "Tasks" or "DAGs" page
+2. Find the task or DAG you want to schedule
+3. Click the "Schedule" button
+4. Configure any parameters or contexts
+5. Submit the form to start the execution
+
+![UI Scheduling](../images/schedule-task.png)
+
+## Automatic Scheduling
+
+### Time-Based Scheduling
+
+Cyclonetix supports time-based scheduling similar to cron:
+
+```yaml
+# In your DAG definition
+schedule:
+  cron: "0 5 * * *"        # Run daily at 5:00 AM
+  timezone: "UTC"
+  catchup: false           # Don't run missed executions
+```
+
+Common schedule patterns:
+
+| Description | Cron Expression |
+|-------------|----------------|
+| Daily at midnight | `0 0 * * *` |
+| Every hour | `0 * * * *` |
+| Weekly on Monday | `0 0 * * 1` |
+| Monthly on the 1st | `0 0 1 * *` |
+
+### Event-Based Triggers
+
+Cyclonetix can trigger workflows based on external events:
+
+#### API Triggers
+
+Trigger a workflow via the REST API:
+
+```bash
+curl -X POST http://your-cyclonetix-server:3000/api/schedule-task \
+  -H "Content-Type: application/json" \
+  -d '{"task_id": "process_data", "env_vars": {"SOURCE": "api_call"}}'
+```
+
+#### File Arrival
+
+Configure a workflow to start when files arrive in a monitored location:
+
+```yaml
+triggers:
+  file_arrival:
+    path: "/data/incoming/"
+    pattern: "*.csv"
+    wait_seconds: 60
+```
+
+## Parameterized Execution
+
+### Passing Environment Variables
+
+You can pass environment variables when scheduling a task or DAG:
+
+```bash
+./cyclonetix schedule-task generate_report \
+  --env DATA_DATE=2023-11-01 \
+  --env REPORT_TYPE=monthly
+```
+
+These variables will be available to the task command.
+
+### Overriding Parameters
+
+Override task parameters at scheduling time:
+
+```bash
+./cyclonetix schedule-dag etl_pipeline \
+  --param data_extraction.limit=5000 \
+  --param data_loading.mode=incremental
+```
+
+## Managing Executions
+
+### Monitoring Execution
+
+Once scheduled, you can monitor the execution:
+
+1. Navigate to the "Running DAGs" page in the UI
+2. Select the execution you want to monitor
+3. View the DAG visualization with real-time status updates
+4. Access task logs and details
+
+### Cancelling Execution
+
+To cancel a running execution:
+
+1. Find the execution in the UI
+2. Click "Cancel" and confirm
+3. All running tasks will be terminated, and pending tasks will not be executed
+
+### Rerunning Failed Tasks
+
+If a task fails, you can rerun it:
+
+1. Navigate to the execution details
+2. Find the failed task
+3. Click "Rerun" to attempt execution again
+
+### Clearing Execution History
+
+To clear execution history:
+
+```bash
+./cyclonetix clear-history --days 30
+```
+
+This removes execution records older than 30 days.
+
+## Advanced Scheduling
+
+### Backfilling
+
+For time-based workflows, you can run executions for past time periods:
+
+```bash
+./cyclonetix backfill ml_training_pipeline \
+  --start-date 2023-01-01 \
+  --end-date 2023-01-31
+```
+
+This will create one execution per day in the specified range.
+
+### Parallel Execution
+
+Control the number of parallel task executions:
+
+```bash
+./cyclonetix schedule-dag large_workflow --max-parallel 5
+```
+
+### Dependency Overrides
+
+Override normal dependency behavior for special cases:
+
+```bash
+./cyclonetix schedule-task final_step --ignore-dependencies
+```
+
+## Next Steps
+
+- Learn how to use the [UI Overview](ui-overview.qmd) to monitor executions
+- Understand [Contexts & Parameters](../advanced/contexts-parameters.qmd) for more control
+- Explore [Evaluation Points](../advanced/evaluation-points.qmd) for dynamic workflows

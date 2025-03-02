@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Cyclonetix{% endblock title %}
+{% block title %}Agents - Cyclonetix{% endblock title %}
 
 {% block head %}
 <style>
@@ -26,59 +26,256 @@
         font-size: 2rem;
         font-weight: 700;
     }
-    .table thead th {
-        background-color: #f8f9fa;
+
+    /* Tabulator Specific Styles */
+    .tabulator .tabulator-header {
+        background-color: var(--bs-tertiary-bg);
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+
+    /* Significantly increase row height */
+    .tabulator-row .tabulator-cell {
+        padding: 12px 10px;
+        height: auto !important;
+        min-height: 40px !important;
+        font-size: small !important;
+        align-content: center;
+        justify-content: left;
+    }
+
+    /* Ensure tabulator doesn't truncate cell content */
+    .tabulator-cell-value {
+        height: auto !important;
+        white-space: normal !important;
+    }
+
+    /* Task List Styling */
+    .task-list {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .task-list li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+
+    .task-list li:last-child {
+        border-bottom: none;
+    }
+
+    .heartbeat-indicator {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .heartbeat-indicator .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .dot-active {
+        background-color: #28a745;
+        box-shadow: 0 0 5px #28a745;
+    }
+
+    .dot-inactive {
+        background-color: #dc3545;
+        box-shadow: 0 0 5px #dc3545;
+    }
+
+    .time-ago {
+        font-size: 0.9rem;
+        color: var(--bs-secondary-color);
     }
 </style>
 {% endblock head %}
 
 {% block content %}
-<div class="container-fluid">
-
-    <!-- Agents Table -->
+<div class="container-fluid p-0 mt-0">
+    <!-- Agents Table Card -->
     <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">Agents</h5>
-        </div>
-        <div class="card-body">
-            {% if agents | length == 0 %}
-            <p>No agents registered.</p>
-            {% else %}
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>Agent ID</th>
-                        <th>Last Heartbeat</th>
-                        <th>Assigned Tasks</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for agent in agents %}
-                    <tr>
-                        <td>{{ agent.agent_id }}</td>
-                        <td>{{ agent.last_heartbeat }}</td>
-                        <td>
-                            {% if agent.task_count == 0 %}
-                            <span class="text-muted">None</span>
-                            {% else %}
-                            <ul class="list-unstyled mb-0">
-                                {% for task in agent.tasks %}
-                                <li>{{ task }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Agents</h5>
+            <div class="page-count-info">
+                <span class="text-muted">
+                    <span id="agentCount">0</span> agents
+                </span>
             </div>
-            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            <div id="agents-table"></div>
         </div>
     </div>
-
 </div>
 {% endblock content %}
 
-{% block scripts %}{% endblock scripts %}
+{% block scripts %}
+<!-- Include Tabulator JS -->
+<script src="/static/js/tabulator.js"></script>
+
+<script>
+    let agentsTable;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAgentsTable();
+        applyTabulatorTheme();
+    });
+
+    function loadAgentsTable() {
+        // Function to calculate optimal rows per page based on available height
+        function calculateRowsPerPage() {
+            const container = document.getElementById("agents-table");
+            if (!container) return 10; // Default fallback
+
+            const availableHeight = window.innerHeight - container.getBoundingClientRect().top - 120;
+            const rowHeight = 85; // Significantly increased row height to ensure all content displays
+
+            return Math.max(5, Math.floor(availableHeight / rowHeight));
+        }
+
+        // Update the table pagination size when window resizes
+        window.addEventListener("resize", function() {
+            const newSize = calculateRowsPerPage();
+            if (agentsTable) {
+                agentsTable.setPageSize(newSize);
+            }
+        });
+
+        const dynamicPageSize = calculateRowsPerPage();
+
+        // Heartbeat formatter to show when the agent last checked in
+        function heartbeatFormatter(cell) {
+            const timestamp = cell.getValue();
+            const now = Math.floor(Date.now() / 1000);
+            const secondsAgo = now - timestamp;
+            const isActive = secondsAgo < 30; // Consider active if heartbeat is less than 30 seconds ago
+
+            let timeAgoText = '';
+            if (secondsAgo < 60) {
+                timeAgoText = `${secondsAgo} seconds ago`;
+            } else if (secondsAgo < 3600) {
+                timeAgoText = `${Math.floor(secondsAgo / 60)} minutes ago`;
+            } else if (secondsAgo < 86400) {
+                timeAgoText = `${Math.floor(secondsAgo / 3600)} hours ago`;
+            } else {
+                timeAgoText = `${Math.floor(secondsAgo / 86400)} days ago`;
+            }
+
+            return `
+                <div class="heartbeat-indicator">
+                    <span class="dot ${isActive ? 'dot-active' : 'dot-inactive'}"></span>
+                    <span class="time-ago">${timeAgoText}</span>
+                </div>
+            `;
+        }
+
+        // Tasks formatter to show the list of tasks assigned to the agent
+        function tasksFormatter(cell) {
+            const tasks = cell.getValue();
+            if (!tasks || tasks.length === 0) {
+                return '<span class="text-muted">None</span>';
+            }
+
+            let html = '<ul class="task-list">';
+            tasks.forEach(task => {
+                html += `<li>${task}</li>`;
+            });
+            html += '</ul>';
+
+            return html;
+        }
+
+        // Initialize Tabulator with the agents data
+        agentsTable = new Tabulator("#agents-table", {
+            data: convertAgentsData(), // Convert directly since we have the data in the template
+            layout: "fitColumns",
+            pagination: "local",
+            paginationSize: dynamicPageSize,
+            responsiveLayout: "collapse",
+            columns: [
+                {
+                    title: "Agent ID",
+                    field: "agent_id",
+                    sorter: "string",
+                    headerFilter: "input",
+                    widthGrow: 2
+                },
+                {
+                    title: "Last Heartbeat",
+                    field: "last_heartbeat",
+                    formatter: heartbeatFormatter,
+                    sorter: "number",
+                    headerSortStartingDir: "desc",
+                    widthGrow: 1
+                },
+                {
+                    title: "Tasks",
+                    field: "tasks",
+                    formatter: tasksFormatter,
+                    headerSort: false,
+                    widthGrow: 3
+                },
+                {
+                    title: "Task Count",
+                    field: "task_count",
+                    sorter: "number",
+                    hozAlign: "center",
+                    width: 120
+                }
+            ],
+            initialSort: [
+                {column: "last_heartbeat", dir: "desc"}
+            ]
+        });
+
+        // When table is fully loaded, update the agent count
+        agentsTable.on("tableBuilt", function() {
+            updateAgentCount();
+        });
+
+        // Also update count when the table data is filtered
+        agentsTable.on("dataFiltered", function() {
+            updateAgentCount();
+        });
+    }
+
+    // Function to convert the template data into JavaScript array
+    function convertAgentsData() {
+        // This data comes from the template
+        const agentsData = [
+            {% for agent in agents %}
+        {
+            agent_id: "{{ agent.agent_id }}",
+                display_id: "{{ agent.display_id }}",
+            last_heartbeat: {{ agent.last_heartbeat }},
+            tasks: [
+                {% for task in agent.tasks %}
+            "{{ task }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ],
+            task_count: {{ agent.task_count }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+        return agentsData;
+    }
+
+    // Function to update the agent count display
+    function updateAgentCount() {
+        const visibleRows = agentsTable.getRows("active").length;
+        document.getElementById('agentCount').textContent = visibleRows;
+    }
+
+    // Function to apply appropriate tabulator theme based on current dark/light mode
+    function applyTabulatorTheme() {
+        const theme = document.documentElement.getAttribute("data-bs-theme");
+        document.getElementById("tabulator-light").disabled = theme === "dark";
+        document.getElementById("tabulator-dark").disabled = theme !== "dark";
+    }
+</script>
+{% endblock scripts %}

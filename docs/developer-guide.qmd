@@ -1,0 +1,263 @@
+# Developer Guide
+
+This guide is intended for developers who want to contribute to Cyclonetix or understand its internal architecture for extending its functionality.
+
+## Project Structure
+
+The Cyclonetix codebase is organized as follows:
+
+```
+cyclonetix/
+├── src/
+│   ├── agent/            # Agent implementation
+│   ├── graph/            # Execution graph and orchestrator
+│   ├── models/           # Core data models
+│   ├── server/           # Web UI and API
+│   ├── state/            # State management
+│   └── utils/            # Utility functions
+├── static/               # Static web assets
+├── templates/            # Tera templates for UI
+├── docs/                 # Documentation
+└── data/                 # Example data files
+```
+
+## Architecture Overview
+
+Cyclonetix follows a modular architecture with clear separation of concerns:
+
+1. **Core Models** (`src/models/`): Define the data structures used throughout the system.
+2. **State Management** (`src/state/`): Abstracts storage backends and provides a unified interface.
+3. **Agent** (`src/agent/`): Handles task execution and reporting.
+4. **Graph** (`src/graph/`): Manages task dependencies and execution flow.
+5. **Server** (`src/server/`): Provides the web UI and API.
+
+## Key Abstractions
+
+### StateManager Trait
+
+The `StateManager` trait (`src/state/state_manager.rs`) is the central abstraction for state persistence:
+
+```rust
+#[async_trait]
+pub trait StateManager: Sync + Send {
+    // Queue operations
+    async fn get_work_from_queue(&self, queue: &str) -> Option<TaskPayload>;
+    async fn put_work_on_queue(&self, task_payload: &TaskPayload, queue: &str);
+
+    // Task operations
+    async fn save_task(&self, task: &TaskTemplate);
+    async fn load_task(&self, task_id: &str) -> Option<TaskTemplate>;
+
+    // DAG operations
+    async fn save_dag_instance(&self, dag_instance: &DagInstance);
+    async fn load_dag_instance(&self, run_id: &str) -> Option<DagInstance>;
+
+    // many other methods...
+}
+```
+
+This trait is implemented for different backends like Redis and in-memory storage.
+
+### ExecutionGraph
+
+The `ExecutionGraph` struct (`src/graph/graph_manager.rs`) manages task dependencies and execution order:
+
+```rust
+pub struct ExecutionGraph {
+    pub graph: DiGraph<String, ()>,
+    pub node_map: HashMap<String, NodeIndex>,
+}
+```
+
+It provides methods for building and traversing the execution graph.
+
+### Agent
+
+The `Agent` struct (`src/agent/agent.rs`) is responsible for executing tasks:
+
+```rust
+pub struct Agent<S: 'static + StateManager + ?Sized> {
+    state_manager: Arc<S>,
+    agent_id: String,
+}
+```
+
+## Development Environment Setup
+
+### Prerequisites
+
+- Rust 1.84+ with Cargo
+- Redis (optional, for testing with Redis backend)
+- Git
+
+### Setting Up a Development Environment
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/neural-chilli/Cyclonetix.git
+cd Cyclonetix
+```
+
+2. Build the project:
+
+```bash
+cargo build
+```
+
+3. Run tests:
+
+```bash
+cargo test
+```
+
+4. Run with development features:
+
+```bash
+DEV_MODE=true cargo run
+```
+
+### UI Development
+
+The UI is built with:
+
+- **Tera** for templating
+- **Tabler** for UI components
+- **Cytoscape.js** for graph visualization
+
+When `DEV_MODE=true`, templates are reloaded on each request, making UI development faster.
+
+## How to Contribute
+
+### Finding Issues to Work On
+
+Check the GitHub issues labeled with "good first issue" or "help wanted".
+
+### Creating a New Feature
+
+1. **Create a branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Implement your changes**:
+   - Keep each commit focused on a single change
+   - Follow the existing code style
+   - Add appropriate tests
+
+3. **Update documentation**:
+   - Update or add Quarto documentation
+   - Add inline code comments for complex logic
+
+4. **Submit a PR**:
+   - Describe your changes
+   - Reference any related issues
+   - Include screenshots for UI changes
+
+### Code Style and Best Practices
+
+- Follow Rust's official style guidelines
+- Use async/await consistently for asynchronous code
+- Ensure proper error handling
+- Add debug and info logging at appropriate points
+- Document public interfaces with doc comments
+
+## Adding a New Backend
+
+To implement a new state backend (e.g., PostgreSQL):
+
+1. Create a new file `src/state/postgres_state_manager.rs`
+2. Implement the `StateManager` trait
+3. Add appropriate tests
+4. Update `main.rs` to include the new backend option
+
+Example skeleton:
+
+```rust
+pub struct PostgresStateManager {
+    pool: PgPool,
+    cluster_id: String,
+}
+
+impl PostgresStateManager {
+    pub async fn new(db_url: &str, cluster_id: &str) -> Self {
+        let pool = PgPool::connect(db_url).await.expect("Failed to connect to PostgreSQL");
+        PostgresStateManager {
+            pool,
+            cluster_id: String::from(cluster_id),
+        }
+    }
+}
+
+#[async_trait]
+impl StateManager for PostgresStateManager {
+    // Implement all required methods
+    async fn get_work_from_queue(&self, queue: &str) -> Option<TaskPayload> {
+        // Implementation
+    }
+
+    // ... other methods
+}
+```
+
+## Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+cargo test
+
+# Run specific tests
+cargo test state_manager
+
+# Run with feature flags
+cargo test --features postgresql
+```
+
+### Test Architecture
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test component interactions
+- **End-to-End Tests**: Test complete workflows
+
+### Writing Good Tests
+
+- Test both success and error paths
+- Use descriptive test names
+- Set up appropriate fixtures
+- Clean up after tests (especially important for Redis/DB tests)
+
+## Debugging
+
+### Logging
+
+Cyclonetix uses the `tracing` crate for structured logging. To enable verbose logging:
+
+```bash
+RUST_LOG=debug cargo run
+```
+
+### Common Issues
+
+- **Redis Connection**: Ensure Redis is running and accessible
+- **Task Execution**: Check agent logs for command execution errors
+- **UI Issues**: Check browser console and server logs
+
+## API Documentation
+
+Run `cargo doc --open` to generate and view the API documentation.
+
+## Release Process
+
+1. **Update Version**: Update version in `Cargo.toml`
+2. **Update Changelog**: Document changes in `CHANGELOG.md`
+3. **Create Tag**: Tag the release in Git
+4. **Build Release**: Run `cargo build --release`
+5. **Create GitHub Release**: Upload the binary
+
+## Next Steps
+
+- Review the [Roadmap](roadmap.qmd) to see planned features
+- Check out [Troubleshooting & FAQ](troubleshooting-faq.qmd) for common issues
+- Explore the [Reference](reference/configuration.qmd) section for detailed specifications

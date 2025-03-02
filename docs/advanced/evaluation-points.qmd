@@ -1,0 +1,256 @@
+# Evaluation Points
+
+Evaluation points are one of Cyclonetix's most powerful features, allowing for dynamic decision-making within workflows. This guide explains how to use evaluation points to create adaptive, intelligent workflows.
+
+## What Are Evaluation Points?
+
+An evaluation point is a special task that can:
+
+1. **Make decisions** about what happens next in a workflow
+2. **Dynamically modify** the execution graph
+3. **Conditionally execute** downstream tasks
+4. **Serve as approval gates** for human intervention
+5. **Integrate with external systems** to determine workflow paths
+
+## How Evaluation Points Work
+
+When a task is marked as an evaluation point:
+
+1. The task executes normally like any other task
+2. After completion, its output is analyzed
+3. Based on the output, the workflow's execution graph may be modified
+4. The orchestrator reevaluates the graph with these modifications
+
+## Defining an Evaluation Point
+
+To make a task an evaluation point, set the `evaluation_point` flag to `true` in the task definition:
+
+```yaml
+id: "evaluate_model"
+name: "Evaluate Model Performance"
+command: "python evaluate.py --model ${MODEL_PATH} --threshold ${THRESHOLD}"
+dependencies:
+  - "train_model"
+evaluation_point: true
+parameters:
+  threshold: 0.85
+```
+
+## Implementation Patterns
+
+### Exit Code Pattern
+
+The simplest way to implement an evaluation point is using exit codes:
+
+```bash
+#!/bin/bash
+# evaluate_data.sh
+
+# Run validation
+./validate_data.py --input ${INPUT_PATH}
+
+# Check validation result
+if [ $? -eq 0 ]; then
+  # Data is valid, proceed to full processing
+  echo "CYCLO_NEXT=process_data" > $CYCLO_EVAL_RESULT
+  exit 0
+else
+  # Data is invalid, go to error handling
+  echo "CYCLO_NEXT=handle_invalid_data" > $CYCLO_EVAL_RESULT
+  exit 1
+fi
+```
+
+### JSON Result Pattern
+
+For more complex scenarios, you can output a JSON result:
+
+```python
+# evaluate_model.py
+import json
+import sys
+
+# Perform model evaluation
+accuracy = evaluate_model(model_path)
+
+# Decide next steps based on accuracy
+result = {
+    "metrics": {
+        "accuracy": accuracy
+    }
+}
+
+if accuracy >= 0.90:
+    result["next_tasks"] = ["deploy_model", "notify_success"]
+elif accuracy >= 0.75:
+    result["next_tasks"] = ["tune_model", "retry_training"]
+else:
+    result["next_tasks"] = ["notify_failure"]
+
+# Write result to the evaluation result file
+with open(os.environ.get("CYCLO_EVAL_RESULT", "eval_result.json"), "w") as f:
+    json.dump(result, f)
+
+# Exit with appropriate code
+sys.exit(0 if accuracy >= 0.75 else 1)
+```
+
+## Evaluation Results Specification
+
+The evaluation result can specify:
+
+1. **Next tasks**: Which tasks should be executed next
+2. **Parameters**: Parameters for those tasks
+3. **Context updates**: Changes to the execution context
+4. **Metadata**: Additional information about the evaluation
+
+The evaluation result file (specified by the `CYCLO_EVAL_RESULT` environment variable) should contain a JSON object with the following structure:
+
+```json
+{
+  "next_tasks": ["task_id_1", "task_id_2"],
+  "parameters": {
+    "task_id_1": {
+      "param1": "value1",
+      "param2": "value2"
+    },
+    "task_id_2": {
+      "param1": "value1"
+    }
+  },
+  "context_updates": {
+    "variable1": "new_value",
+    "variable2": "new_value"
+  },
+  "metadata": {
+    "reason": "Model accuracy below threshold",
+    "metrics": {
+      "accuracy": 0.82,
+      "precision": 0.79
+    }
+  }
+}
+```
+
+## Common Use Cases
+
+### Conditional Workflow Branching
+
+One of the most common uses is to create branches in your workflow:
+
+```yaml
+id: "check_data_quality"
+name: "Check Data Quality"
+command: "python scripts/validate_data.py --input ${INPUT_PATH} --output $CYCLO_EVAL_RESULT"
+dependencies:
+  - "ingest_data"
+evaluation_point: true
+```
+
+The script might output something like:
+
+```json
+{
+  "next_tasks": ["process_clean_data"],
+  "metadata": {
+    "quality_score": 98,
+    "issues_found": 0
+  }
+}
+```
+
+Or if problems are found:
+
+```json
+{
+  "next_tasks": ["clean_data"],
+  "metadata": {
+    "quality_score": 68,
+    "issues_found": 12
+  }
+}
+```
+
+### Human Approval Gates
+
+Evaluation points can serve as approval gates requiring human intervention:
+
+```yaml
+id: "approval_gate"
+name: "Approve Production Deployment"
+command: "python scripts/wait_for_approval.py --model ${MODEL_NAME}"
+dependencies:
+  - "validate_model"
+evaluation_point: true
+```
+
+The `wait_for_approval.py` script might wait for a response via API or UI interaction.
+
+### Dynamic Task Generation
+
+Evaluation points can dynamically determine which tasks to run:
+
+```yaml
+id: "analyze_data_types"
+name: "Analyze Data Types"
+command: "python scripts/data_analyzer.py --input ${INPUT_PATH} --output $CYCLO_EVAL_RESULT"
+dependencies:
+  - "load_data"
+evaluation_point: true
+```
+
+The script might detect different data types and schedule appropriate processing tasks:
+
+```json
+{
+  "next_tasks": ["process_images", "process_text", "process_numerical"],
+  "parameters": {
+    "process_images": {
+      "count": 150,
+      "path": "/data/images"
+    },
+    "process_text": {
+      "count": 500,
+      "language": "en"
+    }
+  }
+}
+```
+
+## Integration with AI Decision-Making
+
+Evaluation points are particularly powerful when combined with AI for intelligent workflow orchestration:
+
+```yaml
+id: "ai_analyze_results"
+name: "AI Result Analysis"
+command: "python scripts/ai_analyzer.py --results ${RESULTS_PATH} --output $CYCLO_EVAL_RESULT"
+dependencies:
+  - "run_experiment"
+evaluation_point: true
+```
+
+The AI analyzer might make sophisticated decisions about next steps based on experiment results.
+
+## Best Practices
+
+1. **Keep evaluation logic focused** - Evaluation points should make decisions, not perform heavy processing
+2. **Prefer declarative over imperative** - Specify what should happen, not how it should happen
+3. **Include clear metadata** - Document why decisions were made for better observability
+4. **Handle failure gracefully** - Ensure evaluation points have clear error paths
+5. **Test with different scenarios** - Verify all possible branches work as expected
+
+## Debugging Evaluation Points
+
+To debug evaluation points:
+
+1. **Enable verbose logging** in your evaluation scripts
+2. **Check the evaluation result file** to ensure it contains valid JSON
+3. **Review orchestrator logs** for decision-making information
+4. **Use the UI visualization** to see how the graph changes after evaluation
+
+## Next Steps
+
+- Learn about [Contexts & Parameters](contexts-parameters.qmd) to complement evaluation points
+- Explore [Git Integration](git-integration.qmd) for version-controlled workflows
+- See the [Troubleshooting & FAQ](../troubleshooting-faq.qmd) for common issues

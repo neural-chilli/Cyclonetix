@@ -1,0 +1,505 @@
+# CLI Reference
+
+Cyclonetix provides a comprehensive command-line interface (CLI) for managing workflows, tasks, and system operations. This reference documents all available commands and options.
+
+## Basic Usage
+
+```bash
+cyclonetix [OPTIONS] [COMMAND]
+```
+
+## Global Options
+
+| Option | Description |
+|--------|-------------|
+| `--config <FILE>` | Path to configuration file (default: `config.yaml`) |
+| `--help`, `-h` | Show help information |
+| `--version`, `-v` | Show version information |
+| `--ui` | Start only the UI server |
+| `--agent` | Start only an agent process |
+| `--orchestrator` | Start only an orchestrator process |
+
+## Common Commands
+
+### `cyclonetix`
+
+Starting Cyclonetix without a command runs all components (orchestrator, agent, and UI) in development mode.
+
+```bash
+cyclonetix --config my-config.yaml
+```
+
+### `cyclonetix schedule-task`
+
+Schedule a task for execution.
+
+```bash
+cyclonetix schedule-task <TASK_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--context <CONTEXT>` | Context to use for execution |
+| `--param <KEY=VALUE>` | Task parameter override (can be specified multiple times) |
+| `--param-set <SET>` | Parameter set to apply |
+| `--env <KEY=VALUE>` | Additional environment variable (can be specified multiple times) |
+| `--run-id <ID>` | Custom run ID (auto-generated if not specified) |
+| `--queue <QUEUE>` | Override the task's default queue |
+| `--wait` | Wait for task completion and show logs |
+| `--timeout <SECONDS>` | Timeout for task execution in seconds |
+| `--retries <COUNT>` | Number of retries on failure |
+| `--retry-delay <SECONDS>` | Delay between retries in seconds |
+| `--ignore-dependencies` | Execute without resolving dependencies |
+| `--git-ref <REF>` | Git reference for task definition |
+
+Example:
+```bash
+cyclonetix schedule-task process_data \
+  --context production \
+  --param BATCH_SIZE=200 \
+  --param MODE=full \
+  --env DATA_DATE=2023-11-01
+```
+
+### `cyclonetix schedule-dag`
+
+Schedule a DAG for execution.
+
+```bash
+cyclonetix schedule-dag <DAG_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--context <CONTEXT>` | Context to use for execution |
+| `--param <TASK_ID.KEY=VALUE>` | Task parameter override (can be specified multiple times) |
+| `--env <KEY=VALUE>` | Additional environment variable (can be specified multiple times) |
+| `--run-id <ID>` | Custom run ID (auto-generated if not specified) |
+| `--wait` | Wait for DAG completion |
+| `--timeout <SECONDS>` | Timeout for DAG execution in seconds |
+| `--git-ref <REF>` | Git reference for DAG definition |
+
+Example:
+```bash
+cyclonetix schedule-dag etl_pipeline \
+  --context production \
+  --param extract_data.LIMIT=1000 \
+  --param load_data.MODE=incremental \
+  --wait
+```
+
+### `cyclonetix schedule-dag-file`
+
+Schedule a DAG from a file (without requiring it to be in the tasks directory).
+
+```bash
+cyclonetix schedule-dag-file <FILE_PATH> [OPTIONS]
+```
+
+Options are the same as `schedule-dag`.
+
+Example:
+```bash
+cyclonetix schedule-dag-file ./my-custom-dag.yaml \
+  --context production
+```
+
+## Task and DAG Management
+
+### `cyclonetix list-tasks`
+
+List available tasks.
+
+```bash
+cyclonetix list-tasks [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--filter <PATTERN>` | Filter tasks by name or ID |
+| `--queue <QUEUE>` | Filter tasks by queue |
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+
+Example:
+```bash
+cyclonetix list-tasks --filter "data_*" --format json
+```
+
+### `cyclonetix list-dags`
+
+List available DAGs.
+
+```bash
+cyclonetix list-dags [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--filter <PATTERN>` | Filter DAGs by name or ID |
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+
+Example:
+```bash
+cyclonetix list-dags --format table
+```
+
+### `cyclonetix show-task`
+
+Show details of a specific task.
+
+```bash
+cyclonetix show-task <TASK_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`yaml`, `json`) |
+| `--show-dependencies` | Show task dependencies |
+| `--git-ref <REF>` | Git reference for task definition |
+
+Example:
+```bash
+cyclonetix show-task process_data --show-dependencies
+```
+
+### `cyclonetix show-dag`
+
+Show details of a specific DAG.
+
+```bash
+cyclonetix show-dag <DAG_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`yaml`, `json`) |
+| `--show-tasks` | Show tasks in the DAG |
+| `--git-ref <REF>` | Git reference for DAG definition |
+
+Example:
+```bash
+cyclonetix show-dag etl_pipeline --show-tasks
+```
+
+## Execution Management
+
+### `cyclonetix list-runs`
+
+List current and recent workflow runs.
+
+```bash
+cyclonetix list-runs [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--status <STATUS>` | Filter by status (`pending`, `running`, `completed`, `failed`) |
+| `--dag <DAG_ID>` | Filter by DAG ID |
+| `--limit <COUNT>` | Maximum number of runs to show |
+| `--since <TIME>` | Show runs since time (e.g., `1h`, `2d`, `2023-01-01`) |
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+
+Example:
+```bash
+cyclonetix list-runs --status running --since 12h
+```
+
+### `cyclonetix show-run`
+
+Show details of a specific workflow run.
+
+```bash
+cyclonetix show-run <RUN_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+| `--show-tasks` | Show tasks in the run |
+| `--follow` | Follow the run and show updates |
+
+Example:
+```bash
+cyclonetix show-run etl_pipeline_20231105_123456 --show-tasks --follow
+```
+
+### `cyclonetix cancel-run`
+
+Cancel a running workflow.
+
+```bash
+cyclonetix cancel-run <RUN_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--force` | Force cancel even if in critical section |
+
+Example:
+```bash
+cyclonetix cancel-run etl_pipeline_20231105_123456
+```
+
+### `cyclonetix rerun`
+
+Rerun a failed or completed workflow.
+
+```bash
+cyclonetix rerun <RUN_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--failed-only` | Rerun only failed tasks |
+| `--from-task <TASK_ID>` | Rerun from a specific task |
+| `--reset-params` | Reset parameters to original values |
+
+Example:
+```bash
+cyclonetix rerun etl_pipeline_20231105_123456 --failed-only
+```
+
+## Agent Management
+
+### `cyclonetix list-agents`
+
+List active agents.
+
+```bash
+cyclonetix list-agents [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+| `--show-tasks` | Show tasks assigned to agents |
+
+Example:
+```bash
+cyclonetix list-agents --show-tasks
+```
+
+### `cyclonetix agent-status`
+
+Show detailed status of an agent.
+
+```bash
+cyclonetix agent-status <AGENT_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+
+Example:
+```bash
+cyclonetix agent-status agent_20231105_123456
+```
+
+## Queue Management
+
+### `cyclonetix list-queues`
+
+List task queues and their status.
+
+```bash
+cyclonetix list-queues [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`table`, `json`, `yaml`) |
+| `--show-tasks` | Show tasks in queues |
+
+Example:
+```bash
+cyclonetix list-queues --show-tasks
+```
+
+### `cyclonetix purge-queue`
+
+Purge all tasks from a queue.
+
+```bash
+cyclonetix purge-queue <QUEUE> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--confirm` | Confirm the operation without prompting |
+
+Example:
+```bash
+cyclonetix purge-queue default --confirm
+```
+
+## System Management
+
+### `cyclonetix check-health`
+
+Check the health of the Cyclonetix deployment.
+
+```bash
+cyclonetix check-health [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--backend` | Check backend connectivity |
+| `--agents` | Check agent health |
+| `--orchestrators` | Check orchestrator health |
+| `--all` | Check all components |
+
+Example:
+```bash
+cyclonetix check-health --all
+```
+
+### `cyclonetix verify-config`
+
+Verify the configuration without starting the server.
+
+```bash
+cyclonetix verify-config [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--config <FILE>` | Path to configuration file |
+
+Example:
+```bash
+cyclonetix verify-config --config production.yaml
+```
+
+### `cyclonetix clear-history`
+
+Clear execution history.
+
+```bash
+cyclonetix clear-history [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--days <DAYS>` | Clear history older than specified days |
+| `--status <STATUS>` | Clear runs with specific status (`completed`, `failed`) |
+| `--confirm` | Confirm the operation without prompting |
+
+Example:
+```bash
+cyclonetix clear-history --days 30 --status completed --confirm
+```
+
+## Advanced Commands
+
+### `cyclonetix backfill`
+
+Run a DAG for a date range (backfilling).
+
+```bash
+cyclonetix backfill <DAG_ID> [OPTIONS]
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--start-date <DATE>` | Start date (YYYY-MM-DD) |
+| `--end-date <DATE>` | End date (YYYY-MM-DD) |
+| `--context <CONTEXT>` | Context to use for execution |
+| `--max-parallel <COUNT>` | Maximum parallel executions |
+| `--wait` | Wait for all executions to complete |
+
+Example:
+```bash
+cyclonetix backfill daily_etl \
+  --start-date 2023-01-01 \
+  --end-date 2023-01-31 \
+  --context production \
+  --max-parallel 5
+```
+
+### `cyclonetix import`
+
+Import tasks or DAGs from external files.
+
+```bash
+cyclonetix import <TYPE> <FILE_PATH> [OPTIONS]
+```
+
+Where `<TYPE>` is one of: `task`, `dag`, `context`, `parameter-set`.
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--overwrite` | Overwrite existing definitions |
+| `--validate` | Validate without importing |
+
+Example:
+```bash
+cyclonetix import task ./external-tasks/*.yaml --validate
+```
+
+### `cyclonetix export`
+
+Export tasks or DAGs to external files.
+
+```bash
+cyclonetix export <TYPE> <ID> <FILE_PATH> [OPTIONS]
+```
+
+Where `<TYPE>` is one of: `task`, `dag`, `context`, `parameter-set`.
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--format <FORMAT>` | Output format (`yaml`, `json`) |
+| `--include-dependencies` | Include dependencies when exporting |
+
+Example:
+```bash
+cyclonetix export dag etl_pipeline ./exports/etl_pipeline.yaml --include-dependencies
+```
+
+## Next Steps
+
+- Review the [API Reference](api.qmd) for REST API documentation
+- Explore the [Configuration Reference](configuration.qmd) for configuration options
+- Check the [YAML Schema](yaml-schema.qmd) for task and DAG definitions

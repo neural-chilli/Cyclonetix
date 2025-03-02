@@ -1,0 +1,391 @@
+# Troubleshooting & FAQ
+
+This guide addresses common issues you might encounter when using Cyclonetix and provides solutions for troubleshooting them.
+
+## Installation Issues
+
+### Failed to Build from Source
+
+**Problem**: Error when running `cargo build`
+
+**Solutions**:
+
+1. Ensure you have Rust 1.84+ installed:
+   ```bash
+   rustc --version
+   ```
+
+2. Check for missing dependencies:
+   ```bash
+   sudo apt install build-essential pkg-config libssl-dev
+   ```
+
+3. Update Rust and dependencies:
+   ```bash
+   rustup update
+   cargo update
+   ```
+
+### Docker Image Not Starting
+
+**Problem**: Docker container exits immediately after starting
+
+**Solutions**:
+
+1. Check Docker logs:
+   ```bash
+   docker logs <container_id>
+   ```
+
+2. Ensure Redis is accessible if using Redis backend:
+   ```bash
+   docker exec <container_id> redis-cli -h redis ping
+   ```
+
+3. Verify your configuration is mounted correctly:
+   ```bash
+   docker exec <container_id> cat /config/config.yaml
+   ```
+
+## Connection Issues
+
+### Redis Connection Failures
+
+**Problem**: Cyclonetix can't connect to Redis
+
+**Solutions**:
+
+1. Verify Redis is running:
+   ```bash
+   redis-cli ping
+   ```
+
+2. Check your Redis URL in `config.yaml`:
+   ```yaml
+   backend_url: "redis://localhost:6379"
+   ```
+
+3. Ensure Redis is accepting connections from your network:
+   ```bash
+   sudo netstat -pnlt | grep 6379
+   ```
+
+### Web UI Not Accessible
+
+**Problem**: Can't access the Cyclonetix UI at http://localhost:3000
+
+**Solutions**:
+
+1. Confirm Cyclonetix is running:
+   ```bash
+   ps aux | grep cyclonetix
+   ```
+
+2. Check if another service is using port 3000:
+   ```bash
+   sudo netstat -pnlt | grep 3000
+   ```
+
+3. Verify firewall settings:
+   ```bash
+   sudo ufw status
+   ```
+
+## Task Execution Issues
+
+### Tasks Stuck in Pending State
+
+**Problem**: Tasks remain in pending state and never execute
+
+**Solutions**:
+
+1. Check for missing dependencies:
+   - Verify that all dependencies exist and are correctly spelled
+   - Check task definitions for circular dependencies
+
+2. Ensure agents are running:
+   ```bash
+   # Check agent status in UI
+   # Or via CLI
+   ./cyclonetix list-agents
+   ```
+
+3. Confirm agents are subscribed to the right queues:
+   - Check your agent configuration against task queue assignments
+
+### Tasks Failing with No Error Message
+
+**Problem**: Tasks show as failed but no error message is visible
+
+**Solutions**:
+
+1. Enable verbose logging:
+   ```bash
+   RUST_LOG=debug ./cyclonetix
+   ```
+
+2. Check agent logs for command execution errors:
+   - Look for environment variable issues
+   - Check for permission problems with executed commands
+
+3. Verify the task command is valid:
+   - Try running the command manually on the agent machine
+
+### Agent Not Picking Up Tasks
+
+**Problem**: Tasks are queued but no agent picks them up
+
+**Solutions**:
+
+1. Verify agent is running and connected:
+   - Check the Agents page in the UI
+   - Look for heartbeat updates
+
+2. Ensure the agent is subscribed to the right queue:
+   ```yaml
+   # In config.yaml
+   queues:
+     - "default"
+     - "high_memory"
+   ```
+
+3. Check agent logs for connection issues:
+   ```bash
+   RUST_LOG=debug ./cyclonetix --agent
+   ```
+
+## DAG and Workflow Issues
+
+### DAG Not Assembling Correctly
+
+**Problem**: Self-assembling DAG is missing expected tasks
+
+**Solutions**:
+
+1. Verify task dependencies are correctly defined:
+   - Check each task YAML file for the correct dependency list
+
+2. Check for typos in task IDs:
+   - Ensure dependency references match exactly with task IDs
+
+3. Enable debug logging to see how the DAG is assembled:
+   ```bash
+   RUST_LOG=debug ./cyclonetix schedule-task <final_task>
+   ```
+
+### Tasks Executing in Unexpected Order
+
+**Problem**: Tasks are executing in an order you didn't expect
+
+**Solutions**:
+
+1. Review the DAG visualization in the UI:
+   - Check the actual dependency structure
+
+2. Verify there are no missing or incorrect dependencies:
+   - Tasks with no dependencies (or fewer than expected) will start earlier
+
+3. Remember that independent parallel paths will execute concurrently:
+   - The exact order of parallel tasks depends on agent availability
+
+### Workflow Hanging at Completion
+
+**Problem**: Workflow shows as running even though all tasks are complete
+
+**Solutions**:
+
+1. Check for tasks in unknown states:
+   - Look for tasks that failed to report completion
+
+2. Try manually refreshing the DAG status:
+   ```bash
+   ./cyclonetix refresh-dag <dag_id>
+   ```
+
+3. Restart the orchestrator as a last resort:
+   ```bash
+   sudo systemctl restart cyclonetix
+   ```
+
+## State Management Issues
+
+### Lost State After Restart
+
+**Problem**: Workflow state is lost after restarting Cyclonetix
+
+**Solutions**:
+
+1. Ensure you're using a persistent backend:
+   ```yaml
+   # In config.yaml
+   backend: "redis"  # Not "memory"
+   ```
+
+2. Check if Redis persistence is enabled:
+   ```bash
+   redis-cli config get save
+   ```
+
+3. Verify data is being written to Redis:
+   ```bash
+   redis-cli keys "Cyclonetix:*"
+   ```
+
+### Duplicate Task Executions
+
+**Problem**: Some tasks are being executed multiple times
+
+**Solutions**:
+
+1. Check for multiple agents listening to the same queue:
+   - This is expected behavior for high concurrency
+   - Ensure your tasks are idempotent
+
+2. Look for agent failures and task reassignments:
+   - When an agent fails, its tasks are reassigned
+
+3. Verify that multiple orchestrators aren't scheduling the same DAG:
+   - Check for duplicate process instances
+
+## UI Issues
+
+### Visualization Not Showing Full DAG
+
+**Problem**: DAG visualization in UI is incomplete or incorrect
+
+**Solutions**:
+
+1. Try refreshing the browser:
+   - Some complex DAGs may not render completely on first load
+
+2. Adjust zoom and layout:
+   - Use mouse wheel to zoom
+   - Drag nodes to adjust layout
+
+3. Clear browser cache:
+   - Outdated JS assets might cause rendering issues
+
+### Slow UI Performance
+
+**Problem**: UI becomes slow or unresponsive with large DAGs
+
+**Solutions**:
+
+1. Limit the DAG size in visualization:
+   ```yaml
+   # In config.yaml
+   ui:
+     max_dag_nodes: 100
+   ```
+
+2. Filter your view to show only active tasks:
+   - Use the task filter in the UI
+
+3. Use a more powerful browser:
+   - Chrome or Firefox often perform better than Safari for complex visualizations
+
+## Frequently Asked Questions
+
+### General Questions
+
+#### What is the difference between a task and a DAG?
+
+A task is a single unit of work, while a DAG (Directed Acyclic Graph) is a collection of tasks with dependencies that form a workflow.
+
+#### Can I use Cyclonetix without Redis?
+
+Yes, Cyclonetix has an in-memory backend that's perfect for development and testing. However, for production use or persistence across restarts, Redis is recommended.
+
+#### How do I backup my workflows?
+
+The primary data to backup is:
+- Your task definitions in `data/tasks/`
+- Your DAG definitions in `data/dags/`
+- Your context definitions in `data/contexts/`
+
+For runtime state, back up your Redis database.
+
+### Performance Questions
+
+#### How many tasks can Cyclonetix handle?
+
+Cyclonetix is designed to scale to thousands of tasks with a properly configured Redis backend. The limit is mostly determined by your Redis server capacity and network performance.
+
+#### What's the recommended agent-to-orchestrator ratio?
+
+A single orchestrator can typically handle multiple agents. A common starting point is:
+- 1 orchestrator
+- 3-5 agents
+- 1 Redis instance
+
+Scale up from there based on your workload.
+
+#### How do I optimize for large workflows?
+
+For large workflows:
+1. Use multiple agents
+2. Increase agent concurrency
+3. Consider sharding your Redis backend
+4. Use PostgreSQL backend for very large deployments
+5. Break extremely large workflows into smaller sub-workflows
+
+### Security Questions
+
+#### How do I secure access to the UI?
+
+Cyclonetix supports:
+- Basic authentication
+- OAuth2 for enterprise authentication
+- API keys for programmatic access
+
+Configure these in the `security` section of your config.yaml.
+
+#### Is communication between components encrypted?
+
+By default, communication is not encrypted. For production deployments, consider:
+- Using Redis with TLS
+- Placing all components behind a VPN
+- Using an HTTPS proxy for the UI
+
+### Integration Questions
+
+#### Can Cyclonetix execute tasks in Docker containers?
+
+Yes, there are two approaches:
+1. Run the agent inside a container and have it execute docker commands
+2. Use the command field to invoke docker:
+   ```yaml
+   command: "docker run --rm my-image:latest python /script.py"
+   ```
+
+#### Can I trigger tasks based on external events?
+
+Yes, you can trigger tasks via:
+- The REST API
+- Webhook endpoints (coming soon)
+- Kafka integration (coming soon)
+
+#### How do I integrate with CI/CD pipelines?
+
+Cyclonetix can be integrated with CI/CD using:
+1. API calls from your CI/CD system
+2. Git-based execution for code from repositories
+3. Shared task definitions between development and production
+
+## Still Having Issues?
+
+If you're still experiencing problems:
+
+1. Check the [GitHub Issues](https://github.com/neural-chilli/Cyclonetix/issues) for similar problems
+2. Enable debug logging: `RUST_LOG=debug ./cyclonetix`
+3. Open a new issue with:
+   - A detailed description of the problem
+   - Steps to reproduce
+   - Log output
+   - Configuration (redacted of sensitive information)
+
+## Next Steps
+
+- Review the [Configuration Reference](reference/configuration.qmd) for detailed settings
+- Explore [Advanced Features](advanced/evaluation-points.qmd) for complex workflows
+- Check the [Roadmap](roadmap.qmd) for upcoming features

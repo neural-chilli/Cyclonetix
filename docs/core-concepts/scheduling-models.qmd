@@ -1,0 +1,121 @@
+# Scheduling Models
+
+Cyclonetix supports multiple scheduling models to accommodate different workflow needs and user preferences. Each model has its advantages and use cases.
+
+## Two Primary Scheduling Models
+
+Cyclonetix provides two fundamentally different approaches to workflow scheduling:
+
+1. **Outcome-Based Scheduling** (Self-assembling DAGs)
+2. **Explicit DAG Execution** (Manual DAG definition)
+
+## Outcome-Based Scheduling
+
+In outcome-based scheduling, you specify the final task (the "outcome") you want to achieve, and Cyclonetix automatically determines and executes all necessary prerequisite tasks.
+
+### How It Works
+
+1. You identify a target task (e.g., `deploy_model`)
+2. Cyclonetix examines the task's dependencies
+3. It recursively resolves all dependencies to build a complete execution graph
+4. Tasks are executed in the correct order to achieve the desired outcome
+
+### Benefits
+
+- **Simplicity**: Users only need to specify what they want, not how to get it
+- **Reduced maintenance**: Dependencies are defined once, at the task level
+- **Flexibility**: The same tasks can participate in different workflows
+- **Automatic updates**: Adding a dependency to a task automatically updates all workflows that use it
+
+### Example
+
+```bash
+# Schedule by outcome
+./cyclonetix schedule-task deploy_model
+```
+
+This command tells Cyclonetix to ensure the `deploy_model` task completes successfully, automatically handling any prerequisite tasks like data preparation, model training, and validation.
+
+## Explicit DAG Execution
+
+In explicit DAG execution, you define a complete Directed Acyclic Graph (DAG) that specifies all tasks and their relationships.
+
+### How It Works
+
+1. You create a DAG definition file specifying all tasks
+2. The DAG is scheduled as a unit
+3. Tasks within the DAG are executed according to their dependencies
+
+### Benefits
+
+- **Predictability**: The exact execution plan is known in advance
+- **Versioning**: DAGs can be versioned independently of task definitions
+- **Isolation**: Changes to task dependencies don't affect existing DAGs
+- **Documentation**: DAG files serve as explicit workflow documentation
+
+### Example
+
+Define a DAG in YAML:
+
+```yaml
+# model_deployment.yaml
+id: "model_deployment"
+name: "Model Deployment Pipeline"
+description: "End-to-end pipeline for deploying ML models"
+tasks:
+  - id: "data_preparation"
+  - id: "feature_engineering"
+  - id: "model_training"
+  - id: "model_validation"
+  - id: "model_deployment"
+tags: ["ml", "deployment"]
+```
+
+Schedule the DAG:
+
+```bash
+./cyclonetix schedule-dag model_deployment
+```
+
+## Combining Both Approaches
+
+Cyclonetix allows you to mix and match these approaches:
+
+- Use outcome-based scheduling for quick, ad-hoc executions
+- Use explicit DAGs for production pipelines and critical workflows
+- Reference the same underlying tasks with both approaches
+
+## Event-Driven Scheduling
+
+In addition to manual scheduling, Cyclonetix supports event-driven execution:
+
+- Schedule tasks or DAGs based on external triggers
+- Configure time-based schedules (like cron jobs)
+- React to data arrival or system events
+
+## Priority and Resource Allocation
+
+Both scheduling models support:
+
+- Task prioritization
+- Queue assignment
+- Resource allocation
+- Concurrency controls
+
+## Choosing the Right Model
+
+Consider these factors when deciding which scheduling model to use:
+
+| Factor | Outcome-Based | Explicit DAG |
+|--------|--------------|--------------|
+| **Workflow complexity** | Simple to moderate | Any complexity |
+| **Change frequency** | Frequent changes | Stable workflows |
+| **Documentation needs** | Minimal | Comprehensive |
+| **User expertise** | Beginners friendly | More advanced |
+| **Versioning needs** | Task-level | Workflow-level |
+
+## Next Steps
+
+- Learn how to [Define Tasks](../user-guide/task-definition.qmd)
+- Understand [Building DAGs](../user-guide/building-dags.qmd)
+- Explore [Scheduling Workflows](../user-guide/scheduling-workflows.qmd)

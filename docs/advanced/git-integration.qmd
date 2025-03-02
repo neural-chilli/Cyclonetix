@@ -1,0 +1,303 @@
+# Git Integration
+
+Cyclonetix provides robust Git integration features, allowing you to execute code directly from Git repositories and manage workflow definitions as code. This approach ensures versioning, repeatability, and easier collaboration.
+
+## Git-Based Task Execution
+
+### Basic Git Integration
+
+Instead of uploading scripts or defining inline commands, you can reference code in Git repositories:
+
+```yaml
+id: "train_model"
+name: "Train ML Model"
+command: "git-exec https://github.com/example/ml-repo.git scripts/train.py --epochs ${EPOCHS}"
+parameters:
+  EPOCHS: "100"
+```
+
+The `git-exec` prefix tells Cyclonetix to:
+
+1. Clone the repository
+2. Check out the default branch (or specified branch/tag)
+3. Execute the specified command within the repository
+
+### Specifying Branches, Tags, or Commits
+
+Reference specific versions of your code:
+
+```yaml
+# Using a branch
+command: "git-exec https://github.com/example/repo.git@develop scripts/process.py"
+
+# Using a tag
+command: "git-exec https://github.com/example/repo.git@v1.2.3 scripts/process.py"
+
+# Using a specific commit
+command: "git-exec https://github.com/example/repo.git@a1b2c3d scripts/process.py"
+```
+
+### Authentication
+
+For private repositories, configure authentication:
+
+```yaml
+git:
+  auth:
+    # SSH key-based auth
+    ssh_key_path: "/path/to/private/key"
+
+    # Or HTTPS with credentials
+    credentials:
+      - domain: "github.com"
+        username: "git-user"
+        password: "${GITHUB_TOKEN}"  # Use personal access token
+
+      - domain: "gitlab.example.com"
+        username: "git-user"
+        password: "${GITLAB_TOKEN}"
+```
+
+### Caching Repositories
+
+To avoid repeated cloning, enable repository caching:
+
+```yaml
+git:
+  cache:
+    enabled: true
+    path: "/tmp/cyclonetix-git-cache"
+    max_size_mb: 1000
+    ttl_minutes: 60
+```
+
+## Git-Based Workflow Definitions
+
+### Git-Synced Task and DAG Definitions
+
+Keep your task and DAG definitions in a Git repository:
+
+```yaml
+git_sync:
+  enabled: true
+  repositories:
+    - url: "https://github.com/example/workflows.git"
+      branch: "main"
+      paths:
+        - source: "tasks/"
+          destination: "${CYCLO_TASK_DIRECTORY}"
+        - source: "dags/"
+          destination: "${CYCLO_DAG_DIRECTORY}"
+      poll_interval_seconds: 60
+      credentials:
+        username: "git-user"
+        password: "${GIT_TOKEN}"
+```
+
+This configuration:
+1. Periodically pulls from the repository
+2. Syncs task and DAG definitions to their respective directories
+3. Automatically updates workflows when changes are pushed
+
+### Versioned Workflows
+
+Use Git references to run specific versions of workflows:
+
+```bash
+# Run a DAG from a specific branch
+./cyclonetix schedule-dag my_workflow --git-ref develop
+
+# Run a DAG from a specific tag
+./cyclonetix schedule-dag my_workflow --git-ref v1.2.3
+```
+
+## GitOps Workflow
+
+Implement a GitOps approach to workflow management:
+
+1. Store all workflow definitions in Git
+2. Use pull requests for workflow changes
+3. Automatically deploy changes when merged
+4. Track workflow history through Git history
+
+Example GitOps setup:
+
+```yaml
+git_sync:
+  enabled: true
+  repositories:
+    - url: "https://github.com/example/workflows.git"
+      branch: "main"
+      paths:
+        - source: "/"
+          destination: "${CYCLO_CONFIG_DIRECTORY}"
+  webhook:
+    enabled: true
+    endpoint: "/api/git-sync/webhook"
+    secret: "${WEBHOOK_SECRET}"
+```
+
+Configure your Git provider to send webhooks when changes are pushed, triggering immediate sync.
+
+## Advanced Git Features
+
+### Multi-Repository Workflows
+
+Reference code from multiple repositories in a single workflow:
+
+```yaml
+# Task 1 from repo A
+id: "data_prep"
+command: "git-exec https://github.com/example/data-tools.git scripts/prepare.py"
+
+# Task 2 from repo B
+id: "model_training"
+command: "git-exec https://github.com/example/ml-models.git scripts/train.py"
+dependencies:
+  - "data_prep"
+```
+
+### Git Submodules
+
+Work with repositories that use Git submodules:
+
+```yaml
+command: "git-exec https://github.com/example/main-repo.git --recursive scripts/run.sh"
+```
+
+The `--recursive` flag tells Cyclonetix to initialize and update submodules.
+
+### Environment Setup
+
+Set up specific environments for Git-based execution:
+
+```yaml
+git:
+  environments:
+    - name: "python-data-science"
+      setup_commands:
+        - "python -m venv .venv"
+        - "source .venv/bin/activate"
+        - "pip install -r requirements.txt"
+      pre_execute: "source .venv/bin/activate"
+
+    - name: "nodejs"
+      setup_commands:
+        - "npm install"
+      pre_execute: ""
+```
+
+Reference the environment in your task:
+
+```yaml
+id: "run_analysis"
+command: "git-exec https://github.com/example/data-analysis.git --env python-data-science scripts/analyze.py"
+```
+
+### Sparse Checkout
+
+For large repositories, use sparse checkout to only download necessary files:
+
+```yaml
+command: "git-exec https://github.com/example/large-repo.git --sparse=scripts,configs scripts/run.py"
+```
+
+This only checks out the `scripts` and `configs` directories, saving time and space.
+
+## Security Considerations
+
+### Repository Validation
+
+Limit which repositories can be used:
+
+```yaml
+git:
+  security:
+    allowed_domains:
+      - "github.com"
+      - "gitlab.example.com"
+    allowed_repos:
+      - "github.com/trusted-org/*"
+      - "gitlab.example.com/internal/*"
+    disallowed_repos:
+      - "github.com/untrusted-org/risky-repo"
+```
+
+### Code Scanning
+
+Integrate with scanning tools to check code before execution:
+
+```yaml
+git:
+  security:
+    scan:
+      enabled: true
+      command: "trivy fs --security-checks vuln,config,secret {repo_path}"
+      fail_on_findings: true
+```
+
+### Credential Management
+
+Securely manage Git credentials:
+
+1. Use environment variables for tokens
+2. Use SSH agent forwarding when possible
+3. Use short-lived credentials
+4. Consider integration with vault systems
+
+## Best Practices
+
+1. **Use Pinned References**: Always pin to specific commits or tags in production
+2. **Keep Repositories Clean**: Structure repositories for clarity and minimal dependencies
+3. **Use Feature Branches**: Develop new workflows in feature branches
+4. **Test Before Merging**: Validate workflows in a test environment
+5. **Monitor Git Performance**: Large repositories can slow down task startup
+
+## Example Workflow
+
+Here's a complete example of a Git-integrated workflow:
+
+```yaml
+# Task definitions
+- id: "fetch_data"
+  name: "Fetch Latest Data"
+  command: "git-exec https://github.com/example/data-tools.git@v2.1.0 --env python-data scripts/fetch.py --source ${DATA_SOURCE}"
+  parameters:
+    DATA_SOURCE: "production_api"
+
+- id: "process_data"
+  name: "Process Raw Data"
+  command: "git-exec https://github.com/example/data-tools.git@v2.1.0 --env python-data scripts/process.py --input ${INPUT_PATH} --output ${OUTPUT_PATH}"
+  dependencies:
+    - "fetch_data"
+  parameters:
+    INPUT_PATH: "/data/raw"
+    OUTPUT_PATH: "/data/processed"
+
+- id: "train_model"
+  name: "Train ML Model"
+  command: "git-exec https://github.com/example/ml-models.git@stable --env ml-training scripts/train.py --data ${DATA_PATH} --epochs ${EPOCHS} --model-type ${MODEL_TYPE}"
+  dependencies:
+    - "process_data"
+  parameters:
+    DATA_PATH: "/data/processed"
+    EPOCHS: "50"
+    MODEL_TYPE: "xgboost"
+  queue: "gpu_tasks"
+
+- id: "evaluate_model"
+  name: "Evaluate Model Performance"
+  command: "git-exec https://github.com/example/ml-models.git@stable --env ml-training scripts/evaluate.py --model ${MODEL_PATH} --test-data ${TEST_DATA}"
+  dependencies:
+    - "train_model"
+  parameters:
+    MODEL_PATH: "/models/latest"
+    TEST_DATA: "/data/test"
+  evaluation_point: true
+```
+
+## Next Steps
+
+- Explore [Contexts & Parameters](contexts-parameters.qmd) for managing environment variables
+- Learn about [Evaluation Points](evaluation-points.qmd) for dynamic workflows
+- Check the [Developer Guide](../developer-guide.qmd) for extending Git integration

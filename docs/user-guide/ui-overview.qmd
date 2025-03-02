@@ -1,0 +1,156 @@
+# UI Overview
+
+Cyclonetix provides a web-based user interface for managing, monitoring, and visualizing workflows. This guide gives you an overview of the main UI components and how to use them effectively.
+
+## Dashboard
+
+The dashboard is the main landing page, providing a high-level overview of your Cyclonetix environment.
+
+todo - provide a screenshot of the dashboard
+
+Key elements include:
+
+1. **Summary Cards**: Quick statistics on agents, queues, and running DAGs
+2. **Agents Table**: List of active agents with their status
+3. **Queue Tasks**: Overview of tasks in different queues
+4. **Running DAGs**: Recently active DAG executions with progress indicators
+
+## Tasks Page
+
+The Tasks page allows you to manage and schedule individual tasks.
+
+todo - provide a screenshot of the tasks page
+
+Features include:
+
+1. **Task Browser**: Filterable, searchable list of available tasks
+2. **Task Details**: View task definitions, parameters, and dependencies
+3. **Schedule Task**: Quickly schedule a task with custom parameters
+4. **Recent Runs**: Historical list of task executions
+
+### Scheduling a Task
+
+To schedule a task:
+
+1. Find the task in the task list
+2. Click the "Schedule" button
+3. Configure any environment variables or parameters
+4. Click "Schedule Task" to submit
+
+## DAGs Page
+
+The DAGs page lets you manage and schedule pre-defined DAGs.
+
+todo - provide a screenshot of the DAGs page
+
+Features include:
+
+1. **DAG Browser**: View and filter available DAGs
+2. **DAG Details**: Examine DAG configuration and included tasks
+3. **Schedule DAG**: Execute a DAG with custom settings
+4. **DAG History**: View past executions of the DAG
+
+## Running DAGs
+
+The Running DAGs page shows all currently active workflow executions.
+
+todo - provide a screenshot of the running DAGs page
+
+For each execution, you can see:
+
+1. **Status**: Current execution status
+2. **Progress**: Visual progress bar showing completion percentage
+3. **Task Breakdown**: Number of completed/total tasks
+4. **Last Updated**: When the execution was last updated
+5. **Actions**: Buttons to view, pause, or cancel the execution
+
+## DAG Visualization
+
+The DAG Visualization page provides a real-time graphical view of a workflow's execution.
+
+todo - provide a screenshot of the DAG visualization page
+
+Key features include:
+
+1. **Graph View**: Interactive visualization of tasks and dependencies
+2. **Task Status**: Color-coded nodes showing execution status
+3. **Task Details**: Click on a task to view detailed information
+4. **Live Updates**: Real-time updates as tasks complete
+5. **Navigation**: Pan and zoom controls for exploring complex DAGs
+
+The color coding for tasks is:
+
+- **Gray**: Pending
+- **Blue**: Queued
+- **Orange**: Running
+- **Green**: Completed
+- **Red**: Failed
+
+## Agents Management
+
+The Agents page shows information about all worker agents in your Cyclonetix environment.
+
+todo - provide a screenshot of the agents page
+
+You can:
+
+1. **Monitor Agent Status**: See which agents are active
+2. **View Assigned Tasks**: Check which tasks are currently being processed by each agent
+3. **Agent Health**: Review heartbeat information and resource utilization
+
+## Settings & Configuration
+
+The Configuration section allows you to manage system-wide settings.
+
+todo - provide a screenshot of the configuration page
+
+Available configuration areas include:
+
+1. **Task Configuration**: Manage task definitions
+2. **DAG Configuration**: Manage DAG definitions
+3. **Context Configuration**: Set up environment contexts
+4. **Queue Configuration**: Configure task queues
+5. **Scheduling Settings**: Set up default scheduling behavior
+
+## User Preferences
+
+Customize your Cyclonetix UI experience:
+
+1. **Theme Toggle**: Switch between light and dark mode
+2. **Refresh Rate**: Control how often the UI updates
+3. **Table Density**: Adjust the compactness of data tables
+4. **Time Zone**: Set your preferred time zone for timestamps
+
+## Mobile Responsiveness
+
+The Cyclonetix UI is designed to work well on various screen sizes, from desktop monitors to tablets and smartphones. The layout automatically adjusts to provide the best experience for your device.
+
+## Keyboard Shortcuts
+
+For power users, the UI supports several keyboard shortcuts:
+
+- `?`: Show keyboard shortcuts help
+- `d`: Go to Dashboard
+- `t`: Go to Tasks page
+- `g`: Go to DAGs page
+- `r`: Go to Running DAGs
+- `a`: Go to Agents page
+- `s`: Open Search
+- `f`: Toggle fullscreen mode for DAG visualization
+
+## Notifications
+
+The UI includes a notification system that alerts you to important events:
+
+- Task failures
+- Completed DAGs
+- System warnings
+- Agent disconnections
+
+Notifications appear in the top-right corner and can be reviewed in the notifications panel.
+
+## Next Steps
+
+- Learn how to [Deploy Cyclonetix](../deployment/installation.qmd) in your environment
+- Explore [Advanced Features](../advanced/evaluation-points.qmd) for more capabilities
+- Check the [Troubleshooting & FAQ](../troubleshooting-faq.qmd) if you encounter issues

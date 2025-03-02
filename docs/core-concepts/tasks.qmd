@@ -1,0 +1,117 @@
+# Tasks and Dependencies
+
+Tasks are the fundamental building blocks in Cyclonetix. Understanding how they work and how dependencies between them are managed is essential to effectively use the system.
+
+## Tasks
+
+A task in Cyclonetix represents a single unit of work that needs to be executed. Each task has:
+
+- A unique identifier
+- A command to execute
+- Optional dependencies on other tasks
+- Optional parameters for customization
+- A specified queue for execution
+
+### Task Templates vs Task Instances
+
+Cyclonetix distinguishes between task definitions and their execution instances:
+
+- **Task Template**: The immutable definition of a task, stored as YAML.
+- **Task Instance**: A specific execution of a task with its runtime state.
+
+When a task is scheduled, Cyclonetix creates a Task Instance from the Task Template, generating a unique run ID for tracking.
+
+### Task Lifecycle
+
+Each task goes through a series of states during its lifecycle:
+
+1. **Pending**: Task is defined but not yet scheduled
+2. **Queued**: Task is ready for execution and waiting in a queue
+3. **Running**: Task is currently being executed by an agent
+4. **Completed**: Task finished execution successfully
+5. **Failed**: Task execution failed
+
+### Task Definition YAML
+
+Here's an example of a task definition in YAML format:
+
+```yaml
+id: "data_preprocessing"
+name: "Data Preprocessing"
+description: "Preprocess raw data for model training"
+command: "python3 scripts/preprocess.py --input ${INPUT_FILE} --output ${OUTPUT_FILE}"
+parameters:
+  inputPath: "/data/raw"
+  outputPath: "/data/processed"
+  mode: "full"
+dependencies:
+  - "data_download"
+queue: "data_processing"
+```
+
+## Dependencies
+
+Dependencies define the relationships between tasks, establishing the execution order.
+
+### Direct Dependencies
+
+The most common form of dependency is a direct dependency where one task requires another to complete before it can start:
+
+```yaml
+id: "model_training"
+# ...
+dependencies:
+  - "data_preprocessing"
+```
+
+In this example, `model_training` will only start after `data_preprocessing` has successfully completed.
+
+### Parameterized Dependencies
+
+Cyclonetix supports parameterized dependencies, allowing you to depend on a specific variant of a task:
+
+```yaml
+id: "model_deployment"
+# ...
+dependencies:
+  - "model_training:production"
+```
+
+This creates a dependency on the `model_training` task specifically when run with the `production` parameter set.
+
+### Dependency Resolution
+
+When using outcome-based scheduling, Cyclonetix automatically resolves the full dependency chain:
+
+1. Identify the target task (the "outcome")
+2. Recursively gather all dependencies
+3. Build a directed acyclic graph (DAG) representing the execution order
+4. Execute tasks in topological order, respecting dependencies
+
+### Dependency Graph Visualization
+
+The Cyclonetix UI provides visualization of task dependencies as a graph, making it easy to understand workflow structure:
+
+![Dependency Graph Example](../images/dependency-graph.png)
+
+## Execution Queues
+
+Tasks can be assigned to specific queues, allowing for:
+
+- Workload categorization
+- Resource allocation
+- Parallel execution across multiple agents
+
+```yaml
+id: "gpu_training"
+# ...
+queue: "gpu_tasks"
+```
+
+Agents can be configured to listen to specific queues, enabling specialized workers for different task types.
+
+## Next Steps
+
+- Learn about [Execution Flow](execution-flow.qmd)
+- Understand [Scheduling Models](scheduling-models.qmd)
+- See how to define [Tasks](../user-guide/task-definition.qmd) in practice

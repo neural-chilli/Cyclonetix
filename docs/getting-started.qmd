@@ -1,0 +1,124 @@
+# Getting Started
+
+This guide will help you quickly set up Cyclonetix and run your first workflow.
+
+## Installation
+
+### Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install) (1.84 or later)
+- [Redis](https://redis.io/docs/getting-started/) (for production deployments)
+
+### Quick Installation
+
+#### 1. Clone the repository
+
+```bash
+git clone https://github.com/neural-chilli/Cyclonetix.git
+cd Cyclonetix
+```
+
+#### 2. Build the project
+
+```bash
+cargo build --release
+```
+
+#### 3. Run Cyclonetix in development mode
+
+```bash
+./target/release/cyclonetix
+```
+
+This will start Cyclonetix with an in-memory backend, perfect for testing and development.
+
+## Your First Workflow
+
+Let's create a simple workflow with three tasks:
+
+1. Data preparation
+2. Model training
+3. Result evaluation
+
+### 1. Define your tasks
+
+Create a new directory called `data/tasks` and add the following YAML files:
+
+`data/tasks/prepare_data.yaml`:
+```yaml
+id: "prepare_data"
+name: "Prepare Data"
+command: "echo 'Preparing data...'; sleep 2; echo 'Data ready'"
+dependencies: []
+parameters: {}
+```
+
+`data/tasks/train_model.yaml`:
+```yaml
+id: "train_model"
+name: "Train Model"
+command: "echo 'Training model...'; sleep 3; echo 'Model trained'"
+dependencies: ["prepare_data"]
+parameters: {}
+```
+
+`data/tasks/evaluate_results.yaml`:
+```yaml
+id: "evaluate_results"
+name: "Evaluate Results"
+command: "echo 'Evaluating results...'; sleep 1; echo 'Evaluation complete'"
+dependencies: ["train_model"]
+parameters: {}
+```
+
+### 2. Schedule the workflow
+
+You can schedule your workflow in one of two ways:
+
+#### Option A: Schedule the final outcome
+
+```bash
+./target/release/cyclonetix schedule-task evaluate_results
+```
+
+Cyclonetix will automatically determine that `evaluate_results` depends on `train_model`, which depends on `prepare_data`, and will execute them in the correct order.
+
+#### Option B: Define and schedule a DAG
+
+Create a file `data/dags/model_training.yaml`:
+
+```yaml
+id: "model_training"
+name: "Model Training Pipeline"
+description: "A simple ML model training pipeline"
+tasks:
+  - id: "prepare_data"
+  - id: "train_model"
+  - id: "evaluate_results"
+tags: ["ml", "training"]
+```
+
+Then schedule the DAG:
+
+```bash
+./target/release/cyclonetix schedule-dag model_training
+```
+
+### 3. Monitor execution
+
+Open your browser and navigate to `http://localhost:3000` to see the Cyclonetix UI. You should see your DAG executing with tasks progressing from "pending" to "running" to "completed."
+
+## Development Mode
+
+For development and UI work, you can enable hot-reloading of templates:
+
+```bash
+DEV_MODE=true cargo run
+```
+
+## Next Steps
+
+- [Learn about the core concepts](core-concepts/architecture.qmd) of Cyclonetix
+- [Explore the UI](user-guide/ui-overview.qmd) to monitor and manage your workflows
+- [Define more complex tasks](user-guide/task-definition.qmd) with parameters and contexts
+- [Set up a production deployment](deployment/installation.qmd) with Redis or PostgreSQL

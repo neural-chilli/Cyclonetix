@@ -1,0 +1,114 @@
+# Architecture Overview
+
+Cyclonetix is designed with a clean, modular architecture that allows for flexibility, scalability, and ease of maintenance.
+
+## Core Components
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+flowchart TB
+    Orchestrator["Orchestrator - Builds execution graphs - Evaluates task readiness - Schedules work"]
+    Agents["Agents - Pick up tasks from queues - Execute commands - Report results"]
+    UI["UI Server - Web interface - Visualization - Monitoring"]
+    StateManager["State Manager - Persists workflow state - Enables communication - Abstracts storage backend"]
+
+    Redis["Redis (Production)"]
+    PostgreSQL["PostgreSQL (Large-scale)"]
+    InMemory["In-Memory (Development)"]
+
+    Tasks["Task Definitions"] --> Orchestrator
+    DAGs["DAG Definitions"] --> Orchestrator
+    External["External Systems (Triggers/APIs)"] <--> UI
+    Users["Users (Web Interface)"] <--> UI
+    Scripts["Target Scripts and Commands"] <--> Agents
+
+    Orchestrator <--> StateManager
+    Agents <--> StateManager
+    UI <--> StateManager
+    StateManager --- Redis
+    StateManager --- PostgreSQL
+    StateManager --- InMemory
+```
+
+Cyclonetix consists of the following key components:
+
+| Component | Description |
+|-----------|------------|
+| **Orchestrator** | Builds execution graphs, evaluates task readiness, and schedules work. |
+| **Agent** | Picks up tasks from queues and executes them. |
+| **Execution Graph** | Self-assembled DAG built from tasks, outcomes, and dependencies. |
+| **State Manager** | Stores task states, execution metadata, and scheduled outcomes. |
+| **UI** | Provides real-time execution tracking and DAG visualization. |
+| **Authentication** | Ensures secure access to Cyclonetix resources. |
+
+## Component Interactions
+
+1. **Orchestrator** - The orchestrator is responsible for:
+   - Building and updating execution graphs
+   - Determining which tasks are ready to execute
+   - Scheduling tasks onto appropriate queues
+   - Monitoring the overall execution state
+
+2. **Agent** - The agent is responsible for:
+   - Monitoring one or more queues for available work
+   - Executing tasks with their required environment
+   - Reporting task success or failure
+   - Maintaining heartbeats for health monitoring
+
+3. **State Manager** - Provides a storage backend that:
+   - Persists task and DAG definitions
+   - Maintains execution state
+   - Enables communication between components
+   - Supports different backends (Redis, PostgreSQL, in-memory)
+
+4. **UI Server** - Provides a web interface for:
+   - Monitoring execution progress
+   - Visualizing DAGs
+   - Scheduling new tasks or DAGs
+   - Viewing logs and results
+
+## Modular Backend Design
+
+Cyclonetix supports multiple backend storage systems:
+
+- **In-memory**: For local development and testing
+- **Redis**: For production deployments with moderate scale
+- **PostgreSQL**: (Planned) For high-scale production deployments
+
+The `StateManager` trait abstracts these implementations, allowing you to swap backends without changing your application code.
+
+## Task Execution Flow
+
+When a task is executed, it flows through several components:
+
+1. **Scheduler** (part of the Orchestrator):
+   - Determines task readiness based on dependencies
+   - Assigns tasks to appropriate queues
+
+2. **Queues**:
+   - Store tasks ready for execution
+   - Allow prioritization and categorization
+
+3. **Agents**:
+   - Pull tasks from queues
+   - Execute tasks in isolated environments
+   - Report results back to the state manager
+
+4. **Event System**:
+   - Notifies the orchestrator of task completion
+   - Triggers evaluation of dependent tasks
+
+## Resilience and Recovery
+
+Cyclonetix is designed to handle failures at multiple levels:
+
+- **Task Failures**: Failed tasks are marked and can be retried
+- **Agent Failures**: Heartbeat monitoring detects failed agents, and their tasks are reassigned
+- **Orchestrator Failures**: Multiple orchestrators can run in parallel with work distribution
+- **State Recovery**: On startup, the system recovers in-progress executions from the state backend
+
+## Next Steps
+
+- Learn about [Tasks and Dependencies](tasks.qmd)
+- Understand the [Execution Flow](execution-flow.qmd)
+- Explore the different [Scheduling Models](scheduling-models.qmd)

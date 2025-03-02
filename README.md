@@ -1,138 +1,216 @@
 [![CI Pipeline](https://github.com/neural-chilli/Cyclonetix/actions/workflows/build.yml/badge.svg)](https://github.com/neural-chilli/Cyclonetix/actions/workflows/build.yml)
 [![Quarto Docs](https://img.shields.io/badge/docs-online-blue.svg)](https://neural-chilli.github.io/Cyclonetix/)
 
-
 # Cyclonetix
 
-## **Overview**
-Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be **fast, easy to use, and highly scalable**. It is built for **both cloud-native and on-premises deployments**, supporting **outcome-based scheduling, self-assembling DAGs, and user-specified DAG execution**.
+A lightweight, Rust-based workflow orchestrator designed for speed, simplicity, and scalability.
 
-Unlike traditional orchestrators, Cyclonetix aims to be:
-- **Effortlessly simple to get started with**
-- **Exceptionally fast and lightweight**
-- **Flexible enough for both beginners and enterprise-scale workloads**
-- **Clever by design, reducing user cognitive load**
-- **Capable of advanced scheduling mechanisms** (outcome-based scheduling + explicit DAG execution)
+## Overview
 
----
+Cyclonetix is a workflow orchestration system that makes complex task orchestration simple. It provides:
 
-## **Architecture**
-### **Core Components**
-Cyclonetix consists of the following key components:
+- **Self-assembling DAGs**: Schedule outcomes and let Cyclonetix determine the execution path
+- **Task Dependency Management**: Define dependencies between tasks to ensure proper execution order
+- **Distributed Execution**: Scale from local development to large clusters
+- **Flexible Backend Storage**: Use Redis, PostgreSQL, or in-memory options for state management
+- **Modern Web UI**: Monitor and manage workflows through an intuitive web interface
 
-| Component                                                 | Description |
-|-----------------------------------------------------------|------------|
-| **Orchestrator**                                          | Builds execution graphs, evaluates task readiness, and schedules work. |
-| **Agent**                                                 | Picks up tasks from queues and executes them. |
-| **Execution Graph**                                       | Self-assembled DAG built from tasks, outcomes, and dependencies. |
-| **State Manager (Redis, PostgreSQL, In-Memory Dev Mode)** | Stores task states, execution metadata, and scheduled outcomes. Supports different backends for different environments. |
-| **UI (Axum SSR + Tabler + Cytoscape.js)**                 | Provides real-time execution tracking and DAG visualization. |
-| **Authentication (OAuth, Basic Auth, API Keys)**          | Ensures secure access to Cyclonetix resources. |
+Whether you're running data pipelines, ML training jobs, or software deployment processes, Cyclonetix helps orchestrate your workflows with minimal overhead and maximum flexibility.
 
+## Key Features
 
-### **Execution Flow**
-1. **Users schedule an "Outcome" (final goal/task)**
-2. **Orchestrator determines required tasks to complete the Outcome (self-assembling DAG)**
-3. **Tasks are assigned to queues, picked up by agents, executed, and tracked in Redis or another backend**
-4. **Completed tasks trigger evaluations for the next executable tasks via events**
-5. **Execution continues until the full DAG is completed**
+- **Outcome-Based Scheduling**: Define what you want, not how to get it
+- **Self-Assembling DAGs**: Automatic resolution of task dependencies
+- **Simple API and CLI**: Easy integration with existing systems
+- **Fast Execution**: Lightweight core with minimal overhead
+- **Flexible Deployment**: Run locally or scale to large clusters
+- **Evaluation Points**: Dynamic decision-making within workflows
+- **Context & Parameter Management**: Control workflow behavior with environment variables and parameters
+- **Git Integration**: Execute code directly from Git repositories
+- **Web UI Dashboard**: Monitor and manage workflows visually
 
+## Getting Started
 
-### **Scheduling Model**
-Cyclonetix supports two scheduling models:
-- **Outcome-Based Scheduling** (Self-assembling DAGs)
-  - Users schedule an **Outcome** (e.g., `deploy-model`), and Cyclonetix dynamically determines the required execution steps.
-- **Manual DAG Execution**
-  - Users define DAGs explicitly in YAML and execute them as structured workflows.
+### Quick Installation
 
+```bash
+# Clone the repository
+git clone https://github.com/neural-chilli/Cyclonetix.git
+cd Cyclonetix
 
-### **Contexts & Parameters**
-- **Contexts** allow global state to be passed through execution graphs, ensuring variables and configurations are inherited properly.
-- **Parameter Sets** allow specific configurations to be associated with tasks, ensuring fine-grained control over execution and reuse of tasks with different "flavourings".  Parameters can be included in dependency declarations.
-- **Contexts can be hierarchical**, enabling seamless overrides for scoped execution.  Base contexts loaded from repo and partially overridden by user-defined contexts values at scheduling time.
-- **Support for common macros like ${DATE}, ${TIME}, ${RANDOM} for parameter and context values.
+# Build the project
+cargo build --release
 
+# Run with in-memory backend (development mode)
+./target/release/cyclonetix
+```
 
-### **Evaluation Points**
-- **Evaluation tasks** allow dynamic decision-making within a DAG.
-- **An evaluation step receives multiple inputs and determines the next workflow step dynamically**.
-- **Evaluation tasks are fully user-defined and can run arbitrary logic to decide next execution steps**.
-- **Evaluation tasks can be used for conditional branching, error handling, or dynamic DAG construction**.
-- **Can be used as an intercept point for manual approval or external system integration**.
-- **Enables AI integration for dynamic decision-making based on task outcomes and range of available scheduling options**.
-- **Context can be propagated onwards to ensure that any tasks scheduled as a result of the evaluation have the correct context**.
+### Define Your First Workflow
 
+Create task definitions:
 
-### **Authentication & Security**
-- **OAuth2 Support** for enterprise authentication.
-- **Basic Auth for simple use cases**.
-- **API Keys for programmatic access**.
-- **RBAC (Role-Based Access Control) planned for future enterprise usage**.
+```yaml
+# data/tasks/prepare_data.yaml
+id: "prepare_data"
+name: "Prepare Data"
+command: "echo 'Preparing data...'; sleep 2; echo 'Data ready'"
+dependencies: []
+```
 
+```yaml
+# data/tasks/process_data.yaml
+id: "process_data"
+name: "Process Data"
+command: "echo 'Processing data...'; sleep 3; echo 'Processing complete'"
+dependencies: ["prepare_data"]
+```
 
-### **Scaling Model (Kubernetes, Auto-Scaling)**
-- **Agents dynamically scale based on queue depth on Kubernetes using Prometheus and HPA**.
-- **Orchestrators self-distribute workloads using modulo hashing to allow for orchestrator scale-out on huge deployments**.
-- **Affinity Rules allow specific tasks to be bound to specific agent pools (e.g., GPU agents, high-memory agents, compute intensive tasks)**.
-- **Labelling of tasks, queues, agents to support cost attribution in cloud environments**.
+### Schedule a Workflow
 
+Schedule by outcome (let Cyclonetix determine the execution path):
 
-### **Git Integration for Code Execution**
-- **Instead of requiring local script uploads, Cyclonetix allows execution from Git repositories**.
-- **Supports versioning of DAGs and tasks using Git branches/tags**.
-- **Users can specify Git repo, branch, and execution command for tasks**.
+```bash
+./target/release/cyclonetix schedule-task process_data
+```
 
+Or define and schedule a complete DAG:
 
-### **Embedded In-Memory Backend for Development**
-- **For local development, Cyclonetix supports an in-memory execution mode**.
-- **Ensures rapid iteration without requiring Redis or PostgreSQL**.
-- **Production environments can configure Redis/PostgreSQL for durability**.
+```yaml
+# data/dags/data_pipeline.yaml
+id: "data_pipeline"
+name: "Data Pipeline"
+tasks:
+  - id: "prepare_data"
+  - id: "process_data"
+```
 
+```bash
+./target/release/cyclonetix schedule-dag data_pipeline
+```
 
----
+### Monitor Execution
 
-## **Roadmap & Next Steps**
+Open your browser to `http://localhost:3000` to see the Cyclonetix UI, where you can:
 
-### **Immediate Priorities**
-**Finalize task recovery logic and orchestrator state handling**
-**Prepare documentation (`docs/` folder structure)**
-**Ensure Redis-based backend is working fully**
-**Develop and test PostgreSQL-based StateManager backend**
+- View workflow execution progress
+- Inspect task details and logs
+- Visualize DAG structure
+- Schedule new workflows
 
+## Architecture
 
-### **Short-Term Goals** (Next 2-4 weeks)
-- **Build the first version of the UI (Axum SSR + Tabler.js + Cytoscape.js)**
-- **Introduce event-driven execution triggers (Kafka, Webhooks, API calls)**
-- **Expose REST API for external system integration**
-- **Refine Kubernetes auto-scaling logic**
-- **Enhance Git-based execution for versioned workflows**
+Cyclonetix consists of several core components:
 
+- **Orchestrator**: Builds execution graphs, evaluates task readiness, and schedules work
+- **Agent**: Picks up tasks from queues and executes them
+- **State Manager**: Stores task states, execution metadata, and scheduled outcomes
+- **UI**: Provides real-time execution tracking and DAG visualization
 
-### **Long-Term Vision**
-- **Cloud Deployment Automation (Terraform/Pulumi integration)**
-- **Jupyter Notebook Execution as DAGs** (Convert annotated notebooks into production-ready workflows)
-- **WASM Execution Support** (Ultra-lightweight task execution for simple workloads)
-- **Live Execution Tracking UI with WebSockets** (Real-time updates on DAG execution state)
-- **Multi-tenancy support for organizations running shared workloads**
+These components can run together in a single process or distributed across multiple machines for scalability.
 
----
+## Production Deployment
 
-## **Development**
+For production deployments, use Redis or PostgreSQL as a backend:
 
-### **UI Development Mode**
+```yaml
+# config.yaml
+backend: "redis"
+backend_url: "redis://localhost:6379"
+queues:
+  - "default"
+  - "high_memory"
+  - "gpu_tasks"
+```
 
-For UI development, you can set `DEV_MODE=true` to enable template hot-reloading:
+Run Cyclonetix with your configuration:
+
+```bash
+./target/release/cyclonetix --config config.yaml
+```
+
+For more advanced deployments, check the [documentation](https://neural-chilli.github.io/Cyclonetix/deployment/installation.html).
+
+## Advanced Features
+
+### Contexts and Parameters
+
+Define environment contexts:
+
+```yaml
+# data/contexts/production.yaml
+id: "production"
+variables:
+  ENV: "production"
+  LOG_LEVEL: "info"
+  DATA_PATH: "/data/production"
+```
+
+Schedule with context:
+
+```bash
+./target/release/cyclonetix schedule-task process_data --context production
+```
+
+### Evaluation Points
+
+Create dynamic workflows with evaluation points:
+
+```yaml
+id: "evaluate_data"
+name: "Evaluate Data Quality"
+command: "python evaluate.py --input ${INPUT_PATH} --output $CYCLO_EVAL_RESULT"
+dependencies: ["prepare_data"]
+evaluation_point: true
+```
+
+The evaluation script can dynamically determine next steps based on data quality.
+
+### Git Integration
+
+Execute code directly from Git repositories:
+
+```yaml
+command: "git-exec https://github.com/example/repo.git scripts/process.py --arg ${VALUE}"
+```
+
+## Documentation
+
+Comprehensive documentation is available at [https://neural-chilli.github.io/Cyclonetix/](https://neural-chilli.github.io/Cyclonetix/), including:
+
+- [Getting Started Guide](https://neural-chilli.github.io/Cyclonetix/getting-started.html)
+- [Core Concepts](https://neural-chilli.github.io/Cyclonetix/core-concepts/architecture.html)
+- [User Guide](https://neural-chilli.github.io/Cyclonetix/user-guide/task-definition.html)
+- [Deployment Guide](https://neural-chilli.github.io/Cyclonetix/deployment/installation.html)
+- [API Reference](https://neural-chilli.github.io/Cyclonetix/reference/api.html)
+- [Developer Guide](https://neural-chilli.github.io/Cyclonetix/developer-guide.html)
+
+## Development
+
+For UI development, enable template hot-reloading:
 
 ```bash
 DEV_MODE=true cargo run
 ```
 
-This disables Tera template caching and reloads templates on each request, allowing you to:
+This mode:
+- Disables Tera template caching
+- Reloads templates on each request
+- Enables faster UI development workflow
 
-- Edit templates directly and see changes on refresh
-- Avoid server restarts when modifying UI code
-- Speed up the UI development workflow
+## Roadmap
 
+Our development roadmap includes:
 
+- **Short-term**: UI improvements, REST API, Kubernetes auto-scaling
+- **Medium-term**: Workflow versioning, conditional branching, RBAC
+- **Long-term**: Multi-tenancy, serverless execution, AI-driven optimization
 
+See the [full roadmap](https://neural-chilli.github.io/Cyclonetix/roadmap.html) for details.
 
+## Contributing
+
+Contributions are welcome! See the [Developer Guide](https://neural-chilli.github.io/Cyclonetix/developer-guide.html) for information on getting started with Cyclonetix development.
+
+## License
+
+Cyclonetix is licensed under the [MIT License](LICENSE).

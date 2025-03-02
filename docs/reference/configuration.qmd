@@ -1,0 +1,456 @@
+# Configuration Reference
+
+This page provides a comprehensive reference for all configuration options available in Cyclonetix. The configuration is defined in a YAML file, by default named `config.yaml`.
+
+## Configuration File Location
+
+By default, Cyclonetix looks for `config.yaml` in the current working directory. You can specify a different location using the `--config` command-line flag:
+
+```bash
+./cyclonetix --config /path/to/config.yaml
+```
+
+## Configuration Sections
+
+### Core Paths
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `task_directory` | string | `"./data/tasks"` | Directory containing task definitions |
+| `context_directory` | string | `"./data/contexts"` | Directory containing context definitions |
+| `parameter_set_directory` | string | `"./data/parameter_sets"` | Directory containing parameter sets |
+| `dag_directory` | string | `"./data/dags"` | Directory containing DAG definitions |
+
+Example:
+```yaml
+task_directory: "/etc/cyclonetix/tasks"
+context_directory: "/etc/cyclonetix/contexts"
+parameter_set_directory: "/etc/cyclonetix/parameter_sets"
+dag_directory: "/etc/cyclonetix/dags"
+```
+
+### Backend Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `backend` | string | `"memory"` | Backend type (`"memory"`, `"redis"`, or `"postgresql"`) |
+| `backend_url` | string | `""` | Connection URL for the backend |
+| `serialization_format` | string | `"json"` | Format for serializing data (`"json"` or `"binary"`) |
+| `cluster_id` | string | `"default_cluster"` | Unique identifier for this Cyclonetix cluster |
+
+Example:
+```yaml
+backend: "redis"
+backend_url: "redis://localhost:6379"
+serialization_format: "binary"
+cluster_id: "production_cluster"
+```
+
+#### Redis-Specific Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `redis.cluster_mode` | boolean | `false` | Whether to use Redis cluster mode |
+| `redis.read_from_replicas` | boolean | `false` | Whether to read from Redis replicas |
+| `redis.connection_pool_size` | integer | `10` | Size of the Redis connection pool |
+| `redis.connection_timeout_ms` | integer | `1000` | Connection timeout in milliseconds |
+| `redis.retry_interval_ms` | integer | `100` | Retry interval in milliseconds |
+| `redis.max_retries` | integer | `3` | Maximum number of connection retries |
+
+Example:
+```yaml
+redis:
+  cluster_mode: true
+  read_from_replicas: true
+  connection_pool_size: 20
+  connection_timeout_ms: 2000
+  retry_interval_ms: 200
+  max_retries: 5
+```
+
+#### PostgreSQL-Specific Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `postgresql.max_connections` | integer | `10` | Maximum number of database connections |
+| `postgresql.statement_timeout_seconds` | integer | `30` | SQL statement timeout in seconds |
+| `postgresql.use_prepared_statements` | boolean | `true` | Whether to use prepared statements |
+| `postgresql.connection_lifetime_seconds` | integer | `3600` | Maximum connection lifetime in seconds |
+
+Example:
+```yaml
+postgresql:
+  max_connections: 20
+  statement_timeout_seconds: 60
+  use_prepared_statements: true
+  connection_lifetime_seconds: 1800
+```
+
+### Queue Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `queues` | string[] | `["default"]` | List of queue names to use |
+| `default_queue` | string | `"default"` | Default queue for tasks without a specified queue |
+
+Example:
+```yaml
+queues:
+  - "default"
+  - "high_memory"
+  - "gpu_tasks"
+  - "etl"
+default_queue: "default"
+```
+
+### Agent Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `agent.concurrency` | integer | `4` | Number of concurrent tasks per agent |
+| `agent.heartbeat_interval_seconds` | integer | `5` | Interval between agent heartbeats |
+| `agent.execution_timeout_seconds` | integer | `3600` | Default timeout for task execution |
+| `agent.cleanup_temp_files` | boolean | `true` | Whether to clean up temporary files |
+| `agent.queues` | string[] | `[]` | Queues this agent should process (defaults to all queues) |
+| `agent.tags` | string[] | `[]` | Tags for agent classification |
+
+Example:
+```yaml
+agent:
+  concurrency: 8
+  heartbeat_interval_seconds: 10
+  execution_timeout_seconds: 7200
+  cleanup_temp_files: true
+  queues:
+    - "default"
+    - "high_memory"
+  tags:
+    - "region:us-east"
+    - "type:general"
+```
+
+### Orchestrator Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `orchestrator.id` | string | `"auto"` | Orchestrator identifier (or "auto" to generate) |
+| `orchestrator.cluster_mode` | boolean | `false` | Enable orchestrator clustering |
+| `orchestrator.distribution_algorithm` | string | `"consistent_hash"` | Algorithm for distributing work |
+| `orchestrator.evaluation_interval_seconds` | integer | `5` | Interval for evaluating DAGs |
+| `orchestrator.max_parallel_evaluations` | integer | `10` | Maximum parallel DAG evaluations |
+| `orchestrator.enable_auto_recovery` | boolean | `true` | Automatically recover from failures |
+
+Example:
+```yaml
+orchestrator:
+  id: "orchestrator-1"
+  cluster_mode: true
+  distribution_algorithm: "consistent_hash"
+  evaluation_interval_seconds: 10
+  max_parallel_evaluations: 20
+  enable_auto_recovery: true
+```
+
+### UI Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `ui.title` | string | `"Cyclonetix"` | UI title |
+| `ui.logo_path` | string | `""` | Path to custom logo |
+| `ui.theme` | string | `"dark"` | Default theme (`"dark"` or `"light"`) |
+| `ui.refresh_interval_seconds` | integer | `10` | Dashboard refresh rate |
+| `ui.default_view` | string | `"dashboard"` | Starting page |
+| `ui.max_dag_nodes` | integer | `500` | Maximum DAG nodes to render |
+
+Example:
+```yaml
+ui:
+  title: "Company Workflow Orchestrator"
+  logo_path: "/static/img/company-logo.png"
+  theme: "dark"
+  refresh_interval_seconds: 5
+  default_view: "dashboard"
+  max_dag_nodes: 300
+```
+
+### Security Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `security.enabled` | boolean | `false` | Whether security is enabled |
+| `security.cookie_secret` | string | `"change-me"` | Secret for signing cookies |
+| `security.session_timeout_minutes` | integer | `120` | Session timeout |
+| `security.secure_cookies` | boolean | `false` | Whether cookies require HTTPS |
+| `security.same_site` | string | `"lax"` | Cookie SameSite policy |
+| `security.public_paths` | string[] | `["/static/*", "/login", "/auth/*", "/health"]` | Paths accessible without auth |
+
+Example:
+```yaml
+security:
+  enabled: true
+  cookie_secret: "use-a-random-string-here"
+  session_timeout_minutes: 240
+  secure_cookies: true
+  same_site: "strict"
+  public_paths:
+    - "/static/*"
+    - "/login"
+    - "/auth/*"
+    - "/health"
+```
+
+#### OAuth Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `security.oauth.provider` | string | `"google"` | OAuth provider (`"google"`, `"github"`, `"azure"`) |
+| `security.oauth.client_id` | string | `""` | OAuth client ID |
+| `security.oauth.client_secret` | string | `""` | OAuth client secret |
+| `security.oauth.redirect_url` | string | `""` | OAuth redirect URL |
+| `security.oauth.allowed_domains` | string[] | `[]` | Allowed email domains (empty = all) |
+| `security.oauth.allowed_emails` | string[] | `[]` | Allowed email addresses (empty = all) |
+
+Example:
+```yaml
+security:
+  oauth:
+    provider: "google"
+    client_id: "your-client-id"
+    client_secret: "your-client-secret"
+    redirect_url: "https://cyclonetix.example.com/auth/callback"
+    allowed_domains:
+      - "example.com"
+    allowed_emails:
+      - "admin@othercompany.com"
+```
+
+#### Basic Authentication
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `security.basic_auth.users` | object[] | `[]` | List of users with usernames and password hashes |
+
+Example:
+```yaml
+security:
+  basic_auth:
+    users:
+      - username: "admin"
+        password_hash: "$2b$12$..."  # BCrypt hash
+      - username: "viewer"
+        password_hash: "$2b$12$..."
+```
+
+#### API Keys
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `security.api_keys` | object[] | `[]` | List of API keys with names and roles |
+
+Example:
+```yaml
+security:
+  api_keys:
+    - key: "your-secret-api-key"
+      name: "ci-pipeline"
+      roles: ["scheduler", "viewer"]
+    - key: "another-secret-key"
+      name: "monitoring-system"
+      roles: ["viewer"]
+```
+
+### Logging Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `logging.level` | string | `"info"` | Log level (`"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"`) |
+| `logging.format` | string | `"text"` | Log format (`"text"` or `"json"`) |
+| `logging.file` | string | `""` | Optional log file |
+| `logging.syslog` | boolean | `false` | Whether to log to syslog |
+
+Example:
+```yaml
+logging:
+  level: "info"
+  format: "json"
+  file: "/var/log/cyclonetix.log"
+  syslog: true
+```
+
+### Git Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `git.cache.enabled` | boolean | `true` | Whether to cache Git repositories |
+| `git.cache.path` | string | `"/tmp/cyclonetix-git-cache"` | Path for Git cache |
+| `git.cache.max_size_mb` | integer | `1000` | Maximum cache size in MB |
+| `git.cache.ttl_minutes` | integer | `60` | Cache TTL in minutes |
+
+Example:
+```yaml
+git:
+  cache:
+    enabled: true
+    path: "/var/cache/cyclonetix/git"
+    max_size_mb: 5000
+    ttl_minutes: 120
+  auth:
+    ssh_key_path: "/etc/cyclonetix/ssh/id_rsa"
+```
+
+### Monitoring Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `monitoring.prometheus.enabled` | boolean | `false` | Whether to expose Prometheus metrics |
+| `monitoring.prometheus.endpoint` | string | `"/metrics"` | Metrics endpoint |
+| `monitoring.metrics.include_task_metrics` | boolean | `true` | Include task metrics |
+| `monitoring.metrics.include_queue_metrics` | boolean | `true` | Include queue metrics |
+| `monitoring.metrics.include_agent_metrics` | boolean | `true` | Include agent metrics |
+
+Example:
+```yaml
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: "/metrics"
+  metrics:
+    include_task_metrics: true
+    include_queue_metrics: true
+    include_agent_metrics: true
+```
+
+## Complete Configuration Example
+
+Here's a comprehensive configuration example:
+
+```yaml
+# Core paths
+task_directory: "/etc/cyclonetix/tasks"
+context_directory: "/etc/cyclonetix/contexts"
+parameter_set_directory: "/etc/cyclonetix/parameter_sets"
+dag_directory: "/etc/cyclonetix/dags"
+
+# Backend configuration
+backend: "redis"
+backend_url: "redis://redis.internal:6379"
+serialization_format: "binary"
+cluster_id: "production_cluster"
+
+# Redis-specific options
+redis:
+  cluster_mode: true
+  read_from_replicas: true
+  connection_pool_size: 20
+  connection_timeout_ms: 2000
+  retry_interval_ms: 200
+  max_retries: 5
+
+# Queue configuration
+queues:
+  - "default"
+  - "high_memory"
+  - "gpu_tasks"
+  - "etl"
+default_queue: "default"
+
+# Agent configuration
+agent:
+  concurrency: 8
+  heartbeat_interval_seconds: 10
+  execution_timeout_seconds: 7200
+  cleanup_temp_files: true
+  queues:
+    - "default"
+    - "high_memory"
+  tags:
+    - "region:us-east"
+    - "type:general"
+
+# Orchestrator configuration
+orchestrator:
+  id: "auto"
+  cluster_mode: true
+  distribution_algorithm: "consistent_hash"
+  evaluation_interval_seconds: 10
+  max_parallel_evaluations: 20
+  enable_auto_recovery: true
+
+# UI configuration
+ui:
+  title: "Company Workflow Orchestrator"
+  logo_path: "/static/img/company-logo.png"
+  theme: "dark"
+  refresh_interval_seconds: 5
+  default_view: "dashboard"
+  max_dag_nodes: 300
+
+# Security configuration
+security:
+  enabled: true
+  cookie_secret: "use-a-random-string-here"
+  session_timeout_minutes: 240
+  secure_cookies: true
+  same_site: "strict"
+  public_paths:
+    - "/static/*"
+    - "/login"
+    - "/auth/*"
+    - "/health"
+  oauth:
+    provider: "google"
+    client_id: "${OAUTH_CLIENT_ID}"
+    client_secret: "${OAUTH_CLIENT_SECRET}"
+    redirect_url: "https://cyclonetix.example.com/auth/callback"
+    allowed_domains:
+      - "example.com"
+  api_keys:
+    - key: "${API_KEY_CI}"
+      name: "ci-pipeline"
+      roles: ["scheduler", "viewer"]
+
+# Logging configuration
+logging:
+  level: "info"
+  format: "json"
+  file: "/var/log/cyclonetix.log"
+  syslog: false
+
+# Git configuration
+git:
+  cache:
+    enabled: true
+    path: "/var/cache/cyclonetix/git"
+    max_size_mb: 5000
+    ttl_minutes: 120
+  auth:
+    ssh_key_path: "/etc/cyclonetix/ssh/id_rsa"
+
+# Monitoring configuration
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: "/metrics"
+  metrics:
+    include_task_metrics: true
+    include_queue_metrics: true
+    include_agent_metrics: true
+```
+
+## Environment Variable Overrides
+
+Most configuration options can be overridden with environment variables. The format is `CYCLO_SECTION_OPTION`. For example:
+
+- `CYCLO_BACKEND_URL` overrides `backend_url`
+- `CYCLO_SECURITY_ENABLED` overrides `security.enabled`
+- `CYCLO_LOGGING_LEVEL` overrides `logging.level`
+
+Nested configurations use underscores:
+- `CYCLO_REDIS_CLUSTER_MODE` overrides `redis.cluster_mode`
+- `CYCLO_SECURITY_OAUTH_CLIENT_ID` overrides `security.oauth.client_id`
+
+## Next Steps
+
+- Check the [CLI Reference](cli.qmd) for command-line options
+- Review the [API Reference](api.qmd) for API documentation
+- Explore the [YAML Schema](yaml-schema.qmd) for task and DAG definitions

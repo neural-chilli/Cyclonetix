@@ -1,0 +1,362 @@
+# YAML Schema
+
+This page describes the schema for YAML files used in Cyclonetix, including tasks, DAGs, contexts, and parameter sets.
+
+## Task Definition Schema
+
+Tasks are defined in YAML files with the following schema:
+
+```yaml
+# Unique identifier for the task (required)
+id: "task_id"
+
+# Human-readable name (required)
+name: "Task Name"
+
+# Optional description
+description: "Detailed description of the task's purpose"
+
+# Command to execute (required)
+command: "python script.py --input ${INPUT_FILE} --output ${OUTPUT_FILE}"
+
+# Dependencies on other tasks (optional)
+dependencies:
+  - "dependency_task_1"
+  - "dependency_task_2:parameter_set_name"  # With specific parameter set
+
+# Default parameters (optional)
+parameters:
+  PARAM1: "default_value"
+  PARAM2: "another_value"
+  # Complex parameter with validation
+  COMPLEX_PARAM:
+    default: "value1"
+    description: "Parameter description"
+    required: true
+    options: ["value1", "value2", "value3"]
+    validation: "^[a-z0-9_]+$"
+
+# Queue assignment (optional, defaults to "default")
+queue: "gpu_tasks"
+
+# Whether this is an evaluation point (optional, defaults to false)
+evaluation_point: false
+
+# Timeout in seconds (optional)
+timeout_seconds: 3600
+
+# Retry configuration (optional)
+retries:
+  count: 3
+  delay_seconds: 300
+  exponential_backoff: true
+  max_delay_seconds: 3600
+
+# Resource requirements (optional)
+resources:
+  cpu: 2
+  memory_mb: 4096
+  gpu: 1
+  disk_mb: 10240
+
+# Task tags for organization (optional)
+tags:
+  - "etl"
+  - "data_processing"
+
+# Git configuration for code execution (optional)
+git:
+  repository: "https://github.com/example/repo.git"
+  ref: "main"  # Branch, tag, or commit
+  path: "scripts/process.py"
+  environment: "python-data-science"
+```
+
+### Example Task
+
+```yaml
+id: "train_model"
+name: "Train Machine Learning Model"
+description: "Trains a machine learning model using the prepared dataset"
+command: |
+  python train.py \
+    --data-path ${DATA_PATH} \
+    --model-type ${MODEL_TYPE} \
+    --epochs ${EPOCHS} \
+    --batch-size ${BATCH_SIZE} \
+    --output-path ${MODEL_OUTPUT}
+dependencies:
+  - "prepare_data"
+  - "feature_engineering"
+parameters:
+  DATA_PATH: "/data/processed"
+  MODEL_TYPE: "random_forest"
+  EPOCHS: "100"
+  BATCH_SIZE: "32"
+  MODEL_OUTPUT: "/models/latest"
+queue: "gpu_tasks"
+timeout_seconds: 7200
+resources:
+  cpu: 4
+  memory_mb: 16384
+  gpu: 1
+tags:
+  - "ml"
+  - "training"
+```
+
+## DAG Definition Schema
+
+DAGs are defined in YAML files with the following schema:
+
+```yaml
+# Unique identifier for the DAG (required)
+id: "dag_id"
+
+# Human-readable name (required)
+name: "DAG Name"
+
+# Optional description
+description: "Detailed description of the DAG's purpose"
+
+# List of tasks to include (required)
+tasks:
+  # Simple task reference
+  - id: "task_1"
+
+  # Task with parameter overrides
+  - id: "task_2"
+    parameters:
+      PARAM1: "override_value"
+      PARAM2: "another_override"
+
+  # Task with different queue
+  - id: "task_3"
+    queue: "high_priority"
+
+# Default context for all tasks (optional)
+context: "production"
+
+# Schedule for periodic execution (optional)
+schedule:
+  cron: "0 5 * * *"        # Cron expression (run at 5:00 AM daily)
+  timezone: "UTC"          # Timezone for the cron expression
+  start_date: "2023-01-01" # Optional start date
+  end_date: "2023-12-31"   # Optional end date
+  catchup: false           # Whether to run for missed intervals
+  depends_on_past: false   # Whether each run depends on the previous run
+
+# Maximum concurrency (optional)
+max_active_runs: 1
+
+# DAG-level timeout (optional)
+timeout_seconds: 86400  # 24 hours
+
+# DAG tags for organization (optional)
+tags:
+  - "production"
+  - "daily"
+```
+
+### Example DAG
+
+```yaml
+id: "etl_pipeline"
+name: "ETL Pipeline"
+description: "Extract, transform, and load data pipeline"
+tasks:
+  - id: "data_extraction"
+    parameters:
+      SOURCE: "production_db"
+      LIMIT: "10000"
+
+  - id: "data_cleaning"
+    parameters:
+      CLEAN_MODE: "strict"
+
+  - id: "data_transformation"
+    parameters:
+      TRANSFORM_TYPE: "normalize"
+
+  - id: "data_validation"
+    evaluation_point: true
+
+  - id: "data_loading"
+    parameters:
+      DESTINATION: "data_warehouse"
+      MODE: "append"
+
+context: "production"
+schedule:
+  cron: "0 2 * * *"  # Daily at 2:00 AM
+  timezone: "UTC"
+  catchup: false
+max_active_runs: 1
+tags:
+  - "etl"
+  - "production"
+  - "daily"
+```
+
+## Context Definition Schema
+
+Contexts are defined in YAML files with the following schema:
+
+```yaml
+# Unique identifier for the context (required)
+id: "context_id"
+
+# Optional parent context to extend
+extends: "parent_context_id"
+
+# Variables defined in this context (required)
+variables:
+  ENV: "production"
+  LOG_LEVEL: "info"
+  DATA_PATH: "/data/production"
+  API_URL: "https://api.example.com"
+  DB_CONNECTION: "postgresql://user:pass@host:5432/db"
+  # Dynamic values
+  RUN_DATE: "${DATE}"
+  RUN_ID: "${RUN_ID}"
+  RANDOM_ID: "${RANDOM:16}"
+
+# Optional description
+description: "Production environment context"
+```
+
+### Example Context
+
+```yaml
+id: "production"
+description: "Production environment context"
+variables:
+  # Environment information
+  ENV: "production"
+  LOG_LEVEL: "info"
+
+  # Paths and locations
+  BASE_PATH: "/data/production"
+  LOG_PATH: "/var/log/cyclonetix"
+
+  # Service connections
+  API_URL: "https://api.example.com"
+  DB_HOST: "db.example.com"
+  DB_PORT: "5432"
+  DB_NAME: "production_db"
+  DB_USER: "app_user"
+
+  # Runtime configuration
+  MAX_THREADS: "16"
+  TIMEOUT_SECONDS: "3600"
+  BATCH_SIZE: "1000"
+```
+
+## Parameter Set Definition Schema
+
+Parameter sets are defined in YAML files with the following schema:
+
+```yaml
+# Unique identifier for the parameter set (required)
+id: "parameter_set_id"
+
+# Parameters defined in this set (required)
+parameters:
+  PARAM1: "value1"
+  PARAM2: "value2"
+  NESTED_PARAM:
+    SUBPARAM1: "subvalue1"
+    SUBPARAM2: "subvalue2"
+
+# Optional description
+description: "Parameter set description"
+
+# Optional tags for organization
+tags:
+  - "tag1"
+  - "tag2"
+```
+
+### Example Parameter Set
+
+```yaml
+id: "large_training"
+description: "Parameters for large-scale model training"
+parameters:
+  # Model configuration
+  MODEL_TYPE: "deep_learning"
+  ARCHITECTURE: "transformer"
+
+  # Training parameters
+  EPOCHS: "100"
+  BATCH_SIZE: "128"
+  LEARNING_RATE: "0.001"
+  OPTIMIZER: "adam"
+
+  # Resource allocation
+  NUM_GPUS: "4"
+  DISTRIBUTED: "true"
+
+  # Logging and checkpoints
+  LOG_FREQUENCY: "10"
+  CHECKPOINT_FREQUENCY: "20"
+tags:
+  - "ml"
+  - "deep_learning"
+  - "large_scale"
+```
+
+## Evaluation Result Schema
+
+Evaluation tasks output results in the following JSON format:
+
+```json
+{
+  "next_tasks": ["task_id_1", "task_id_2"],
+  "parameters": {
+    "task_id_1": {
+      "PARAM1": "value1",
+      "PARAM2": "value2"
+    },
+    "task_id_2": {
+      "PARAM1": "value1"
+    }
+  },
+  "context_updates": {
+    "VARIABLE1": "new_value",
+    "VARIABLE2": "new_value"
+  },
+  "metadata": {
+    "reason": "Model accuracy below threshold",
+    "metrics": {
+      "accuracy": 0.82,
+      "precision": 0.79
+    }
+  }
+}
+```
+
+## Schema Validation
+
+Cyclonetix validates all YAML files against these schemas at load time. If a file doesn't conform to the schema, an error will be reported.
+
+You can validate your YAML files without loading them into Cyclonetix using the command:
+
+```bash
+cyclonetix validate-yaml <path-to-yaml-file>
+```
+
+## File Naming Conventions
+
+While Cyclonetix doesn't enforce specific file naming conventions, the following are recommended:
+
+- **Tasks**: `<task_id>.yaml` or grouped in subdirectories
+- **DAGs**: `<dag_id>.yaml`
+- **Contexts**: `<context_id>.yaml`
+- **Parameter Sets**: `<parameter_set_id>.yaml`
+
+## Next Steps
+
+- Review the [API Reference](api.qmd) for API documentation
+- Check the [CLI Reference](cli.qmd) for command-line options
+- Explore the [Configuration Reference](configuration.qmd) for system configuration

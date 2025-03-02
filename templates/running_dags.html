@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Cyclonetix{% endblock title %}
+{% block title %}Running DAGs - Cyclonetix{% endblock title %}
 
 {% block head %}
 <style>
@@ -26,66 +26,269 @@
         font-size: 2rem;
         font-weight: 700;
     }
-    .table thead th {
-        background-color: #f8f9fa;
+
+    /* Tabulator Specific Styles */
+    .tabulator .tabulator-header {
+        background-color: var(--bs-tertiary-bg);
+        border-bottom: 1px solid var(--bs-border-color);
+    }
+
+    /* Significantly increase row height */
+    .tabulator-row .tabulator-cell {
+        padding: 18px 10px;
+        height: auto !important;
+        min-height: 60px !important;
+        font-size: medium !important;
+        align-content: center;
+        justify-content: left;
+    }
+
+    /* Ensure tabulator doesn't truncate cell content */
+    .tabulator-cell-value {
+        height: auto !important;
+        white-space: normal !important;
+    }
+
+    .progress-cell {
+        width: 100%;
+        padding: 0 !important;
+    }
+
+    .progress-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Make progress bar taller */
+    .progress {
+        height: 12px !important;
+        margin-bottom: 6px;
+        margin-top: 5px;
+    }
+
+    .status-badge {
+        font-weight: 500;
+    }
+
+    .mini-stats {
+        font-size: small;
+        color: var(--bs-secondary-color);
+        margin-top: 6px;
+        font-weight: 500;
     }
 </style>
 {% endblock head %}
 
 {% block content %}
-<div class="container-fluid">
-    
-    <!-- DAGs Table -->
+<div class="container-fluid p-0 mt-0">
     <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">Running DAGs</h5>
-        </div>
-        <div class="card-body">
-            {% if dags | length == 0 %}
-            <p>No DAGs currently running.</p>
-            {% else %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>DAG ID</th>
-                        <th>Status</th>
-                        <th>Progress</th>
-                        <th>Last Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for dag in dags %}
-                    <tr>
-                        <td>{{ dag.dag_id }} <span class="text-muted small">({{ dag.display_id }})</span></td>
-                        <td>
-                            <span class="badge bg-{{ dag.status_class }}">{{ dag.status }}</span>
-                        </td>
-                        <td>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-{{ dag.status_class }}"
-                                    role="progressbar" style="width: {{ dag.progress_percent }}%;"
-                                    aria-valuenow="{{ dag.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
-                                </div>
-                            </div>
-                            <small class="text-muted">{{ dag.completed_tasks }}/{{ dag.task_count }} tasks</small>
-                        </td>
-                        <td>{{ dag.last_updated }}</td>
-                        <td>
-                            <a href="/dag?run_id={{ dag.run_id }}" class="btn btn-sm btn-primary">
-                                View
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Running DAGs</h5>
+            <div class="page-count-info">
+                <span class="text-muted">
+                    <span id="dagCount">0</span> DAGs
+                </span>
             </div>
-            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            <div id="dags-table"></div>
         </div>
     </div>
 </div>
 {% endblock content %}
 
-{% block scripts %}{% endblock scripts %}
+{% block scripts %}
+<!-- Include Tabulator JS -->
+<script src="/static/js/tabulator.js"></script>
+
+<script>
+    let dagsTable;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDagsTable();
+        applyTabulatorTheme();
+    });
+
+    function loadDagsTable() {
+        // Function to calculate optimal rows per page based on available height
+        function calculateRowsPerPage() {
+            const container = document.getElementById("dags-table");
+            if (!container) return 10; // Default fallback
+
+            const availableHeight = window.innerHeight - container.getBoundingClientRect().top - 100;
+            const rowHeight = 48; // Increased row height for better readability
+
+            return Math.max(5, Math.floor(availableHeight / rowHeight));
+        }
+
+        // Update the table pagination size when window resizes
+        window.addEventListener("resize", function() {
+            const newSize = calculateRowsPerPage();
+            if (dagsTable) {
+                dagsTable.setPageSize(newSize);
+            }
+        });
+
+        const dynamicPageSize = calculateRowsPerPage();
+
+        // Status formatter to create the status badges
+        function statusFormatter(cell) {
+            const value = cell.getValue();
+            let statusClass;
+
+            switch(value) {
+                case 'pending':
+                    statusClass = 'bg-secondary';
+                    break;
+                case 'running':
+                    statusClass = 'bg-primary';
+                    break;
+                case 'completed':
+                    statusClass = 'bg-success';
+                    break;
+                case 'failed':
+                    statusClass = 'bg-danger';
+                    break;
+                default:
+                    statusClass = 'bg-info';
+            }
+
+            return `<span class="status-badge ${statusClass}">${value}</span>`;
+        }
+
+        // Progress formatter that creates bootstrap progress bar
+        function progressFormatter(cell) {
+            const data = cell.getRow().getData();
+            const progressPercent = data.progress_percent;
+            const completedTasks = data.completed_tasks;
+            const totalTasks = data.task_count;
+            const statusClass = data.status_class;
+
+            return `
+                <div class="progress-wrapper">
+                    <div class="progress">
+                        <div class="progress-bar bg-${statusClass}"
+                            role="progressbar"
+                            style="width: ${progressPercent}%;"
+                            aria-valuenow="${progressPercent}"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div class="mini-stats">${completedTasks}/${totalTasks} tasks (${progressPercent.toFixed(1)}%)</div>
+                </div>
+            `;
+        }
+
+        // Action buttons formatter
+        function actionsFormatter(cell) {
+            const runId = cell.getValue();
+            return `
+                <a href="/dag?run_id=${runId}" class="btn btn-sm btn-primary">
+                    View
+                </a>
+            `;
+        }
+
+        // Initialize Tabulator with the DAGs data
+        dagsTable = new Tabulator("#dags-table", {
+            data: convertDagsData(), // Convert directly since we have the data in the template
+            layout: "fitColumns",
+            pagination: "local",
+            paginationSize: dynamicPageSize,
+            responsiveLayout: "collapse",
+            columns: [
+                {
+                    title: "DAG ID",
+                    field: "dag_id",
+                    formatter: function(cell) {
+                        const data = cell.getRow().getData();
+                        return `${data.dag_id} <span class="text-muted small">(${data.display_id})</span>`;
+                    },
+                    headerFilter: "input",
+                    sorter: "string"
+                },
+                {
+                    title: "Status",
+                    field: "status",
+                    formatter: statusFormatter,
+                    headerFilter: "select",
+                    headerFilterParams: {
+                        values: {"":"All", "pending":"Pending", "running":"Running", "completed":"Completed", "failed":"Failed"}
+                    },
+                    width: 120
+                },
+                {
+                    title: "Progress",
+                    field: "progress_percent",
+                    formatter: progressFormatter,
+                    headerSort: false
+                },
+                {
+                    title: "Last Updated",
+                    field: "last_updated",
+                    sorter: "string",
+                    headerFilter: "input"
+                },
+                {
+                    title: "Actions",
+                    field: "run_id",
+                    formatter: actionsFormatter,
+                    headerSort: false,
+                    hozAlign: "center",
+                    width: 100
+                }
+            ],
+            initialSort: [
+                {column: "last_updated", dir: "desc"}
+            ]
+        });
+
+        // When table is fully loaded, update the DAG count
+        dagsTable.on("tableBuilt", function() {
+            updateDagCount();
+        });
+
+        // Also update count when the table data is filtered
+        dagsTable.on("dataFiltered", function() {
+            updateDagCount();
+        });
+    }
+
+    // Function to convert the template data into JavaScript array
+    function convertDagsData() {
+        // This data comes from the template
+        const dagsData = [
+            {% for dag in dags %}
+        {
+            run_id: "{{ dag.run_id }}",
+                dag_id: "{{ dag.dag_id }}",
+            display_id: "{{ dag.display_id }}",
+            status: "{{ dag.status }}",
+            status_class: "{{ dag.status_class }}",
+            progress_percent: {{ dag.progress_percent }},
+            completed_tasks: {{ dag.completed_tasks }},
+            task_count: {{ dag.task_count }},
+            last_updated: "{{ dag.last_updated }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+        return dagsData;
+    }
+
+    // Function to update the DAG count display
+    function updateDagCount() {
+        const visibleRows = dagsTable.getRows("active").length;
+        document.getElementById('dagCount').textContent = visibleRows;
+    }
+
+    // Function to apply appropriate tabulator theme based on current dark/light mode
+    function applyTabulatorTheme() {
+        const theme = document.documentElement.getAttribute("data-bs-theme");
+        document.getElementById("tabulator-light").disabled = theme === "dark";
+        document.getElementById("tabulator-dark").disabled = theme !== "dark";
+    }
+</script>
+{% endblock scripts %}

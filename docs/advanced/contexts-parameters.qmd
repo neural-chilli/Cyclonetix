@@ -1,0 +1,325 @@
+# Contexts & Parameters
+
+Contexts and parameters are powerful features in Cyclonetix that allow you to make your workflows flexible, reusable, and environment-aware. This guide explains how to use these features effectively.
+
+## Contexts
+
+A context is a collection of variables that can be passed to tasks during execution. Contexts allow you to:
+
+- Share environment variables across tasks
+- Define environment-specific configurations
+- Override values at different levels
+- Propagate data between workflow steps
+
+### Defining Contexts
+
+Contexts are defined in YAML files in the `data/contexts` directory:
+
+```yaml
+# data/contexts/development.yaml
+id: "development"
+variables:
+  ENV: "development"
+  LOG_LEVEL: "debug"
+  DATA_PATH: "/tmp/data"
+  API_URL: "https://dev-api.example.com"
+  MAX_WORKERS: "4"
+```
+
+```yaml
+# data/contexts/production.yaml
+id: "production"
+variables:
+  ENV: "production"
+  LOG_LEVEL: "info"
+  DATA_PATH: "/data/production"
+  API_URL: "https://api.example.com"
+  MAX_WORKERS: "16"
+```
+
+### Using Contexts in Tasks
+
+Context variables are automatically available as environment variables in tasks:
+
+```yaml
+# Task definition
+id: "process_data"
+name: "Process Data"
+command: "python process.py --log-level ${LOG_LEVEL} --path ${DATA_PATH} --workers ${MAX_WORKERS}"
+```
+
+### Specifying Context at Scheduling Time
+
+You can specify which context to use when scheduling a workflow:
+
+```bash
+# CLI
+./cyclonetix schedule-task process_data --context production
+
+# API
+curl -X POST "http://localhost:3000/api/schedule-task" \
+  -H "Content-Type: application/json" \
+  -d '{"task_id": "process_data", "context": "production"}'
+```
+
+### Default Context
+
+Set a default context in your configuration:
+
+```yaml
+# config.yaml
+default_context: "development"
+```
+
+### Context Inheritance
+
+Contexts can inherit from each other to create hierarchies:
+
+```yaml
+# data/contexts/staging.yaml
+id: "staging"
+extends: "production"  # Inherit from production
+variables:
+  ENV: "staging"
+  API_URL: "https://staging-api.example.com"
+  # Other variables inherited from production
+```
+
+### Dynamic Context Values
+
+Contexts support macros for dynamic values:
+
+```yaml
+variables:
+  RUN_DATE: "${DATE}"         # Current date (YYYY-MM-DD)
+  RUN_TIME: "${TIME}"         # Current time (HH:MM:SS)
+  RUN_DATETIME: "${DATETIME}" # Current datetime (YYYY-MM-DDTHH:MM:SS)
+  RUN_ID: "${RUN_ID}"         # ID of the current workflow run
+  RANDOM_ID: "${RANDOM:16}"   # 16-character random string
+```
+
+### Context Overrides
+
+Variables can be overridden at different levels:
+
+1. **Base context definition** (lowest priority)
+2. **Inherited context values**
+3. **DAG-level context overrides**
+4. **Task-level environment variables**
+5. **Scheduling-time context overrides** (highest priority)
+
+## Parameters
+
+Parameters are task-specific values that can be configured at scheduling time. Unlike contexts, which are global, parameters are scoped to specific tasks.
+
+### Defining Parameters
+
+Define parameters in task definitions:
+
+```yaml
+# Task definition
+id: "train_model"
+name: "Train Model"
+command: "python train.py --model-type ${MODEL_TYPE} --epochs ${EPOCHS} --batch-size ${BATCH_SIZE}"
+parameters:
+  MODEL_TYPE: "random_forest"  # Default value
+  EPOCHS: "100"
+  BATCH_SIZE: "32"
+```
+
+### Parameter Types
+
+Parameters can be simple key-value pairs or more complex definitions:
+
+```yaml
+parameters:
+  # Simple parameter with default value
+  SIMPLE_PARAM: "default_value"
+
+  # Complex parameter with validation
+  COMPLEX_PARAM:
+    default: "value1"
+    description: "Parameter description"
+    required: true
+    options: ["value1", "value2", "value3"]
+    validation: "^[a-z0-9_]+$"
+```
+
+### Parameter Sets
+
+Parameter sets are reusable collections of parameters that can be applied to tasks:
+
+```yaml
+# data/parameter_sets/small_training.yaml
+id: "small_training"
+parameters:
+  EPOCHS: "10"
+  BATCH_SIZE: "16"
+  LEARNING_RATE: "0.01"
+```
+
+```yaml
+# data/parameter_sets/large_training.yaml
+id: "large_training"
+parameters:
+  EPOCHS: "100"
+  BATCH_SIZE: "128"
+  LEARNING_RATE: "0.001"
+```
+
+Apply parameter sets to tasks:
+
+```yaml
+# Task definition
+id: "train_model"
+name: "Train Model"
+command: "python train.py --epochs ${EPOCHS} --batch-size ${BATCH_SIZE} --lr ${LEARNING_RATE}"
+parameter_sets:
+  - "small_training"  # Default parameter set
+```
+
+### Overriding Parameters at Scheduling Time
+
+Override parameters when scheduling a task:
+
+```bash
+# CLI
+./cyclonetix schedule-task train_model --param EPOCHS=50 --param BATCH_SIZE=64
+
+# API
+curl -X POST "http://localhost:3000/api/schedule-task" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task_id": "train_model",
+    "parameters": {
+      "EPOCHS": "50",
+      "BATCH_SIZE": "64"
+    }
+  }'
+```
+
+### Parameterized Dependencies
+
+Use parameters to create conditional dependencies:
+
+```yaml
+# Task that depends on a specific parameter set
+dependencies:
+  - "train_model:large_training"  # Only depends on train_model when using large_training parameter set
+```
+
+## Combining Contexts and Parameters
+
+Contexts and parameters work together to provide comprehensive configuration:
+
+```yaml
+# Scheduling with both context and parameters
+./cyclonetix schedule-task train_model \
+  --context production \
+  --param-set large_training \
+  --param LEARNING_RATE=0.0005
+```
+
+In this example:
+1. The `production` context provides global environment settings
+2. The `large_training` parameter set provides task-specific defaults
+3. The individual parameter override for `LEARNING_RATE` has highest priority
+
+## Context and Parameter Interpolation
+
+You can interpolate context variables in parameters and vice versa:
+
+```yaml
+# Context
+variables:
+  BASE_PATH: "/data"
+  ENV: "production"
+
+# Task parameters
+parameters:
+  DATA_PATH: "${BASE_PATH}/${ENV}/input"  # Resolves to "/data/production/input"
+```
+
+## Best Practices
+
+### Context Management
+
+1. **Create environment-specific contexts** (development, staging, production)
+2. **Use namespaced variable names** to avoid conflicts (e.g., `APP_LOG_LEVEL` vs `DB_LOG_LEVEL`)
+3. **Keep sensitive information in separate contexts** that can be secured separately
+4. **Document context variables** with clear descriptions
+
+### Parameter Management
+
+1. **Provide sensible defaults** for all parameters
+2. **Add validation rules** for parameters with specific formats
+3. **Group related parameters** into parameter sets
+4. **Version parameter sets** alongside code changes
+
+## Examples
+
+### Complete Workflow Example
+
+```yaml
+# Context definition (data/contexts/production.yaml)
+id: "production"
+variables:
+  ENV: "production"
+  BASE_PATH: "/data"
+  LOG_LEVEL: "info"
+  API_URL: "https://api.example.com"
+
+# Parameter set (data/parameter_sets/daily_processing.yaml)
+id: "daily_processing"
+parameters:
+  DATE: "${DATE}"
+  LIMIT: "10000"
+  MODE: "incremental"
+
+# Task definition
+id: "process_daily_data"
+name: "Process Daily Data"
+command: |
+  python process.py \
+    --date ${DATE} \
+    --input-path ${BASE_PATH}/raw/${DATE} \
+    --output-path ${BASE_PATH}/processed/${DATE} \
+    --mode ${MODE} \
+    --limit ${LIMIT} \
+    --log-level ${LOG_LEVEL}
+parameter_sets:
+  - "daily_processing"
+```
+
+### Database Connection Example
+
+```yaml
+# Context for database connections
+id: "db_connections"
+variables:
+  DB_HOST: "db.example.com"
+  DB_PORT: "5432"
+  DB_USER: "app_user"
+  DB_PASSWORD: "${DB_PASSWORD}"  # Will be filled from environment or secret store
+  DB_CONNECT_TIMEOUT: "30"
+
+# Task using database connection
+id: "export_data"
+name: "Export Data to Database"
+command: |
+  python export.py \
+    --host ${DB_HOST} \
+    --port ${DB_PORT} \
+    --user ${DB_USER} \
+    --password ${DB_PASSWORD} \
+    --timeout ${DB_CONNECT_TIMEOUT} \
+    --data-file ${DATA_FILE}
+parameters:
+  DATA_FILE: "${BASE_PATH}/exports/data.csv"
+```
+
+## Next Steps
+
+- Learn about [Evaluation Points](evaluation-points.qmd) for dynamic workflows
+- Explore [Git Integration](git-integration.qmd) for version-controlled workflows
+- Check [Troubleshooting & FAQ](../troubleshooting-faq.qmd) for common issues

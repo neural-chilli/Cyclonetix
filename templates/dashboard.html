@@ -33,7 +33,7 @@
 {% endblock head %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid p-0 mt-0">
     <!-- Summary Cards -->
     <div class="row summary-cards-row">
         <div class="col-md-4">
@@ -136,56 +136,6 @@
         </div>
     </div>
 
-    <!-- DAGs Table -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title">Running DAGs</h5>
-        </div>
-        <div class="card-body">
-            {% if dags | length == 0 %}
-            <p>No DAGs currently running.</p>
-            {% else %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>DAG ID</th>
-                        <th>Status</th>
-                        <th>Progress</th>
-                        <th>Last Updated</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for dag in dags %}
-                    <tr>
-                        <td>{{ dag.dag_id }} <span class="text-muted small">({{ dag.display_id }})</span></td>
-                        <td>
-                            <span class="badge bg-{{ dag.status_class }}">{{ dag.status }}</span>
-                        </td>
-                        <td>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-{{ dag.status_class }}"
-                                    role="progressbar" style="width: {{ dag.progress_percent }}%;"
-                                    aria-valuenow="{{ dag.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
-                                </div>
-                            </div>
-                            <small class="text-muted">{{ dag.completed_tasks }}/{{ dag.task_count }} tasks</small>
-                        </td>
-                        <td>{{ dag.last_updated }}</td>
-                        <td>
-                            <a href="/dag?run_id={{ dag.run_id }}" class="btn btn-sm btn-primary">
-                                View
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 </div>
 {% endblock content %}
 

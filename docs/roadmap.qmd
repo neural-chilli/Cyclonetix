@@ -1,0 +1,154 @@
+# Roadmap
+
+This roadmap outlines the planned development for Cyclonetix, from immediate priorities to long-term vision. Our goal is to create a workflow orchestrator that excels in ease of use, performance, and flexibility.
+
+## Current Status
+
+Cyclonetix is currently in active development with a functioning core that includes:
+
+- Basic task execution and dependency management
+- Self-assembling DAGs via outcome-based scheduling
+- Redis-based state management
+- Web UI for monitoring and management
+- Agent-based task execution
+
+## Immediate Priorities (Next 4 Weeks)
+
+Our immediate focus is on stabilizing the core functionality and improving user experience:
+
+### Core Functionality
+
+- **Finalize task recovery logic**: Enhance the mechanism for recovering from agent failures and retrying failed tasks
+- **Improve orchestrator state handling**: Refine how the orchestrator manages and persists state across restarts
+- **Complete Redis-based backend**: Ensure all features work correctly with the Redis backend
+- **Develop PostgreSQL-based StateManager**: Add support for PostgreSQL as an alternative backend for high-scale deployments
+
+### User Experience
+
+- **Enhance the first version of the UI**: Improve the Axum SSR + Tabler.js + Cytoscape.js based user interface
+- **Add search and filtering in the UI**: Make it easier to find specific tasks and DAGs
+- **Improve DAG visualization**: Enhance the graph visualization with more interactive features and details
+
+### Documentation
+
+- **Expand documentation**: Create comprehensive guides for all features
+- **Add examples**: Provide example workflows for common use cases
+- **Improve API documentation**: Document all public APIs with detailed explanations
+
+## Short-Term Goals (Next 2-3 Months)
+
+### Feature Enhancements
+
+- **Event-driven execution triggers**: Support for Kafka, webhooks, and API calls to trigger workflows
+- **REST API for external integration**: Expose a comprehensive REST API for integrating with other systems
+- **Kubernetes auto-scaling**: Refine the logic for scaling agents based on queue depth
+- **Git-based execution**: Enhance support for executing code directly from Git repositories
+
+### Usability Improvements
+
+- **Parameter sets**: Formalize the concept of parameter sets for task configuration
+- **Context inheritance**: Implement hierarchical contexts with overrides
+- **Improved logging**: Enhanced logging and tracing for better debugging
+- **Dashboard enhancements**: Add more metrics and visualizations to the dashboard
+
+### Performance Optimizations
+
+- **Optimized graph traversal**: Improve the performance of dependency resolution
+- **Reduced Redis operations**: Minimize the number of Redis operations for better scalability
+- **Task batching**: Support for batching small tasks for more efficient execution
+
+## Medium-Term Goals (3-6 Months)
+
+### Advanced Features
+
+- **Workflow versioning**: Track changes to workflows over time
+- **A/B testing support**: Run multiple variants of workflows for comparison
+- **Conditional branching**: Enhanced support for complex conditional logic
+- **Time-based scheduling**: Cron-like scheduling capabilities
+- **Resource management**: Better control over resource allocation for tasks
+- **Task timeouts and error handling**: More sophisticated error handling and timeout mechanisms
+
+### Security and Authentication
+
+- **Role-based access control (RBAC)**: Granular permissions for different users
+- **Audit logging**: Track all actions for compliance and security
+- **Secret management**: Secure handling of credentials and sensitive information
+- **Enhanced OAuth integration**: Support for more OAuth providers
+
+### Observability
+
+- **Metrics collection**: Gather performance metrics for tasks and workflows
+- **Prometheus integration**: Export metrics to Prometheus
+- **Detailed execution history**: Improved tracking of past executions
+- **Advanced filtering and search**: Better tools for finding specific executions
+
+## Long-Term Vision (6+ Months)
+
+### Cloud Integration
+
+- **Cloud deployment automation**: Terraform/Pulumi integration for easy deployment
+- **Multi-cloud support**: Run workflows across different cloud providers
+- **Serverless execution**: Support for serverless task execution
+- **Cost optimization**: Intelligent scheduling to minimize cloud costs
+
+### Advanced Use Cases
+
+- **Jupyter notebook execution as DAGs**: Convert annotated notebooks into production-ready workflows
+- **WASM execution support**: Ultra-lightweight task execution using WebAssembly
+- **AI-driven optimization**: Use AI to optimize workflow scheduling and resource allocation
+- **Cross-organization workflows**: Support for workflows that span multiple organizations
+
+### Enterprise Features
+
+- **Multi-tenancy**: Support for multiple isolated tenants sharing the same infrastructure
+- **High availability**: Enhanced fault tolerance and failover capabilities
+- **Disaster recovery**: Automated backup and recovery procedures
+- **Compliance features**: Support for regulatory compliance requirements
+
+### UI and UX Enhancements
+
+- **Live execution tracking with WebSockets**: Real-time updates on execution state
+- **Advanced visualization**: More sophisticated visualization of complex workflows
+- **Mobile support**: Responsive design for mobile monitoring
+- **Customizable dashboards**: User-definable dashboards and views
+
+## Community and Ecosystem
+
+- **Plugin system**: Support for community-developed plugins
+- **Integration marketplace**: Pre-built integrations with popular tools and services
+- **Expanded documentation**: Comprehensive guides, tutorials, and examples
+- **Community forums**: Dedicated space for user discussions and support
+
+## Contribution Opportunities
+
+We welcome contributions in the following areas:
+
+- **Backend implementations**: Additional state manager backends (e.g., MongoDB, DynamoDB)
+- **UI improvements**: Enhanced visualizations and usability features
+- **Documentation**: Tutorials, examples, and clarifications
+- **Testing**: Additional test cases and improved test coverage
+- **Performance optimizations**: Identifying and addressing bottlenecks
+
+## Feedback and Prioritization
+
+This roadmap is not set in stone. We actively adjust our priorities based on:
+
+- **User feedback**: What problems are users trying to solve?
+- **Community contributions**: Where is the community showing interest?
+- **Industry trends**: How is the workflow orchestration landscape evolving?
+
+If you have suggestions or want to contribute to a specific area, please:
+
+1. **Open an issue**: Describe your idea or problem
+2. **Start a discussion**: Share your thoughts on the direction of the project
+3. **Submit a PR**: Contribute code or documentation improvements
+
+## Keeping Up to Date
+
+The roadmap will be updated quarterly to reflect evolving priorities and progress. Check back regularly for the latest information on Cyclonetix's development direction.
+
+## Next Steps
+
+- Explore the [Developer Guide](developer-guide.qmd) to understand the code
+- Check the [GitHub repository](https://github.com/neural-chilli/Cyclonetix) for current issues and PRs
+- Join the discussion in the [Discussions](https://github.com/neural-chilli/Cyclonetix/discussions) section

@@ -1,0 +1,156 @@
+# Task Definition
+
+This guide will show you how to define tasks in Cyclonetix, from basic task definitions to more complex configurations with parameters, dependencies, and advanced features.
+
+## Basic Task Structure
+
+Tasks in Cyclonetix are defined using YAML files. Here's the structure of a basic task:
+
+```yaml
+id: "task_id"                    # Unique identifier for the task
+name: "Human-readable name"      # Display name
+description: "Task description"  # Optional description
+command: "echo 'Hello World'"    # Command to execute
+dependencies: []                 # List of prerequisite tasks
+parameters: {}                   # Task-specific parameters
+queue: "default"                 # Optional queue name for execution
+```
+
+## Task File Organization
+
+By default, Cyclonetix looks for task definitions in the `data/tasks` directory. You can organize tasks in subdirectories for better management:
+
+```
+data/
+└── tasks/
+    ├── data_processing/
+    │   ├── extract.yaml
+    │   ├── transform.yaml
+    │   └── load.yaml
+    ├── ml/
+    │   ├── train.yaml
+    │   └── evaluate.yaml
+    └── deployment/
+        ├── build.yaml
+        └── deploy.yaml
+```
+
+## Command Specification
+
+The `command` field specifies what will be executed when the task runs. This can be:
+
+- A simple shell command
+- A complex script with pipes and redirections
+- A reference to an executable file
+
+Examples:
+
+```yaml
+# Simple command
+command: "echo 'Task completed'"
+
+# Multi-line script
+command: |
+  echo "Starting task"
+  python /path/to/script.py --arg1 value1 --arg2 value2
+  echo "Task finished with status $?"
+
+# Using environment variables
+command: "python train.py --data-path ${DATA_PATH} --epochs ${EPOCHS}"
+```
+
+## Defining Dependencies
+
+Dependencies are specified as a list of task IDs that must complete successfully before this task can start:
+
+```yaml
+dependencies:
+  - "data_preparation"
+  - "feature_engineering"
+```
+
+### Conditional Dependencies
+
+You can specify parameter-specific dependencies for more granular control:
+
+```yaml
+dependencies:
+  - "data_preparation:daily"  # Depends on data_preparation with parameter set "daily"
+  - "feature_engineering"
+```
+
+## Parameter Configuration
+
+Parameters allow you to make tasks configurable and reusable:
+
+```yaml
+parameters:
+  inputPath: "/data/input"
+  outputPath: "/data/output"
+  mode: "incremental"
+  maxThreads: 4
+```
+
+Parameters can be:
+- Referenced in the command using environment variables
+- Overridden at scheduling time
+- Used to create task variants
+
+## Queue Assignment
+
+Assigning tasks to specific queues allows for resource allocation and specialization:
+
+```yaml
+queue: "gpu_tasks"  # Assign to a GPU-specific queue
+```
+
+If not specified, tasks will use the `default` queue.
+
+## Evaluation Points
+
+Tasks can be designated as evaluation points, which allow for dynamic decision-making during execution:
+
+```yaml
+id: "evaluate_model"
+name: "Evaluate Model Performance"
+command: "python evaluate.py --model ${MODEL_PATH} --threshold ${THRESHOLD}"
+dependencies:
+  - "train_model"
+evaluation_point: true
+parameters:
+  threshold: 0.85
+```
+
+Evaluation points can:
+- Determine which downstream tasks to execute
+- Modify the execution graph at runtime
+- Implement conditional branching
+- Serve as approval gates
+
+## Complete Task Example
+
+Here's a comprehensive example of a task definition:
+
+```yaml
+id: "train_model"
+name: "Train Machine Learning Model"
+description: "Trains a machine learning model using prepared data"
+command: |
+  python train.py \
+    --data-path ${DATA_PATH} \
+    --model-type ${MODEL_TYPE} \
+    --epochs ${EPOCHS} \
+    --batch-size ${BATCH_SIZE} \
+    --output-path ${OUTPUT_PATH} \
+    --log-level ${LOG_LEVEL}
+dependencies:
+  - "prepare_data"
+  - "feature_engineering"
+parameters:
+  DATA_PATH: "/data/processed"
+  MODEL_TYPE: "random_forest"
+  EPOCHS: "100"
+  BATCH_SIZE: "32"
+  OUTPUT_PATH: "/models/latest"
+  LOG_LEVEL: "INFO"
+```

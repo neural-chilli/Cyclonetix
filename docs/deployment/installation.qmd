@@ -1,0 +1,439 @@
+# Installation
+
+This guide covers the different ways to install and deploy Cyclonetix, from local development to production environments.
+
+## Prerequisites
+
+Before installing Cyclonetix, ensure you have the following prerequisites:
+
+- **Rust** (1.84.0 or later)
+- **Redis** (for production deployments)
+- **PostgreSQL** (optional, for large-scale deployments)
+
+## Local Development Setup
+
+### Building from Source
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/neural-chilli/Cyclonetix.git
+cd Cyclonetix
+```
+
+2. Build the project:
+
+```bash
+cargo build --release
+```
+
+3. Create a basic configuration:
+
+```bash
+mkdir -p data/tasks data/dags data/contexts
+cp config.yaml.example config.yaml
+```
+
+4. Run with in-memory backend:
+
+```bash
+./target/release/cyclonetix
+```
+
+### Development Mode
+
+For UI development, you can enable template hot-reloading:
+
+```bash
+DEV_MODE=true cargo run
+```
+
+This mode disables Tera template caching and reloads templates on each request, allowing you to:
+
+- Edit templates directly and see changes on refresh
+- Avoid server restarts when modifying UI code
+- Speed up the UI development workflow
+
+## Docker-based Setup
+
+### Using Pre-built Docker Image
+
+1. Create a configuration directory:
+
+```bash
+mkdir -p cyclonetix-config/data/{tasks,dags,contexts}
+```
+
+2. Create a configuration file:
+
+```bash
+cp config.yaml.example cyclonetix-config/config.yaml
+```
+
+3. Edit the configuration to point to Redis:
+
+```yaml
+backend: "redis"
+backend_url: "redis://redis:6379"
+```
+
+4. Run with Docker Compose:
+
+```yaml
+# docker-compose.yml
+version: '3'
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  cyclonetix:
+    image: neuralchilli/cyclonetix:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./cyclonetix-config:/config
+    command: --config /config/config.yaml
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:
+```
+
+Start the services:
+
+```bash
+docker-compose up -d
+```
+
+### Building Custom Docker Image
+
+If you need to customize the Docker image:
+
+1. Create a Dockerfile:
+
+```Dockerfile
+FROM rust:1.84 as builder
+WORKDIR /app
+COPY . .
+RUN cargo build --release
+
+FROM debian:bullseye-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/target/release/cyclonetix /usr/local/bin/
+ENTRYPOINT ["cyclonetix"]
+```
+
+2. Build and run:
+
+```bash
+docker build -t custom-cyclonetix .
+docker run -p 3000:3000 -v ./config.yaml:/config.yaml custom-cyclonetix --config /config.yaml
+```
+
+## Production Deployment
+
+For production environments, we recommend the following setup:
+
+### Single Server Deployment
+
+1. Install prerequisites:
+
+```bash
+# Install Redis
+sudo apt-get update
+sudo apt-get install redis-server
+
+# Start and enable Redis
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+```
+
+2. Install Cyclonetix binary:
+
+```bash
+# Option 1: Build from source
+cargo build --release
+sudo cp target/release/cyclonetix /usr/local/bin/
+
+# Option 2: Download pre-built binary
+sudo wget -O /usr/local/bin/cyclonetix https://github.com/neural-chilli/Cyclonetix/releases/latest/download/cyclonetix
+sudo chmod +x /usr/local/bin/cyclonetix
+```
+
+3. Create configuration:
+
+```bash
+sudo mkdir -p /etc/cyclonetix/data/{tasks,dags,contexts}
+sudo cp config.yaml.example /etc/cyclonetix/config.yaml
+```
+
+4. Create a systemd service:
+
+```
+# /etc/systemd/system/cyclonetix.service
+[Unit]
+Description=Cyclonetix Workflow Orchestrator
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+ExecStart=/usr/local/bin/cyclonetix --config /etc/cyclonetix/config.yaml
+Restart=on-failure
+User=cyclonetix
+Group=cyclonetix
+WorkingDirectory=/etc/cyclonetix
+
+[Install]
+WantedBy=multi-user.target
+```
+
+5. Start and enable the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start cyclonetix
+sudo systemctl enable cyclonetix
+```
+
+### Kubernetes Deployment
+
+For scalable production deployments, use Kubernetes:
+
+1. Create a ConfigMap for configuration:
+
+```yaml
+# cyclonetix-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cyclonetix-config
+data:
+  config.yaml: |
+    backend: "redis"
+    backend_url: "redis://redis-service:6379"
+    queues:
+      - "default"
+      - "high_memory"
+      - "gpu_tasks"
+    security:
+      enabled: true
+      # ... rest of configuration
+```
+
+2. Deploy Redis:
+
+```yaml
+# redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+```
+
+3. Deploy Cyclonetix orchestrator:
+
+```yaml
+# cyclonetix-orchestrator.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-orchestrator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cyclonetix-orchestrator
+  template:
+    metadata:
+      labels:
+        app: cyclonetix-orchestrator
+    spec:
+      containers:
+      - name: cyclonetix
+        image: neuralchilli/cyclonetix:latest
+        args: ["--config", "/config/config.yaml", "--orchestrator"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: cyclonetix-config
+```
+
+4. Deploy Cyclonetix UI:
+
+```yaml
+# cyclonetix-ui.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cyclonetix-ui
+  template:
+    metadata:
+      labels:
+        app: cyclonetix-ui
+    spec:
+      containers:
+      - name: cyclonetix-ui
+        image: neuralchilli/cyclonetix:latest
+        args: ["--config", "/config/config.yaml", "--ui"]
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: cyclonetix-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cyclonetix-ui-service
+spec:
+  selector:
+    app: cyclonetix-ui
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: ClusterIP
+```
+
+5. Deploy Cyclonetix agents:
+
+```yaml
+# cyclonetix-agent.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-agent
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cyclonetix-agent
+  template:
+    metadata:
+      labels:
+        app: cyclonetix-agent
+    spec:
+      containers:
+      - name: cyclonetix-agent
+        image: neuralchilli/cyclonetix:latest
+        args: ["--config", "/config/config.yaml", "--agent"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: cyclonetix-config
+```
+
+6. Deploy an Ingress for the UI:
+
+```yaml
+# cyclonetix-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cyclonetix-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: cyclonetix.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cyclonetix-ui-service
+            port:
+              number: 80
+```
+
+Apply all the configurations:
+
+```bash
+kubectl apply -f cyclonetix-configmap.yaml
+kubectl apply -f redis-deployment.yaml
+kubectl apply -f cyclonetix-orchestrator.yaml
+kubectl apply -f cyclonetix-ui.yaml
+kubectl apply -f cyclonetix-agent.yaml
+kubectl apply -f cyclonetix-ingress.yaml
+```
+
+## Upgrading Cyclonetix
+
+To upgrade an existing installation:
+
+1. Stop the Cyclonetix service:
+
+```bash
+sudo systemctl stop cyclonetix
+```
+
+2. Install the new version:
+
+```bash
+# Option 1: Build from source
+git pull
+cargo build --release
+sudo cp target/release/cyclonetix /usr/local/bin/
+
+# Option 2: Download pre-built binary
+sudo wget -O /usr/local/bin/cyclonetix https://github.com/neural-chilli/Cyclonetix/releases/latest/download/cyclonetix
+sudo chmod +x /usr/local/bin/cyclonetix
+```
+
+3. Restart the service:
+
+```bash
+sudo systemctl start cyclonetix
+```
+
+## Next Steps
+
+- Configure [Security](security.qmd) for your deployment
+- Learn about [Scaling](scaling.qmd) Cyclonetix
+- Explore the [Configuration Reference](../reference/configuration.qmd)

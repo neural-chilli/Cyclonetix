@@ -1,0 +1,318 @@
+# Security
+
+This guide covers security considerations and best practices for deploying Cyclonetix in production environments.
+
+## Authentication and Authorization
+
+### Enabling Security
+
+By default, security is disabled in development mode. To enable security, update your configuration:
+
+```yaml
+security:
+  enabled: true
+  # other security settings...
+```
+
+### Authentication Methods
+
+Cyclonetix supports several authentication methods:
+
+#### OAuth2 Authentication
+
+```yaml
+security:
+  enabled: true
+  oauth:
+    provider: "google"  # Currently supported: google, github, azure
+    client_id: "your-client-id"
+    client_secret: "your-client-secret"
+    redirect_url: "https://your-cyclonetix-instance.com/auth/callback"
+    allowed_domains: ["yourdomain.com"]  # Optional: restrict by domain
+    allowed_emails: ["user@example.com"]  # Optional: restrict by email
+```
+
+To set up OAuth:
+
+1. Create OAuth credentials with your provider
+2. Configure the redirect URL to point to your Cyclonetix instance
+3. Update your Cyclonetix configuration with the client ID and secret
+
+#### Basic Authentication
+
+For simpler deployments, you can use basic authentication:
+
+```yaml
+security:
+  enabled: true
+  basic_auth:
+    users:
+      - username: "admin"
+        password_hash: "$2b$12$..."  # BCrypt hash
+      - username: "viewer"
+        password_hash: "$2b$12$..."
+```
+
+To generate a password hash:
+
+```bash
+# Install bcrypt tool
+pip install bcrypt
+
+# Generate hash
+python -c "import bcrypt; print(bcrypt.hashpw('your-password'.encode(), bcrypt.gensalt()).decode())"
+```
+
+#### API Key Authentication
+
+For programmatic access:
+
+```yaml
+security:
+  enabled: true
+  api_keys:
+    - key: "your-secret-api-key"
+      name: "ci-pipeline"
+      roles: ["scheduler", "viewer"]
+    - key: "another-secret-key"
+      name: "monitoring-system"
+      roles: ["viewer"]
+```
+
+### Role-Based Access Control
+
+Configure different access levels with roles:
+
+```yaml
+security:
+  enabled: true
+  roles:
+    - name: "admin"
+      permissions: ["read", "write", "execute", "admin"]
+    - name: "scheduler"
+      permissions: ["read", "write", "execute"]
+    - name: "viewer"
+      permissions: ["read"]
+
+  # Assign roles to users
+  user_roles:
+    "user@example.com": ["admin"]
+    "team@example.com": ["scheduler"]
+```
+
+## Session Management
+
+Configure session settings:
+
+```yaml
+security:
+  cookie_secret: "use-a-random-string-here"  # Used to sign cookies
+  session_timeout_minutes: 120                # Session duration
+  secure_cookies: true                        # Require HTTPS
+  same_site: "lax"                            # Cookie SameSite policy
+```
+
+For the cookie secret, generate a secure random string:
+
+```bash
+openssl rand -base64 32
+```
+
+## Network Security
+
+### TLS/HTTPS
+
+Always use HTTPS in production. You can:
+
+1. Use a reverse proxy like Nginx with Let's Encrypt
+2. Use a Kubernetes Ingress with TLS
+3. Use a cloud load balancer with TLS termination
+
+### Public Paths
+
+Specify which paths are accessible without authentication:
+
+```yaml
+security:
+  public_paths:
+    - "/static/*"    # Static assets
+    - "/login"       # Login page
+    - "/auth/*"      # OAuth callback
+    - "/health"      # Health check endpoint
+```
+
+### IP Restrictions
+
+Limit access by IP address:
+
+```yaml
+security:
+  allowed_ips:
+    - "192.168.1.0/24"  # Internal network
+    - "203.0.113.42"    # Specific IP
+```
+
+## Data Security
+
+### Encryption at Rest
+
+Cyclonetix itself doesn't encrypt data at rest, but you can:
+
+1. Use encrypted filesystems for task/DAG storage
+2. Enable encryption in Redis or PostgreSQL
+3. Use cloud provider encryption options
+
+### Sensitive Data Handling
+
+For sensitive parameters:
+
+```yaml
+# Task definition with sensitive parameter
+parameters:
+  api_key:
+    value: "${SECRET_API_KEY}"
+    sensitive: true  # Will be masked in logs and UI
+```
+
+### Secret Management
+
+For production, consider using a secret management solution:
+
+```yaml
+security:
+  secrets_backend: "vault"
+  vault:
+    url: "https://vault.example.com:8200"
+    token: "${VAULT_TOKEN}"
+    path: "secret/cyclonetix"
+```
+
+## Task Execution Security
+
+### Restricting Task Commands
+
+Limit what commands can be executed:
+
+```yaml
+security:
+  task_execution:
+    allowed_commands:
+      - "/usr/bin/python"
+      - "/usr/local/bin/custom-script.sh"
+    allowed_patterns:
+      - "^/opt/cyclonetix/scripts/.*\\.py$"
+```
+
+### Task Isolation
+
+For better isolation, use:
+
+1. Separate user accounts for the agent
+2. Container-based execution
+3. Resource limits
+
+```yaml
+agent:
+  execution:
+    user: "cyclonetix-agent"
+    cgroup_limits: true
+    memory_limit_mb: 1024
+    cpu_limit_percent: 50
+```
+
+## Audit Logging
+
+Enable comprehensive audit logging:
+
+```yaml
+security:
+  audit_logging:
+    enabled: true
+    events:
+      - "login"
+      - "logout"
+      - "schedule"
+      - "cancel"
+      - "admin_action"
+    log_file: "/var/log/cyclonetix-audit.log"
+```
+
+## Securing Redis
+
+For Redis backend security:
+
+1. Enable Redis authentication:
+   ```yaml
+   backend_url: "redis://:password@redis-host:6379"
+   ```
+
+2. Use Redis TLS:
+   ```yaml
+   backend_url: "rediss://:password@redis-host:6379"
+   ```
+
+3. Configure Redis ACLs for least privilege
+
+## Kubernetes Security
+
+When deploying on Kubernetes:
+
+1. Use namespaces for isolation
+2. Configure appropriate SecurityContext
+3. Use network policies to restrict traffic
+4. Apply Pod Security Standards
+
+Example Kubernetes manifest with security settings:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-agent
+spec:
+  # ...
+  template:
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: cyclonetix-agent
+        image: cyclonetix:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          readOnlyRootFilesystem: true
+        # ...
+```
+
+## Security Checklist
+
+Before going to production, verify:
+
+- [ ] Authentication is enabled
+- [ ] Strong, unique passwords or OAuth is configured
+- [ ] HTTPS is enforced
+- [ ] Redis is secured with authentication and TLS
+- [ ] Cookie secret is a strong random value
+- [ ] Proper role assignment for users
+- [ ] Audit logging is enabled
+- [ ] Task execution is properly isolated
+- [ ] Sensitive parameters are marked as such
+- [ ] Regular security updates are applied
+
+## Security Best Practices
+
+1. **Principle of Least Privilege**: Give users and components only the permissions they need
+2. **Defense in Depth**: Apply multiple layers of security
+3. **Keep Updated**: Regularly update Cyclonetix and all dependencies
+4. **Security Monitoring**: Monitor for unusual activity
+5. **Regular Audits**: Periodically review permissions and security settings
+
+## Next Steps
+
+- Configure [Deployment Scaling](scaling.qmd) for your environment
+- Explore [Configuration Options](configuration.qmd) in detail
+- Review the [Troubleshooting Guide](../troubleshooting-faq.qmd) for common issues

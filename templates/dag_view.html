@@ -7,14 +7,14 @@
 {% endblock head %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid p-0 mt-0">
     <!-- Page Header with Title and Controls -->
     <div class="d-flex justify-content-between align-items-center p-0 m-0 border-bottom">
         <div class="dag-title">
             <h1 id="dag-name">Loading DAG...</h1>
         </div>
         <div class="d-flex align-items-center">
-            <span class="refresh-timer me-3">Auto-refresh in <span id="refresh-countdown">10</span>s</span>
+<!--            <span class="refresh-timer me-3">Auto-refresh in <span id="refresh-countdown">10</span>s</span>-->
             <button id="refresh-btn" class="btn btn-outline-primary me-2">
                 Refresh
             </button>
@@ -22,7 +22,7 @@
     </div>
 
     <!-- DAG Visualization Container -->
-    <div id="dag-container" class="visualization-container mt-3" style="height: 70vh; position: relative;">
+    <div id="dag-container" class="visualization-container mt-3" style="height: 81vh; position: relative;">
         <!-- Legend overlay positioned in the top right corner -->
         <div class="legend-overlay">
             <div class="legend">
@@ -149,8 +149,8 @@
                         'width': '80px',
                         'height': '50px',
                         'shape': 'roundrectangle',
-                        'border-width': '2px',
-                        'border-color': '#fff',
+                        'border-width': '0',
+                        'border-color': '#999999',
                         'text-margin-y': '0'
                     }
                 },
@@ -158,8 +158,8 @@
                     selector: 'edge',
                     style: {
                         'width': 2,
-                        'line-color': '#ccc',
-                        'target-arrow-color': '#ccc',
+                        'line-color': '#888',
+                        'target-arrow-color': '#888',
                         'target-arrow-shape': 'triangle',
                         'curve-style': 'bezier'
                     }
@@ -359,10 +359,10 @@
     function startRefreshTimer() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshCountdown = 10;
-        document.getElementById('refresh-countdown').textContent = refreshCountdown;
+        //document.getElementById('refresh-countdown').textContent = refreshCountdown;
         refreshTimer = setInterval(() => {
             refreshCountdown--;
-            document.getElementById('refresh-countdown').textContent = refreshCountdown;
+            //document.getElementById('refresh-countdown').textContent = refreshCountdown;
             if (refreshCountdown <= 0) {
                 loadDagData();
                 resetRefreshTimer();

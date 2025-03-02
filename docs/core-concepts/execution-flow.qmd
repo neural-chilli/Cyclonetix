@@ -1,0 +1,157 @@
+# Execution Flow
+
+Understanding how Cyclonetix executes tasks and manages workflow progression is key to effectively utilizing the system and troubleshooting when needed.
+
+## Execution Lifecycle
+
+Let's walk through the complete lifecycle of a workflow execution:
+
+### 1. Scheduling
+
+The execution begins when either:
+
+- A user schedules a DAG explicitly via the UI or CLI
+- A user schedules an outcome (target task) and Cyclonetix resolves dependencies
+- An external trigger initiates execution via the API
+
+During scheduling, Cyclonetix:
+
+- Creates a unique run ID for the execution
+- Builds an execution graph (DAG) of all required tasks
+- Persists the execution state in the state manager
+- Transitions the DAG status to "Pending"
+
+### 2. Task Evaluation
+
+Once scheduled, the orchestrator evaluates the execution graph to determine which tasks are ready to execute:
+
+- Tasks with no dependencies are immediately ready
+- Tasks with dependencies wait until all dependencies are satisfied
+- The graph is continuously evaluated as tasks complete
+
+### 3. Task Queueing
+
+When a task is determined to be ready:
+
+- Its status changes to "Queued"
+- It's placed in the appropriate execution queue
+- Required environment variables from contexts are prepared
+
+### 4. Task Execution
+
+Agents continuously monitor queues for available work:
+
+- When a task is found, the agent claims it
+- The agent executes the task's command in the appropriate environment
+- Task status is updated to "Running"
+- Agent sends heartbeats to indicate it's still processing the task
+
+### 5. Task Completion
+
+When task execution finishes:
+
+- The agent updates the task status to "Completed" or "Failed"
+- The agent releases the task assignment
+- The orchestrator is notified of the state change
+
+### 6. Graph Re-evaluation
+
+After each task completion:
+
+- The orchestrator re-evaluates the execution graph
+- Newly eligible tasks are queued
+- The process continues until all tasks are completed or failed
+
+### 7. DAG Completion
+
+When all tasks in the DAG are processed:
+
+- The DAG status is updated to "Completed" if all tasks succeeded
+- The DAG status is updated to "Failed" if any critical tasks failed
+- Final metrics and statistics are calculated
+
+## Component Interactions
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; }'}}%%
+sequenceDiagram
+    participant Client as Client
+    participant Orch as Orchestrator
+    participant State as State Manager
+    participant Agent as Agent
+
+    Client->>Orch: Schedule Task
+    Orch->>State: Create & save execution plan
+
+    loop Task Execution
+        Orch->>State: Find ready tasks
+        Orch-->>Agent: Assign tasks
+
+        Agent->>Agent: Execute task
+
+        Agent->>State: Update task result
+        State-->>Orch: Notify state change
+    end
+
+    Orch->>State: Update final status
+    State-->>Client: Execution complete
+```
+
+## State Transitions
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; }'}}%%
+stateDiagram-v2
+    [*] --> Pending: Task Created
+    Pending --> Queued: Task Ready
+    Queued --> Running: Agent Picks Up
+    Running --> Completed: Execution Success
+    Running --> Failed: Execution Error
+    Failed --> Queued: Retry
+    Completed --> [*]
+    Failed --> [*]
+```
+
+Each state transition is recorded in the state manager, allowing for tracking and visualization of progress.
+
+## Handling Failures
+
+Cyclonetix has several mechanisms for handling failures:
+
+### Task Retries
+
+Tasks can be configured with retry parameters:
+
+- Maximum retry count
+- Retry delay
+- Exponential backoff
+
+### Agent Failure Detection
+
+If an agent stops sending heartbeats:
+
+- Tasks assigned to the agent are identified
+- These tasks are reset to "Queued" status
+- They are picked up by other available agents
+
+### Orchestrator Recovery
+
+If an orchestrator fails and restarts:
+
+- It loads incomplete DAGs from the state manager
+- It reconstructs the execution state
+- It continues processing from where it left off
+
+## Monitoring and Observability
+
+The execution flow can be monitored through:
+
+- The Cyclonetix UI, showing real-time execution status
+- Logs containing detailed execution information
+- Metrics tracking execution times, success rates, etc.
+
+## Next Steps
+
+- Learn about [Scheduling Models](scheduling-models.qmd)
+- Understand how to use [Contexts & Parameters](../advanced/contexts-parameters.qmd)
+- Explore [Evaluation Points](../advanced/evaluation-points.qmd) for dynamic workflows

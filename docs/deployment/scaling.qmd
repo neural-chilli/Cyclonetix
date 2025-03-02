@@ -1,0 +1,397 @@
+# Scaling
+
+This guide covers strategies for scaling Cyclonetix from small deployments to large enterprise environments.
+
+## Scaling Components
+
+Cyclonetix has several components that can be scaled independently:
+
+- **Orchestrator**: Manages workflow execution and task scheduling
+- **Agents**: Execute tasks and report results
+- **State backend**: Stores workflow and task state (Redis, PostgreSQL)
+- **UI server**: Serves the web interface
+
+## Scaling Patterns
+
+### Small Deployment (Development/Testing)
+
+For small deployments or development environments:
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+flowchart TD
+Orchestrator["Orchestrator"]
+Agent["Agent"]
+UI["UI Server"]
+InMem["In-Memory State"]
+
+        Orchestrator <--> InMem
+        Agent <--> InMem
+        UI <--> InMem
+
+```
+
+- Single instance running all components
+- In-memory or single Redis instance as backend
+- Suitable for up to a few hundred tasks per day
+
+### Medium Deployment (Team/Department)
+
+For medium-sized deployments:
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+flowchart TD
+Orchestrator["Orchestrator"]
+UI["UI Server"]
+Redis["Redis Cluster"]
+AgentCPU["Agent (CPU)"]
+AgentMem["Agent (Memory)"]
+AgentGPU["Agent (GPU)"]
+
+    Orchestrator <--> Redis
+    UI <--> Redis
+    
+    Redis --> AgentCPU
+    Redis --> AgentMem
+    Redis --> AgentGPU
+    
+    AgentCPU --> Orchestrator
+    AgentMem --> Orchestrator
+    AgentGPU --> Orchestrator
+```
+
+- Separate orchestrator and agent instances
+- Redis cluster for state management
+- Suitable for thousands of tasks per day
+
+### Large Deployment (Enterprise)
+
+For large enterprise deployments:
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+flowchart TD
+Orch1["Orchestrator 1"]
+Orch2["Orchestrator 2"]
+Orch3["Orchestrator 3"]
+
+    Postgres["PostgreSQL"]
+    Redis["Redis"]
+    
+    Agent1["Agent 1"]
+    Agent2["Agent 2"]
+    Agent3["Agent 3"]
+    AgentN["Agent N..."]
+    
+    Orch1 <--> Postgres
+    Orch2 <--> Postgres
+    Orch3 <--> Postgres
+    
+    Orch1 <--> Redis
+    Orch2 <--> Redis
+    Orch3 <--> Redis
+    
+    Redis --> Agent1
+    Redis --> Agent2
+    Redis --> Agent3
+    Redis --> AgentN
+    
+    Agent1 --> Orch1
+    Agent2 --> Orch2
+    Agent3 --> Orch3
+    AgentN --> Orch1
+```
+
+- Multiple orchestrators with work distribution
+- Many specialized agents
+- PostgreSQL for state management
+- Redis for queuing
+- Load-balanced UI servers
+- Suitable for millions of tasks per day
+
+## Scaling Strategies
+
+### Scaling the Orchestrator
+
+The orchestrator can be scaled horizontally:
+
+1. **Multiple Orchestrators**: Start multiple orchestrator instances
+2. **Work Distribution**: DAGs are automatically assigned to orchestrators based on a hashing algorithm
+3. **Automatic Failover**: If an orchestrator fails, its DAGs are reassigned
+
+Configuration:
+
+```yaml
+orchestrator:
+  id: "auto"              # Auto-generate ID or specify
+  cluster_mode: true      # Enable orchestrator clustering
+  distribution_algorithm: "consistent_hash"  # Work distribution method
+```
+
+### Scaling Agents
+
+Agents can be scaled horizontally and specialized:
+
+1. **Task Types**: Dedicate agents to specific task types
+2. **Resource Requirements**: Create agent pools for different resource needs
+3. **Locality**: Deploy agents close to data or resources they need
+
+Configuration:
+
+```yaml
+agent:
+  queues: ["cpu_tasks", "default"]  # Queues this agent subscribes to
+  tags: ["region:us-east", "cpu:high", "memory:standard"]  # Agent capabilities
+  concurrency: 8                    # Number of concurrent tasks
+```
+
+### Queue-Based Distribution
+
+Use specialized queues for workload distribution:
+
+```yaml
+# In task definition
+queue: "gpu_tasks"  # Assign task to GPU queue
+
+# In agent configuration
+agent:
+  queues: ["gpu_tasks"]  # This agent only processes GPU tasks
+```
+
+### Auto-Scaling
+
+#### Kubernetes-Based Auto-Scaling
+
+On Kubernetes, use Horizontal Pod Autoscaler:
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cyclonetix-agent-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cyclonetix-agent
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: External
+    external:
+      metric:
+        name: redis_queue_length
+        selector:
+          matchLabels:
+            queue: default
+      target:
+        type: AverageValue
+        averageValue: 5
+```
+
+#### Cloud-Based Auto-Scaling
+
+For cloud deployments, use cloud provider auto-scaling:
+
+- AWS: Auto Scaling Groups
+- GCP: Managed Instance Groups
+- Azure: Virtual Machine Scale Sets
+
+### Scaling the State Backend
+
+#### Redis Scaling
+
+For Redis-based state management:
+
+1. **Redis Cluster**: Set up a Redis cluster for horizontal scaling
+2. **Redis Sentinel**: Use Redis Sentinel for high availability
+3. **Redis Enterprise**: Consider Redis Enterprise for large deployments
+
+Configuration:
+
+```yaml
+backend: "redis"
+backend_url: "redis://redis-cluster:6379"
+redis:
+  cluster_mode: true
+  read_from_replicas: true
+  connection_pool_size: 20
+```
+
+#### PostgreSQL Scaling
+
+For PostgreSQL-based state management:
+
+1. **Connection Pooling**: Use PgBouncer for connection pooling
+2. **Read Replicas**: Distribute read operations to replicas
+3. **Partitioning**: Partition data for large-scale deployments
+
+Configuration:
+
+```yaml
+backend: "postgresql"
+backend_url: "postgres://user:password@pg-host/cyclonetix"
+postgresql:
+  max_connections: 20
+  statement_timeout_seconds: 30
+  use_prepared_statements: true
+```
+
+### UI Scaling
+
+For the UI server:
+
+1. **Load Balancing**: Deploy multiple UI servers behind a load balancer
+2. **Caching**: Implement caching for frequently accessed data
+3. **WebSocket Optimization**: Tune WebSocket connections for large numbers of clients
+
+## Performance Tuning
+
+### Task Batching
+
+Group small tasks into batches:
+
+```yaml
+batch:
+  enabled: true
+  max_tasks: 10
+  max_delay_seconds: 5
+```
+
+### Optimized Serialization
+
+Use binary serialization for better performance:
+
+```yaml
+serialization_format: "binary"  # Instead of default JSON
+```
+
+### Resource Allocation
+
+Tune resource allocation based on workload:
+
+```yaml
+agent:
+  concurrency: 8              # Number of concurrent tasks
+  resource_allocation:
+    memory_per_task_mb: 256   # Memory allocation per task
+    cpu_weight_per_task: 1    # CPU weight per task
+```
+
+## Monitoring for Scale
+
+As you scale, monitoring becomes crucial:
+
+1. **Prometheus Integration**: Expose metrics for Prometheus
+2. **Grafana Dashboards**: Create Grafana dashboards for monitoring
+3. **Alerts**: Set up alerts for queue depth, agent health, etc.
+
+```yaml
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: "/metrics"
+  metrics:
+    include_task_metrics: true
+    include_queue_metrics: true
+    include_agent_metrics: true
+```
+
+## Scaling Limitations and Considerations
+
+1. **Coordination Overhead**: More orchestrators increase coordination overhead
+2. **Database Performance**: State backend can become a bottleneck
+3. **Network Latency**: Distributed systems introduce latency
+4. **Consistency vs. Availability**: Trade-offs in distributed systems
+
+## Benchmarks and Sizing Guidelines
+
+| Deployment Size | Tasks/Day | Orchestrators | Agents | Backend       | VM/Pod Size          |
+|-----------------|-----------|---------------|--------|---------------|----------------------|
+| Small           | <1,000    | 1             | 1-3    | Redis Single  | 2 CPU, 4GB RAM       |
+| Medium          | <10,000   | 1-3           | 5-10   | Redis Cluster | 4 CPU, 8GB RAM       |
+| Large           | <100,000  | 3-5           | 10-30  | PostgreSQL    | 8 CPU, 16GB RAM      |
+| Enterprise      | >100,000  | 5+            | 30+    | PostgreSQL HA | 16+ CPU, 32+ GB RAM  |
+
+## Example Scaling Configurations
+
+### Kubernetes Multi-Node Deployment
+
+```yaml
+# config.yaml
+backend: "redis"
+backend_url: "redis://redis-service.cyclonetix.svc.cluster.local:6379"
+```
+
+```yaml
+# kubernetes manifests
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-orchestrator
+spec:
+  replicas: 3
+  # ...
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-agent-cpu
+spec:
+  replicas: 5
+  # ...
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cyclonetix-agent-memory
+spec:
+  replicas: 3
+  # ...
+```
+
+### Docker Compose Multi-Container
+
+```yaml
+# docker-compose.yml
+version: '3'
+services:
+  redis:
+    image: redis:alpine
+    # ...
+
+  orchestrator:
+    image: cyclonetix:latest
+    command: --orchestrator
+    # ...
+
+  ui:
+    image: cyclonetix:latest
+    command: --ui
+    ports:
+      - "3000:3000"
+    # ...
+
+  agent-1:
+    image: cyclonetix:latest
+    command: --agent
+    environment:
+      - CYCLO_AGENT_QUEUES=default,cpu_tasks
+    # ...
+
+  agent-2:
+    image: cyclonetix:latest
+    command: --agent
+    environment:
+      - CYCLO_AGENT_QUEUES=memory_tasks
+    # ...
+```
+
+## Next Steps
+
+- Review [Configuration Options](configuration.qmd) for fine-tuning
+- Set up [Security](security.qmd) for your scaled deployment
+- Check the [Developer Guide](../developer-guide.qmd) for extending Cyclonetix

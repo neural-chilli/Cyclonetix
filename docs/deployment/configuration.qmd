@@ -1,0 +1,225 @@
+# Configuration
+
+This guide explains how to configure Cyclonetix for different environments and use cases.
+
+## Configuration File
+
+Cyclonetix uses a YAML configuration file to define its behavior. By default, it looks for `config.yaml` in the current directory, but you can specify a different location with the `--config` flag:
+
+```bash
+./cyclonetix --config /etc/cyclonetix/production.yaml
+```
+
+## Basic Configuration
+
+Here's a minimal configuration file:
+
+```yaml
+task_directory: "./data/tasks"
+context_directory: "./data/contexts"
+parameter_set_directory: "./data/parameter_sets"
+dag_directory: "./data/dags"
+
+backend: "redis"
+backend_url: "redis://localhost:6379"
+```
+
+## Configuration Sections
+
+### Core Paths
+
+```yaml
+task_directory: "./data/tasks"        # Directory containing task definitions
+context_directory: "./data/contexts"   # Directory containing context definitions
+parameter_set_directory: "./data/parameter_sets"  # Directory containing parameter sets
+dag_directory: "./data/dags"          # Directory containing DAG definitions
+```
+
+### Backend Configuration
+
+```yaml
+# In-memory backend (for development)
+backend: "memory"
+
+# Redis backend (for production)
+backend: "redis"
+backend_url: "redis://localhost:6379"
+serialization_format: "binary"  # Optional: "json" (default) or "binary"
+
+# PostgreSQL backend (for large-scale deployments)
+backend: "postgresql"
+backend_url: "postgres://user:password@localhost/cyclonetix"
+```
+
+### Queue Configuration
+
+```yaml
+# Define available queues
+queues:
+  - "default"          # Required default queue
+  - "high_memory"      # Optional additional queues
+  - "gpu_tasks"
+  - "etl"
+```
+
+### Security Configuration
+
+```yaml
+security:
+  enabled: true
+  oauth:
+    provider: "google"
+    client_id: "your-client-id"
+    client_secret: "your-client-secret"
+    redirect_url: "http://localhost:3000/auth/callback"
+    allowed_domains: ["yourdomain.com"]  # Optional: restrict by domain
+    allowed_emails: ["user@example.com"]  # Optional: restrict by email
+  cookie_secret: "use-a-random-string-here"
+  session_timeout_minutes: 120
+  public_paths:
+    - "/static/*"
+    - "/login"
+    - "/auth/*"
+    - "/health"
+  api_paths:
+    - "/api/*"
+```
+
+### UI Configuration
+
+```yaml
+ui:
+  title: "Cyclonetix Orchestrator"
+  logo_path: "/static/img/custom-logo.png"  # Optional custom logo
+  theme: "dark"                            # "dark" or "light"
+  refresh_interval_seconds: 10             # Dashboard refresh rate
+  default_view: "dashboard"                # Starting page
+```
+
+### Agent Configuration
+
+```yaml
+agent:
+  concurrency: 4                    # Number of concurrent tasks per agent
+  heartbeat_interval_seconds: 5     # Heartbeat frequency
+  execution_timeout_seconds: 3600   # Default timeout for tasks
+  cleanup_temp_files: true          # Whether to clean up temp files
+```
+
+### Orchestrator Configuration
+
+```yaml
+orchestrator:
+  evaluation_interval_seconds: 5    # How often to evaluate DAGs
+  max_parallel_evaluations: 10      # Max parallel DAG evaluations
+  enable_auto_recovery: true        # Recover from failures automatically
+```
+
+### Logging Configuration
+
+```yaml
+logging:
+  level: "info"                     # trace, debug, info, warn, error
+  format: "text"                    # text or json
+  file: "/var/log/cyclonetix.log"   # Optional log file
+  syslog: false                     # Whether to log to syslog
+```
+
+## Environment Variable Overrides
+
+Most configuration options can be overridden with environment variables. The format is `CYCLO_SECTION_OPTION`. For example:
+
+- `CYCLO_BACKEND_URL` overrides `backend_url`
+- `CYCLO_SECURITY_ENABLED` overrides `security.enabled`
+- `CYCLO_LOGGING_LEVEL` overrides `logging.level`
+
+## Configuration Profiles
+
+You can use different configuration files for different environments:
+
+```bash
+# Development
+./cyclonetix --config config.dev.yaml
+
+# Production
+./cyclonetix --config config.prod.yaml
+```
+
+## Verifying Configuration
+
+To verify your configuration without starting the server:
+
+```bash
+./cyclonetix --verify-config --config config.yaml
+```
+
+## Sensitive Configuration
+
+For sensitive information like API keys and secrets, you can:
+
+1. Use environment variables
+2. Use a separate config file with restricted permissions
+3. Use a secret management system like HashiCorp Vault
+
+## Configuration Examples
+
+### Development Configuration
+
+```yaml
+task_directory: "./data/tasks"
+context_directory: "./data/contexts"
+parameter_set_directory: "./data/parameter_sets"
+dag_directory: "./data/dags"
+
+backend: "memory"
+
+queues:
+  - "default"
+
+security:
+  enabled: false
+
+logging:
+  level: "debug"
+```
+
+### Production Configuration
+
+```yaml
+task_directory: "/etc/cyclonetix/tasks"
+context_directory: "/etc/cyclonetix/contexts"
+parameter_set_directory: "/etc/cyclonetix/parameters"
+dag_directory: "/etc/cyclonetix/dags"
+
+backend: "redis"
+backend_url: "redis://redis.internal:6379"
+serialization_format: "binary"
+
+queues:
+  - "default"
+  - "high_memory"
+  - "gpu_tasks"
+  - "etl"
+
+security:
+  enabled: true
+  oauth:
+    provider: "google"
+    client_id: "${OAUTH_CLIENT_ID}"
+    client_secret: "${OAUTH_CLIENT_SECRET}"
+    redirect_url: "https://cyclonetix.example.com/auth/callback"
+    allowed_domains: ["example.com"]
+  cookie_secret: "${COOKIE_SECRET}"
+  session_timeout_minutes: 480
+
+logging:
+  level: "info"
+  format: "json"
+  file: "/var/log/cyclonetix.log"
+```
+
+## Next Steps
+
+- Review [Security Configuration](security.qmd) for securing your deployment
+- Explore [Scaling Options](scaling.qmd) for large deployments
+- Check the [CLI Reference](../reference/cli.qmd) for command-line options
