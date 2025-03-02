@@ -14,6 +14,7 @@ use cyclonetix::{
 };
 use std::sync::Arc;
 use tracing::{error, info};
+use cyclonetix::state::memory_state_manager::MemoryStateManager;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
@@ -34,7 +35,13 @@ async fn main() -> std::io::Result<()> {
             )
                 .await,
         ),
-        "memory" => unimplemented!("Memory backend"),
+        "memory" => Arc::new(
+            MemoryStateManager::new(
+                &config.cluster_id,
+                config.serialization_format.clone()
+            )
+                .await,
+        ),
         "postgresql" => unimplemented!("PostgreSQL backend"),
         other => panic!("Unsupported backend: {}", other),
     };
