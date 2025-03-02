@@ -17,3 +17,7 @@
     padding:4px;
 }
 
+.quarto-figure-default {
+    background-color: #cccccc !important;
+}
+

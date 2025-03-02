@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Cyclonetix</title>
+<title>developer-guide – Cyclonetix</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -114,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./developer-guide.html">Developer Guide</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -128,7 +162,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
@@ -309,7 +343,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./developer-guide.html" class="sidebar-item-text sidebar-link">
+  <a href="./developer-guide.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Developer Guide</span></a>
   </div>
 </li>
@@ -341,12 +375,43 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#developer-guide" id="toc-developer-guide" class="nav-link active" data-scroll-target="#developer-guide">Developer Guide</a>
   <ul class="collapse">
-  <li><a href="#what-is-cyclonetix" id="toc-what-is-cyclonetix" class="nav-link" data-scroll-target="#what-is-cyclonetix">What is Cyclonetix?</a></li>
-  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
-  <li><a href="#project-philosophy" id="toc-project-philosophy" class="nav-link" data-scroll-target="#project-philosophy">Project Philosophy</a></li>
-  <li><a href="#where-to-go-next" id="toc-where-to-go-next" class="nav-link" data-scroll-target="#where-to-go-next">Where to Go Next</a></li>
+  <li><a href="#project-structure" id="toc-project-structure" class="nav-link" data-scroll-target="#project-structure">Project Structure</a></li>
+  <li><a href="#architecture-overview" id="toc-architecture-overview" class="nav-link" data-scroll-target="#architecture-overview">Architecture Overview</a></li>
+  <li><a href="#key-abstractions" id="toc-key-abstractions" class="nav-link" data-scroll-target="#key-abstractions">Key Abstractions</a>
+  <ul class="collapse">
+  <li><a href="#statemanager-trait" id="toc-statemanager-trait" class="nav-link" data-scroll-target="#statemanager-trait">StateManager Trait</a></li>
+  <li><a href="#executiongraph" id="toc-executiongraph" class="nav-link" data-scroll-target="#executiongraph">ExecutionGraph</a></li>
+  <li><a href="#agent" id="toc-agent" class="nav-link" data-scroll-target="#agent">Agent</a></li>
+  </ul></li>
+  <li><a href="#development-environment-setup" id="toc-development-environment-setup" class="nav-link" data-scroll-target="#development-environment-setup">Development Environment Setup</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#setting-up-a-development-environment" id="toc-setting-up-a-development-environment" class="nav-link" data-scroll-target="#setting-up-a-development-environment">Setting Up a Development Environment</a></li>
+  <li><a href="#ui-development" id="toc-ui-development" class="nav-link" data-scroll-target="#ui-development">UI Development</a></li>
+  </ul></li>
+  <li><a href="#how-to-contribute" id="toc-how-to-contribute" class="nav-link" data-scroll-target="#how-to-contribute">How to Contribute</a>
+  <ul class="collapse">
+  <li><a href="#finding-issues-to-work-on" id="toc-finding-issues-to-work-on" class="nav-link" data-scroll-target="#finding-issues-to-work-on">Finding Issues to Work On</a></li>
+  <li><a href="#creating-a-new-feature" id="toc-creating-a-new-feature" class="nav-link" data-scroll-target="#creating-a-new-feature">Creating a New Feature</a></li>
+  <li><a href="#code-style-and-best-practices" id="toc-code-style-and-best-practices" class="nav-link" data-scroll-target="#code-style-and-best-practices">Code Style and Best Practices</a></li>
+  </ul></li>
+  <li><a href="#adding-a-new-backend" id="toc-adding-a-new-backend" class="nav-link" data-scroll-target="#adding-a-new-backend">Adding a New Backend</a></li>
+  <li><a href="#testing" id="toc-testing" class="nav-link" data-scroll-target="#testing">Testing</a>
+  <ul class="collapse">
+  <li><a href="#running-tests" id="toc-running-tests" class="nav-link" data-scroll-target="#running-tests">Running Tests</a></li>
+  <li><a href="#test-architecture" id="toc-test-architecture" class="nav-link" data-scroll-target="#test-architecture">Test Architecture</a></li>
+  <li><a href="#writing-good-tests" id="toc-writing-good-tests" class="nav-link" data-scroll-target="#writing-good-tests">Writing Good Tests</a></li>
+  </ul></li>
+  <li><a href="#debugging" id="toc-debugging" class="nav-link" data-scroll-target="#debugging">Debugging</a>
+  <ul class="collapse">
+  <li><a href="#logging" id="toc-logging" class="nav-link" data-scroll-target="#logging">Logging</a></li>
+  <li><a href="#common-issues" id="toc-common-issues" class="nav-link" data-scroll-target="#common-issues">Common Issues</a></li>
+  </ul></li>
+  <li><a href="#api-documentation" id="toc-api-documentation" class="nav-link" data-scroll-target="#api-documentation">API Documentation</a></li>
+  <li><a href="#release-process" id="toc-release-process" class="nav-link" data-scroll-target="#release-process">Release Process</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -357,50 +422,261 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<section id="what-is-cyclonetix" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-cyclonetix">What is Cyclonetix?</h2>
-<p>Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be <strong>fast, easy to use, and highly scalable</strong>. It is built for <strong>both cloud-native and on-premises deployments</strong>, supporting <strong>outcome-based scheduling, self-assembling DAGs, and manual DAG execution</strong>.</p>
-<p>With Cyclonetix, you can:</p>
-<ul>
-<li><strong>Define tasks</strong> with dependencies, commands, and parameters</li>
-<li><strong>Build execution graphs</strong> explicitly or let them self-assemble</li>
-<li><strong>Schedule outcomes</strong> and let the system determine the execution path</li>
-<li><strong>Monitor executions</strong> in real-time through a modern web UI</li>
-<li><strong>Scale</strong> from development environments to large-scale production deployments</li>
-</ul>
+<section id="developer-guide" class="level1">
+<h1>Developer Guide</h1>
+<p>This guide is intended for developers who want to contribute to Cyclonetix or understand its internal architecture for extending its functionality.</p>
+<section id="project-structure" class="level2">
+<h2 class="anchored" data-anchor-id="project-structure">Project Structure</h2>
+<p>The Cyclonetix codebase is organized as follows:</p>
+<pre><code>cyclonetix/
+├── src/
+│   ├── agent/            # Agent implementation
+│   ├── graph/            # Execution graph and orchestrator
+│   ├── models/           # Core data models
+│   ├── server/           # Web UI and API
+│   ├── state/            # State management
+│   └── utils/            # Utility functions
+├── static/               # Static web assets
+├── templates/            # Tera templates for UI
+├── docs/                 # Documentation
+└── data/                 # Example data files</code></pre>
 </section>
-<section id="key-features" class="level2">
-<h2 class="anchored" data-anchor-id="key-features">Key Features</h2>
-<p>Cyclonetix aims to be:</p>
-<ul>
-<li><strong>Effortlessly simple to get started with</strong></li>
-<li><strong>Exceptionally fast and lightweight</strong></li>
-<li><strong>Flexible enough for both beginners and enterprise-scale workloads</strong></li>
-<li><strong>Clever by design, reducing user cognitive load</strong></li>
-<li><strong>Capable of advanced scheduling mechanisms</strong> (outcome-based scheduling + explicit DAG execution)</li>
-</ul>
-</section>
-<section id="project-philosophy" class="level2">
-<h2 class="anchored" data-anchor-id="project-philosophy">Project Philosophy</h2>
-<p>Cyclonetix was designed with several core principles in mind:</p>
+<section id="architecture-overview" class="level2">
+<h2 class="anchored" data-anchor-id="architecture-overview">Architecture Overview</h2>
+<p>Cyclonetix follows a modular architecture with clear separation of concerns:</p>
 <ol type="1">
-<li><strong>Reduce cognitive load</strong> - Users shouldn’t need to understand complex concepts to orchestrate simple workflows</li>
-<li><strong>Start small, scale big</strong> - The same system should work for both local development and massive production deployments</li>
-<li><strong>Simple things should be simple, complex things should be possible</strong> - Basic use cases should require minimal effort</li>
-<li><strong>Design for the real world</strong> - Built based on experience with real-world orchestration challenges</li>
-<li><strong>Performance matters</strong> - A lightweight core that executes jobs efficiently with minimal overhead</li>
+<li><strong>Core Models</strong> (<code>src/models/</code>): Define the data structures used throughout the system.</li>
+<li><strong>State Management</strong> (<code>src/state/</code>): Abstracts storage backends and provides a unified interface.</li>
+<li><strong>Agent</strong> (<code>src/agent/</code>): Handles task execution and reporting.</li>
+<li><strong>Graph</strong> (<code>src/graph/</code>): Manages task dependencies and execution flow.</li>
+<li><strong>Server</strong> (<code>src/server/</code>): Provides the web UI and API.</li>
 </ol>
-<p>Whether you’re running data pipelines, ML training jobs, or software deployment processes, Cyclonetix provides the flexibility, performance, and ease of use to make your workflow orchestration simpler and more efficient.</p>
 </section>
-<section id="where-to-go-next" class="level2">
-<h2 class="anchored" data-anchor-id="where-to-go-next">Where to Go Next</h2>
+<section id="key-abstractions" class="level2">
+<h2 class="anchored" data-anchor-id="key-abstractions">Key Abstractions</h2>
+<section id="statemanager-trait" class="level3">
+<h3 class="anchored" data-anchor-id="statemanager-trait">StateManager Trait</h3>
+<p>The <code>StateManager</code> trait (<code>src/state/state_manager.rs</code>) is the central abstraction for state persistence:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode rust code-with-copy"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">#[</span>async_trait<span class="at">]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">trait</span> StateManager<span class="op">:</span> <span class="bu">Sync</span> <span class="op">+</span> <span class="bu">Send</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Queue operations</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> get_work_from_queue(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> queue<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Option</span><span class="op">&lt;</span>TaskPayload<span class="op">&gt;;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> put_work_on_queue(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> task_payload<span class="op">:</span> <span class="op">&amp;</span>TaskPayload<span class="op">,</span> queue<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>)<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Task operations</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> save_task(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> task<span class="op">:</span> <span class="op">&amp;</span>TaskTemplate)<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> load_task(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> task_id<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Option</span><span class="op">&lt;</span>TaskTemplate<span class="op">&gt;;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// DAG operations</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> save_dag_instance(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> dag_instance<span class="op">:</span> <span class="op">&amp;</span>DagInstance)<span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> load_dag_instance(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> run_id<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Option</span><span class="op">&lt;</span>DagInstance<span class="op">&gt;;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// many other methods...</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This trait is implemented for different backends like Redis and in-memory storage.</p>
+</section>
+<section id="executiongraph" class="level3">
+<h3 class="anchored" data-anchor-id="executiongraph">ExecutionGraph</h3>
+<p>The <code>ExecutionGraph</code> struct (<code>src/graph/graph_manager.rs</code>) manages task dependencies and execution order:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode rust code-with-copy"><code class="sourceCode rust"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> ExecutionGraph <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> graph<span class="op">:</span> DiGraph<span class="op">&lt;</span><span class="dt">String</span><span class="op">,</span> ()<span class="op">&gt;,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> node_map<span class="op">:</span> HashMap<span class="op">&lt;</span><span class="dt">String</span><span class="op">,</span> NodeIndex<span class="op">&gt;,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>It provides methods for building and traversing the execution graph.</p>
+</section>
+<section id="agent" class="level3">
+<h3 class="anchored" data-anchor-id="agent">Agent</h3>
+<p>The <code>Agent</code> struct (<code>src/agent/agent.rs</code>) is responsible for executing tasks:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode rust code-with-copy"><code class="sourceCode rust"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Agent<span class="op">&lt;</span>S<span class="op">:</span> <span class="ot">'static</span> <span class="op">+</span> StateManager <span class="op">+</span> <span class="op">?</span><span class="bu">Sized</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    state_manager<span class="op">:</span> Arc<span class="op">&lt;</span>S<span class="op">&gt;,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    agent_id<span class="op">:</span> <span class="dt">String</span><span class="op">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="development-environment-setup" class="level2">
+<h2 class="anchored" data-anchor-id="development-environment-setup">Development Environment Setup</h2>
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
 <ul>
-<li><a href="./getting-started.html">Getting Started</a> - Install and run your first workflow</li>
-<li><a href="./core-concepts/architecture.html">Core Concepts</a> - Learn about Cyclonetix’s architecture</li>
-<li><a href="./user-guide/task-definition.html">User Guide</a> - Practical guides for using Cyclonetix</li>
-<li><a href="./developer-guide.html">Developer Guide</a> - Contributing to Cyclonetix</li>
+<li>Rust 1.84+ with Cargo</li>
+<li>Redis (optional, for testing with Redis backend)</li>
+<li>Git</li>
+</ul>
+</section>
+<section id="setting-up-a-development-environment" class="level3">
+<h3 class="anchored" data-anchor-id="setting-up-a-development-environment">Setting Up a Development Environment</h3>
+<ol type="1">
+<li>Clone the repository:</li>
+</ol>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/neural-chilli/Cyclonetix.git</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> Cyclonetix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="2" type="1">
+<li>Build the project:</li>
+</ol>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> build</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="3" type="1">
+<li>Run tests:</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="4" type="1">
+<li>Run with development features:</li>
+</ol>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="va">DEV_MODE</span><span class="op">=</span>true <span class="ex">cargo</span> run</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="ui-development" class="level3">
+<h3 class="anchored" data-anchor-id="ui-development">UI Development</h3>
+<p>The UI is built with:</p>
+<ul>
+<li><strong>Tera</strong> for templating</li>
+<li><strong>Tabler</strong> for UI components</li>
+<li><strong>Cytoscape.js</strong> for graph visualization</li>
+</ul>
+<p>When <code>DEV_MODE=true</code>, templates are reloaded on each request, making UI development faster.</p>
+</section>
+</section>
+<section id="how-to-contribute" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-contribute">How to Contribute</h2>
+<section id="finding-issues-to-work-on" class="level3">
+<h3 class="anchored" data-anchor-id="finding-issues-to-work-on">Finding Issues to Work On</h3>
+<p>Check the GitHub issues labeled with “good first issue” or “help wanted”.</p>
+</section>
+<section id="creating-a-new-feature" class="level3">
+<h3 class="anchored" data-anchor-id="creating-a-new-feature">Creating a New Feature</h3>
+<ol type="1">
+<li><p><strong>Create a branch</strong>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout <span class="at">-b</span> feature/your-feature-name</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Implement your changes</strong>:</p>
+<ul>
+<li>Keep each commit focused on a single change</li>
+<li>Follow the existing code style</li>
+<li>Add appropriate tests</li>
+</ul></li>
+<li><p><strong>Update documentation</strong>:</p>
+<ul>
+<li>Update or add Quarto documentation</li>
+<li>Add inline code comments for complex logic</li>
+</ul></li>
+<li><p><strong>Submit a PR</strong>:</p>
+<ul>
+<li>Describe your changes</li>
+<li>Reference any related issues</li>
+<li>Include screenshots for UI changes</li>
+</ul></li>
+</ol>
+</section>
+<section id="code-style-and-best-practices" class="level3">
+<h3 class="anchored" data-anchor-id="code-style-and-best-practices">Code Style and Best Practices</h3>
+<ul>
+<li>Follow Rust’s official style guidelines</li>
+<li>Use async/await consistently for asynchronous code</li>
+<li>Ensure proper error handling</li>
+<li>Add debug and info logging at appropriate points</li>
+<li>Document public interfaces with doc comments</li>
+</ul>
+</section>
+</section>
+<section id="adding-a-new-backend" class="level2">
+<h2 class="anchored" data-anchor-id="adding-a-new-backend">Adding a New Backend</h2>
+<p>To implement a new state backend (e.g., PostgreSQL):</p>
+<ol type="1">
+<li>Create a new file <code>src/state/postgres_state_manager.rs</code></li>
+<li>Implement the <code>StateManager</code> trait</li>
+<li>Add appropriate tests</li>
+<li>Update <code>main.rs</code> to include the new backend option</li>
+</ol>
+<p>Example skeleton:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode rust code-with-copy"><code class="sourceCode rust"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> PostgresStateManager <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    pool<span class="op">:</span> PgPool<span class="op">,</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    cluster_id<span class="op">:</span> <span class="dt">String</span><span class="op">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">impl</span> PostgresStateManager <span class="op">{</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> new(db_url<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span><span class="op">,</span> cluster_id<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Self</span> <span class="op">{</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> pool <span class="op">=</span> <span class="pp">PgPool::</span>connect(db_url)<span class="op">.</span><span class="kw">await</span><span class="op">.</span>expect(<span class="st">"Failed to connect to PostgreSQL"</span>)<span class="op">;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        PostgresStateManager <span class="op">{</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>            pool<span class="op">,</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            cluster_id<span class="op">:</span> <span class="dt">String</span><span class="pp">::</span>from(cluster_id)<span class="op">,</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">#[</span>async_trait<span class="at">]</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="kw">impl</span> StateManager <span class="cf">for</span> PostgresStateManager <span class="op">{</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Implement all required methods</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">async</span> <span class="kw">fn</span> get_work_from_queue(<span class="op">&amp;</span><span class="kw">self</span><span class="op">,</span> queue<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Option</span><span class="op">&lt;</span>TaskPayload<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Implementation</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... other methods</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="testing" class="level2">
+<h2 class="anchored" data-anchor-id="testing">Testing</h2>
+<section id="running-tests" class="level3">
+<h3 class="anchored" data-anchor-id="running-tests">Running Tests</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run all tests</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> test</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run specific tests</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> test state_manager</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with feature flags</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> test <span class="at">--features</span> postgresql</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="test-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="test-architecture">Test Architecture</h3>
+<ul>
+<li><strong>Unit Tests</strong>: Test individual components in isolation</li>
+<li><strong>Integration Tests</strong>: Test component interactions</li>
+<li><strong>End-to-End Tests</strong>: Test complete workflows</li>
+</ul>
+</section>
+<section id="writing-good-tests" class="level3">
+<h3 class="anchored" data-anchor-id="writing-good-tests">Writing Good Tests</h3>
+<ul>
+<li>Test both success and error paths</li>
+<li>Use descriptive test names</li>
+<li>Set up appropriate fixtures</li>
+<li>Clean up after tests (especially important for Redis/DB tests)</li>
+</ul>
+</section>
+</section>
+<section id="debugging" class="level2">
+<h2 class="anchored" data-anchor-id="debugging">Debugging</h2>
+<section id="logging" class="level3">
+<h3 class="anchored" data-anchor-id="logging">Logging</h3>
+<p>Cyclonetix uses the <code>tracing</code> crate for structured logging. To enable verbose logging:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="va">RUST_LOG</span><span class="op">=</span>debug <span class="ex">cargo</span> run</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="common-issues" class="level3">
+<h3 class="anchored" data-anchor-id="common-issues">Common Issues</h3>
+<ul>
+<li><strong>Redis Connection</strong>: Ensure Redis is running and accessible</li>
+<li><strong>Task Execution</strong>: Check agent logs for command execution errors</li>
+<li><strong>UI Issues</strong>: Check browser console and server logs</li>
+</ul>
+</section>
+</section>
+<section id="api-documentation" class="level2">
+<h2 class="anchored" data-anchor-id="api-documentation">API Documentation</h2>
+<p>Run <code>cargo doc --open</code> to generate and view the API documentation.</p>
+</section>
+<section id="release-process" class="level2">
+<h2 class="anchored" data-anchor-id="release-process">Release Process</h2>
+<ol type="1">
+<li><strong>Update Version</strong>: Update version in <code>Cargo.toml</code></li>
+<li><strong>Update Changelog</strong>: Document changes in <code>CHANGELOG.md</code></li>
+<li><strong>Create Tag</strong>: Tag the release in Git</li>
+<li><strong>Build Release</strong>: Run <code>cargo build --release</code></li>
+<li><strong>Create GitHub Release</strong>: Upload the binary</li>
+</ol>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
+<ul>
+<li>Review the <a href="./roadmap.html">Roadmap</a> to see planned features</li>
+<li>Check out <a href="./troubleshooting-faq.html">Troubleshooting &amp; FAQ</a> for common issues</li>
+<li>Explore the <a href="./reference/configuration.html">Reference</a> section for detailed specifications</li>
 </ul>
 
 

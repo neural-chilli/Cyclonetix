@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Cyclonetix</title>
+<title>building-dags – Cyclonetix</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +20,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-d75320580429fd03ccc14abf5aea7e44.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-03cff2e87a80ce85282700c0d3d2a4d3.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d75320580429fd03ccc14abf5aea7e44.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-03cff2e87a80ce85282700c0d3d2a4d3.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -80,10 +114,10 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    <img src="./images/logo.png" alt="" class="navbar-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/logo.png" alt="" class="navbar-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Cyclonetix</span>
     </a>
   </div>
@@ -114,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../user-guide/task-definition.html">User Guide</a></li><li class="breadcrumb-item"><a href="../user-guide/building-dags.html">Building DAGs</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -128,13 +162,13 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./getting-started.html" class="sidebar-item-text sidebar-link">
+  <a href="../getting-started.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Getting Started</span></a>
   </div>
 </li>
@@ -149,25 +183,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/architecture.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/architecture.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Architecture Overview</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/tasks.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/tasks.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Tasks and Dependencies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/execution-flow.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/execution-flow.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Execution Flow</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/scheduling-models.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/scheduling-models.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Scheduling Models</span></a>
   </div>
 </li>
@@ -184,25 +218,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/task-definition.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/task-definition.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Task Definition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/building-dags.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/building-dags.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Building DAGs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/scheduling-workflows.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/scheduling-workflows.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Scheduling Workflows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/ui-overview.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/ui-overview.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">UI Overview</span></a>
   </div>
 </li>
@@ -219,25 +253,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/installation.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/installation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Installation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/configuration.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/configuration.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configuration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/security.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/security.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Security</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/scaling.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/scaling.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Scaling</span></a>
   </div>
 </li>
@@ -254,19 +288,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./advanced/evaluation-points.html" class="sidebar-item-text sidebar-link">
+  <a href="../advanced/evaluation-points.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evaluation Points</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./advanced/git-integration.html" class="sidebar-item-text sidebar-link">
+  <a href="../advanced/git-integration.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Git Integration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./advanced/contexts-parameters.html" class="sidebar-item-text sidebar-link">
+  <a href="../advanced/contexts-parameters.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Contexts &amp; Parameters</span></a>
   </div>
 </li>
@@ -283,25 +317,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/configuration.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/configuration.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configuration Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/cli.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/cli.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">CLI Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/api.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/api.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">API Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/yaml-schema.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/yaml-schema.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">YAML Schema</span></a>
   </div>
 </li>
@@ -309,25 +343,25 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./developer-guide.html" class="sidebar-item-text sidebar-link">
+  <a href="../developer-guide.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Developer Guide</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./troubleshooting-faq.html" class="sidebar-item-text sidebar-link">
+  <a href="../troubleshooting-faq.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Troubleshooting &amp; FAQ</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./cookbook.html" class="sidebar-item-text sidebar-link">
+  <a href="../cookbook.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Cookbook</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./roadmap.html" class="sidebar-item-text sidebar-link">
+  <a href="../roadmap.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Roadmap</span></a>
   </div>
 </li>
@@ -341,66 +375,181 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#building-dags" id="toc-building-dags" class="nav-link active" data-scroll-target="#building-dags">Building DAGs</a>
   <ul class="collapse">
-  <li><a href="#what-is-cyclonetix" id="toc-what-is-cyclonetix" class="nav-link" data-scroll-target="#what-is-cyclonetix">What is Cyclonetix?</a></li>
-  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
-  <li><a href="#project-philosophy" id="toc-project-philosophy" class="nav-link" data-scroll-target="#project-philosophy">Project Philosophy</a></li>
-  <li><a href="#where-to-go-next" id="toc-where-to-go-next" class="nav-link" data-scroll-target="#where-to-go-next">Where to Go Next</a></li>
+  <li><a href="#dag-definition" id="toc-dag-definition" class="nav-link" data-scroll-target="#dag-definition">DAG Definition</a></li>
+  <li><a href="#dag-file-organization" id="toc-dag-file-organization" class="nav-link" data-scroll-target="#dag-file-organization">DAG File Organization</a></li>
+  <li><a href="#including-tasks-in-a-dag" id="toc-including-tasks-in-a-dag" class="nav-link" data-scroll-target="#including-tasks-in-a-dag">Including Tasks in a DAG</a></li>
+  <li><a href="#task-dependencies" id="toc-task-dependencies" class="nav-link" data-scroll-target="#task-dependencies">Task Dependencies</a></li>
+  <li><a href="#parameter-overrides" id="toc-parameter-overrides" class="nav-link" data-scroll-target="#parameter-overrides">Parameter Overrides</a></li>
+  <li><a href="#context-assignment" id="toc-context-assignment" class="nav-link" data-scroll-target="#context-assignment">Context Assignment</a></li>
+  <li><a href="#scheduling-configuration" id="toc-scheduling-configuration" class="nav-link" data-scroll-target="#scheduling-configuration">Scheduling Configuration</a></li>
+  <li><a href="#nested-dags" id="toc-nested-dags" class="nav-link" data-scroll-target="#nested-dags">Nested DAGs</a></li>
+  <li><a href="#visualizing-dags" id="toc-visualizing-dags" class="nav-link" data-scroll-target="#visualizing-dags">Visualizing DAGs</a></li>
+  <li><a href="#complete-dag-example" id="toc-complete-dag-example" class="nav-link" data-scroll-target="#complete-dag-example">Complete DAG Example</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../user-guide/task-definition.html">User Guide</a></li><li class="breadcrumb-item"><a href="../user-guide/building-dags.html">Building DAGs</a></li></ol></nav></header>
 
 
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<section id="what-is-cyclonetix" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-cyclonetix">What is Cyclonetix?</h2>
-<p>Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be <strong>fast, easy to use, and highly scalable</strong>. It is built for <strong>both cloud-native and on-premises deployments</strong>, supporting <strong>outcome-based scheduling, self-assembling DAGs, and manual DAG execution</strong>.</p>
-<p>With Cyclonetix, you can:</p>
-<ul>
-<li><strong>Define tasks</strong> with dependencies, commands, and parameters</li>
-<li><strong>Build execution graphs</strong> explicitly or let them self-assemble</li>
-<li><strong>Schedule outcomes</strong> and let the system determine the execution path</li>
-<li><strong>Monitor executions</strong> in real-time through a modern web UI</li>
-<li><strong>Scale</strong> from development environments to large-scale production deployments</li>
-</ul>
+<section id="building-dags" class="level1">
+<h1>Building DAGs</h1>
+<p>This guide explains how to create and organize Directed Acyclic Graphs (DAGs) in Cyclonetix. A DAG is a collection of tasks with dependencies that form a workflow.</p>
+<section id="dag-definition" class="level2">
+<h2 class="anchored" data-anchor-id="dag-definition">DAG Definition</h2>
+<p>In Cyclonetix, you can define DAGs explicitly using YAML files. Here’s the basic structure:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"dag_id"</span><span class="co">                     # Unique identifier for the DAG</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">"Human-readable name"</span><span class="co">      # Display name</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"DAG description"</span><span class="co">   # Optional description</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span><span class="co">                           # List of tasks to include</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"task_1"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"task_2"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"task_3"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"tag1"</span><span class="kw">,</span><span class="at"> </span><span class="st">"tag2"</span><span class="kw">]</span><span class="co">           # Optional categorization tags</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="key-features" class="level2">
-<h2 class="anchored" data-anchor-id="key-features">Key Features</h2>
-<p>Cyclonetix aims to be:</p>
-<ul>
-<li><strong>Effortlessly simple to get started with</strong></li>
-<li><strong>Exceptionally fast and lightweight</strong></li>
-<li><strong>Flexible enough for both beginners and enterprise-scale workloads</strong></li>
-<li><strong>Clever by design, reducing user cognitive load</strong></li>
-<li><strong>Capable of advanced scheduling mechanisms</strong> (outcome-based scheduling + explicit DAG execution)</li>
-</ul>
+<section id="dag-file-organization" class="level2">
+<h2 class="anchored" data-anchor-id="dag-file-organization">DAG File Organization</h2>
+<p>DAG definitions are typically stored in the <code>data/dags</code> directory:</p>
+<pre><code>data/
+└── dags/
+    ├── etl_pipeline.yaml
+    ├── ml_training.yaml
+    └── model_deployment.yaml</code></pre>
 </section>
-<section id="project-philosophy" class="level2">
-<h2 class="anchored" data-anchor-id="project-philosophy">Project Philosophy</h2>
-<p>Cyclonetix was designed with several core principles in mind:</p>
+<section id="including-tasks-in-a-dag" class="level2">
+<h2 class="anchored" data-anchor-id="including-tasks-in-a-dag">Including Tasks in a DAG</h2>
+<p>The <code>tasks</code> section lists all tasks that should be included in the DAG:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_extraction"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_transformation"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_loading"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_validation"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Each task in the list must have a corresponding task definition file in the tasks directory.</p>
+</section>
+<section id="task-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="task-dependencies">Task Dependencies</h2>
+<p>When you include tasks in a DAG, Cyclonetix automatically respects the dependencies defined in each task. You don’t need to redefine the dependencies in the DAG file.</p>
+<p>For example, if <code>data_transformation</code> depends on <code>data_extraction</code> in their task definitions, this dependency will be automatically respected when you include both tasks in your DAG.</p>
+</section>
+<section id="parameter-overrides" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-overrides">Parameter Overrides</h2>
+<p>You can override default task parameters at the DAG level:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_extraction"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">"production_db"</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">limit</span><span class="kw">:</span><span class="at"> </span><span class="dv">1000</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_transformation"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> </span><span class="st">"full"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>These overrides take precedence over the default values defined in task files.</p>
+</section>
+<section id="context-assignment" class="level2">
+<h2 class="anchored" data-anchor-id="context-assignment">Context Assignment</h2>
+<p>You can assign a specific context to a DAG:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"etl_pipeline"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">"ETL Pipeline"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">context</span><span class="kw">:</span><span class="at"> </span><span class="st">"production"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_extraction"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_transformation"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_loading"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The specified context will be used for all tasks in the DAG, providing shared environment variables and configuration.</p>
+</section>
+<section id="scheduling-configuration" class="level2">
+<h2 class="anchored" data-anchor-id="scheduling-configuration">Scheduling Configuration</h2>
+<p>DAGs can include scheduling information:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"daily_report"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">"Daily Reporting Pipeline"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">schedule</span><span class="kw">:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">cron</span><span class="kw">:</span><span class="at"> </span><span class="st">"0 5 * * *"</span><span class="co">        # Run daily at 5:00 AM</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">timezone</span><span class="kw">:</span><span class="at"> </span><span class="st">"UTC"</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">catchup</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span><span class="co">           # Don't run missed executions</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"generate_report"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"send_email"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="nested-dags" class="level2">
+<h2 class="anchored" data-anchor-id="nested-dags">Nested DAGs</h2>
+<p>You can include other DAGs as components of a larger DAG:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"end_to_end_pipeline"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">"End-to-End Data Pipeline"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dags</span><span class="kw">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_ingestion"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_processing"</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"reporting"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"final_notification"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Nested DAGs maintain their internal dependencies while also respecting dependencies between DAGs.</p>
+</section>
+<section id="visualizing-dags" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-dags">Visualizing DAGs</h2>
+<p>Once defined, you can visualize your DAG structure in the Cyclonetix UI:</p>
 <ol type="1">
-<li><strong>Reduce cognitive load</strong> - Users shouldn’t need to understand complex concepts to orchestrate simple workflows</li>
-<li><strong>Start small, scale big</strong> - The same system should work for both local development and massive production deployments</li>
-<li><strong>Simple things should be simple, complex things should be possible</strong> - Basic use cases should require minimal effort</li>
-<li><strong>Design for the real world</strong> - Built based on experience with real-world orchestration challenges</li>
-<li><strong>Performance matters</strong> - A lightweight core that executes jobs efficiently with minimal overhead</li>
+<li>Navigate to the DAGs page in the UI</li>
+<li>Select the DAG you want to visualize</li>
+<li>View the graphical representation showing tasks and dependencies</li>
 </ol>
-<p>Whether you’re running data pipelines, ML training jobs, or software deployment processes, Cyclonetix provides the flexibility, performance, and ease of use to make your workflow orchestration simpler and more efficient.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../images/dependency-graph.png" class="img-fluid figure-img"></p>
+<figcaption>DAG Visualization Example</figcaption>
+</figure>
+</div>
 </section>
-<section id="where-to-go-next" class="level2">
-<h2 class="anchored" data-anchor-id="where-to-go-next">Where to Go Next</h2>
+<section id="complete-dag-example" class="level2">
+<h2 class="anchored" data-anchor-id="complete-dag-example">Complete DAG Example</h2>
+<p>Here’s a comprehensive example of a DAG definition:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"ml_training_pipeline"</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">"ML Training Pipeline"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Complete pipeline for training and evaluating ML models"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">context</span><span class="kw">:</span><span class="at"> </span><span class="st">"ml_training"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">schedule</span><span class="kw">:</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">cron</span><span class="kw">:</span><span class="at"> </span><span class="st">"0 1 * * 0"</span><span class="co">        # Weekly on Sunday at 1:00 AM</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">timezone</span><span class="kw">:</span><span class="at"> </span><span class="st">"UTC"</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">catchup</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">tasks</span><span class="kw">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_extraction"</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">source</span><span class="kw">:</span><span class="at"> </span><span class="st">"production_db"</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">tables</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"users"</span><span class="kw">,</span><span class="at"> </span><span class="st">"transactions"</span><span class="kw">,</span><span class="at"> </span><span class="st">"products"</span><span class="kw">]</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_cleaning"</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> </span><span class="st">"strict"</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"feature_engineering"</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">features_config</span><span class="kw">:</span><span class="at"> </span><span class="st">"/configs/features_v2.json"</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"train_model"</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">model_type</span><span class="kw">:</span><span class="at"> </span><span class="st">"gradient_boosting"</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">hyperparams_file</span><span class="kw">:</span><span class="at"> </span><span class="st">"/configs/hyperparams.json"</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"evaluate_model"</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">metrics</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"accuracy"</span><span class="kw">,</span><span class="at"> </span><span class="st">"precision"</span><span class="kw">,</span><span class="at"> </span><span class="st">"recall"</span><span class="kw">,</span><span class="at"> </span><span class="st">"f1"</span><span class="kw">]</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"register_model"</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">registry</span><span class="kw">:</span><span class="at"> </span><span class="st">"mlflow"</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">model_name</span><span class="kw">:</span><span class="at"> </span><span class="st">"transaction_classifier"</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"ml"</span><span class="kw">,</span><span class="at"> </span><span class="st">"production"</span><span class="kw">,</span><span class="at"> </span><span class="st">"weekly"</span><span class="kw">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
 <ul>
-<li><a href="./getting-started.html">Getting Started</a> - Install and run your first workflow</li>
-<li><a href="./core-concepts/architecture.html">Core Concepts</a> - Learn about Cyclonetix’s architecture</li>
-<li><a href="./user-guide/task-definition.html">User Guide</a> - Practical guides for using Cyclonetix</li>
-<li><a href="./developer-guide.html">Developer Guide</a> - Contributing to Cyclonetix</li>
+<li>Learn about <a href="../user-guide/scheduling-workflows.html">Scheduling Workflows</a></li>
+<li>Understand <a href="../user-guide/ui-overview.html">UI Overview</a></li>
+<li>Explore <a href="../advanced/contexts-parameters.html">Contexts &amp; Parameters</a> for more advanced configurations</li>
 </ul>
 
 

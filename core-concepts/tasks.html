@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Cyclonetix</title>
+<title>tasks – Cyclonetix</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +20,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-d75320580429fd03ccc14abf5aea7e44.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-03cff2e87a80ce85282700c0d3d2a4d3.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d75320580429fd03ccc14abf5aea7e44.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-03cff2e87a80ce85282700c0d3d2a4d3.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -80,10 +114,10 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    <img src="./images/logo.png" alt="" class="navbar-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/logo.png" alt="" class="navbar-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Cyclonetix</span>
     </a>
   </div>
@@ -114,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../core-concepts/architecture.html">Core Concepts</a></li><li class="breadcrumb-item"><a href="../core-concepts/tasks.html">Tasks and Dependencies</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -128,13 +162,13 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./getting-started.html" class="sidebar-item-text sidebar-link">
+  <a href="../getting-started.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Getting Started</span></a>
   </div>
 </li>
@@ -149,25 +183,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/architecture.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/architecture.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Architecture Overview</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/tasks.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/tasks.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Tasks and Dependencies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/execution-flow.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/execution-flow.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Execution Flow</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./core-concepts/scheduling-models.html" class="sidebar-item-text sidebar-link">
+  <a href="../core-concepts/scheduling-models.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Scheduling Models</span></a>
   </div>
 </li>
@@ -184,25 +218,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/task-definition.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/task-definition.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Task Definition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/building-dags.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/building-dags.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Building DAGs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/scheduling-workflows.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/scheduling-workflows.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Scheduling Workflows</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./user-guide/ui-overview.html" class="sidebar-item-text sidebar-link">
+  <a href="../user-guide/ui-overview.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">UI Overview</span></a>
   </div>
 </li>
@@ -219,25 +253,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/installation.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/installation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Installation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/configuration.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/configuration.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configuration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/security.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/security.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Security</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./deployment/scaling.html" class="sidebar-item-text sidebar-link">
+  <a href="../deployment/scaling.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Scaling</span></a>
   </div>
 </li>
@@ -254,19 +288,19 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./advanced/evaluation-points.html" class="sidebar-item-text sidebar-link">
+  <a href="../advanced/evaluation-points.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Evaluation Points</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./advanced/git-integration.html" class="sidebar-item-text sidebar-link">
+  <a href="../advanced/git-integration.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Git Integration</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./advanced/contexts-parameters.html" class="sidebar-item-text sidebar-link">
+  <a href="../advanced/contexts-parameters.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Contexts &amp; Parameters</span></a>
   </div>
 </li>
@@ -283,25 +317,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/configuration.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/configuration.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Configuration Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/cli.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/cli.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">CLI Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/api.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/api.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">API Reference</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./reference/yaml-schema.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/yaml-schema.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">YAML Schema</span></a>
   </div>
 </li>
@@ -309,25 +343,25 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./developer-guide.html" class="sidebar-item-text sidebar-link">
+  <a href="../developer-guide.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Developer Guide</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./troubleshooting-faq.html" class="sidebar-item-text sidebar-link">
+  <a href="../troubleshooting-faq.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Troubleshooting &amp; FAQ</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./cookbook.html" class="sidebar-item-text sidebar-link">
+  <a href="../cookbook.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Cookbook</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./roadmap.html" class="sidebar-item-text sidebar-link">
+  <a href="../roadmap.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Roadmap</span></a>
   </div>
 </li>
@@ -341,66 +375,143 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#tasks-and-dependencies" id="toc-tasks-and-dependencies" class="nav-link active" data-scroll-target="#tasks-and-dependencies">Tasks and Dependencies</a>
   <ul class="collapse">
-  <li><a href="#what-is-cyclonetix" id="toc-what-is-cyclonetix" class="nav-link" data-scroll-target="#what-is-cyclonetix">What is Cyclonetix?</a></li>
-  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
-  <li><a href="#project-philosophy" id="toc-project-philosophy" class="nav-link" data-scroll-target="#project-philosophy">Project Philosophy</a></li>
-  <li><a href="#where-to-go-next" id="toc-where-to-go-next" class="nav-link" data-scroll-target="#where-to-go-next">Where to Go Next</a></li>
+  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks">Tasks</a>
+  <ul class="collapse">
+  <li><a href="#task-templates-vs-task-instances" id="toc-task-templates-vs-task-instances" class="nav-link" data-scroll-target="#task-templates-vs-task-instances">Task Templates vs Task Instances</a></li>
+  <li><a href="#task-lifecycle" id="toc-task-lifecycle" class="nav-link" data-scroll-target="#task-lifecycle">Task Lifecycle</a></li>
+  <li><a href="#task-definition-yaml" id="toc-task-definition-yaml" class="nav-link" data-scroll-target="#task-definition-yaml">Task Definition YAML</a></li>
+  </ul></li>
+  <li><a href="#dependencies" id="toc-dependencies" class="nav-link" data-scroll-target="#dependencies">Dependencies</a>
+  <ul class="collapse">
+  <li><a href="#direct-dependencies" id="toc-direct-dependencies" class="nav-link" data-scroll-target="#direct-dependencies">Direct Dependencies</a></li>
+  <li><a href="#parameterized-dependencies" id="toc-parameterized-dependencies" class="nav-link" data-scroll-target="#parameterized-dependencies">Parameterized Dependencies</a></li>
+  <li><a href="#dependency-resolution" id="toc-dependency-resolution" class="nav-link" data-scroll-target="#dependency-resolution">Dependency Resolution</a></li>
+  <li><a href="#dependency-graph-visualization" id="toc-dependency-graph-visualization" class="nav-link" data-scroll-target="#dependency-graph-visualization">Dependency Graph Visualization</a></li>
+  </ul></li>
+  <li><a href="#execution-queues" id="toc-execution-queues" class="nav-link" data-scroll-target="#execution-queues">Execution Queues</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../core-concepts/architecture.html">Core Concepts</a></li><li class="breadcrumb-item"><a href="../core-concepts/tasks.html">Tasks and Dependencies</a></li></ol></nav></header>
 
 
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<section id="what-is-cyclonetix" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-cyclonetix">What is Cyclonetix?</h2>
-<p>Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be <strong>fast, easy to use, and highly scalable</strong>. It is built for <strong>both cloud-native and on-premises deployments</strong>, supporting <strong>outcome-based scheduling, self-assembling DAGs, and manual DAG execution</strong>.</p>
-<p>With Cyclonetix, you can:</p>
+<section id="tasks-and-dependencies" class="level1">
+<h1>Tasks and Dependencies</h1>
+<p>Tasks are the fundamental building blocks in Cyclonetix. Understanding how they work and how dependencies between them are managed is essential to effectively use the system.</p>
+<section id="tasks" class="level2">
+<h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
+<p>A task in Cyclonetix represents a single unit of work that needs to be executed. Each task has:</p>
 <ul>
-<li><strong>Define tasks</strong> with dependencies, commands, and parameters</li>
-<li><strong>Build execution graphs</strong> explicitly or let them self-assemble</li>
-<li><strong>Schedule outcomes</strong> and let the system determine the execution path</li>
-<li><strong>Monitor executions</strong> in real-time through a modern web UI</li>
-<li><strong>Scale</strong> from development environments to large-scale production deployments</li>
+<li>A unique identifier</li>
+<li>A command to execute</li>
+<li>Optional dependencies on other tasks</li>
+<li>Optional parameters for customization</li>
+<li>A specified queue for execution</li>
 </ul>
-</section>
-<section id="key-features" class="level2">
-<h2 class="anchored" data-anchor-id="key-features">Key Features</h2>
-<p>Cyclonetix aims to be:</p>
+<section id="task-templates-vs-task-instances" class="level3">
+<h3 class="anchored" data-anchor-id="task-templates-vs-task-instances">Task Templates vs Task Instances</h3>
+<p>Cyclonetix distinguishes between task definitions and their execution instances:</p>
 <ul>
-<li><strong>Effortlessly simple to get started with</strong></li>
-<li><strong>Exceptionally fast and lightweight</strong></li>
-<li><strong>Flexible enough for both beginners and enterprise-scale workloads</strong></li>
-<li><strong>Clever by design, reducing user cognitive load</strong></li>
-<li><strong>Capable of advanced scheduling mechanisms</strong> (outcome-based scheduling + explicit DAG execution)</li>
+<li><strong>Task Template</strong>: The immutable definition of a task, stored as YAML.</li>
+<li><strong>Task Instance</strong>: A specific execution of a task with its runtime state.</li>
 </ul>
+<p>When a task is scheduled, Cyclonetix creates a Task Instance from the Task Template, generating a unique run ID for tracking.</p>
 </section>
-<section id="project-philosophy" class="level2">
-<h2 class="anchored" data-anchor-id="project-philosophy">Project Philosophy</h2>
-<p>Cyclonetix was designed with several core principles in mind:</p>
+<section id="task-lifecycle" class="level3">
+<h3 class="anchored" data-anchor-id="task-lifecycle">Task Lifecycle</h3>
+<p>Each task goes through a series of states during its lifecycle:</p>
 <ol type="1">
-<li><strong>Reduce cognitive load</strong> - Users shouldn’t need to understand complex concepts to orchestrate simple workflows</li>
-<li><strong>Start small, scale big</strong> - The same system should work for both local development and massive production deployments</li>
-<li><strong>Simple things should be simple, complex things should be possible</strong> - Basic use cases should require minimal effort</li>
-<li><strong>Design for the real world</strong> - Built based on experience with real-world orchestration challenges</li>
-<li><strong>Performance matters</strong> - A lightweight core that executes jobs efficiently with minimal overhead</li>
+<li><strong>Pending</strong>: Task is defined but not yet scheduled</li>
+<li><strong>Queued</strong>: Task is ready for execution and waiting in a queue</li>
+<li><strong>Running</strong>: Task is currently being executed by an agent</li>
+<li><strong>Completed</strong>: Task finished execution successfully</li>
+<li><strong>Failed</strong>: Task execution failed</li>
 </ol>
-<p>Whether you’re running data pipelines, ML training jobs, or software deployment processes, Cyclonetix provides the flexibility, performance, and ease of use to make your workflow orchestration simpler and more efficient.</p>
 </section>
-<section id="where-to-go-next" class="level2">
-<h2 class="anchored" data-anchor-id="where-to-go-next">Where to Go Next</h2>
+<section id="task-definition-yaml" class="level3">
+<h3 class="anchored" data-anchor-id="task-definition-yaml">Task Definition YAML</h3>
+<p>Here’s an example of a task definition in YAML format:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_preprocessing"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> </span><span class="st">"Data Preprocessing"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> </span><span class="st">"Preprocess raw data for model training"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="st">"python3 scripts/preprocess.py --input ${INPUT_FILE} --output ${OUTPUT_FILE}"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span><span class="kw">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">inputPath</span><span class="kw">:</span><span class="at"> </span><span class="st">"/data/raw"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">outputPath</span><span class="kw">:</span><span class="at"> </span><span class="st">"/data/processed"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> </span><span class="st">"full"</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"data_download"</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">queue</span><span class="kw">:</span><span class="at"> </span><span class="st">"data_processing"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<p>Dependencies define the relationships between tasks, establishing the execution order.</p>
+<section id="direct-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="direct-dependencies">Direct Dependencies</h3>
+<p>The most common form of dependency is a direct dependency where one task requires another to complete before it can start:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"model_training"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"data_preprocessing"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In this example, <code>model_training</code> will only start after <code>data_preprocessing</code> has successfully completed.</p>
+</section>
+<section id="parameterized-dependencies" class="level3">
+<h3 class="anchored" data-anchor-id="parameterized-dependencies">Parameterized Dependencies</h3>
+<p>Cyclonetix supports parameterized dependencies, allowing you to depend on a specific variant of a task:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"model_deployment"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"model_training:production"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This creates a dependency on the <code>model_training</code> task specifically when run with the <code>production</code> parameter set.</p>
+</section>
+<section id="dependency-resolution" class="level3">
+<h3 class="anchored" data-anchor-id="dependency-resolution">Dependency Resolution</h3>
+<p>When using outcome-based scheduling, Cyclonetix automatically resolves the full dependency chain:</p>
+<ol type="1">
+<li>Identify the target task (the “outcome”)</li>
+<li>Recursively gather all dependencies</li>
+<li>Build a directed acyclic graph (DAG) representing the execution order</li>
+<li>Execute tasks in topological order, respecting dependencies</li>
+</ol>
+</section>
+<section id="dependency-graph-visualization" class="level3">
+<h3 class="anchored" data-anchor-id="dependency-graph-visualization">Dependency Graph Visualization</h3>
+<p>The Cyclonetix UI provides visualization of task dependencies as a graph, making it easy to understand workflow structure:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../images/dependency-graph.png" class="img-fluid figure-img"></p>
+<figcaption>Dependency Graph Example</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="execution-queues" class="level2">
+<h2 class="anchored" data-anchor-id="execution-queues">Execution Queues</h2>
+<p>Tasks can be assigned to specific queues, allowing for:</p>
 <ul>
-<li><a href="./getting-started.html">Getting Started</a> - Install and run your first workflow</li>
-<li><a href="./core-concepts/architecture.html">Core Concepts</a> - Learn about Cyclonetix’s architecture</li>
-<li><a href="./user-guide/task-definition.html">User Guide</a> - Practical guides for using Cyclonetix</li>
-<li><a href="./developer-guide.html">Developer Guide</a> - Contributing to Cyclonetix</li>
+<li>Workload categorization</li>
+<li>Resource allocation</li>
+<li>Parallel execution across multiple agents</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span><span class="kw">:</span><span class="at"> </span><span class="st">"gpu_training"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">queue</span><span class="kw">:</span><span class="at"> </span><span class="st">"gpu_tasks"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Agents can be configured to listen to specific queues, enabling specialized workers for different task types.</p>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
+<ul>
+<li>Learn about <a href="../core-concepts/execution-flow.html">Execution Flow</a></li>
+<li>Understand <a href="../core-concepts/scheduling-models.html">Scheduling Models</a></li>
+<li>See how to define <a href="../user-guide/task-definition.html">Tasks</a> in practice</li>
 </ul>
 
 

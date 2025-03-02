@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Cyclonetix</title>
+<title>troubleshooting-faq – Cyclonetix</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -114,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./troubleshooting-faq.html">Troubleshooting &amp; FAQ</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -128,7 +162,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
@@ -315,7 +349,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./troubleshooting-faq.html" class="sidebar-item-text sidebar-link">
+  <a href="./troubleshooting-faq.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Troubleshooting &amp; FAQ</span></a>
   </div>
 </li>
@@ -341,12 +375,49 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#troubleshooting-faq" id="toc-troubleshooting-faq" class="nav-link active" data-scroll-target="#troubleshooting-faq">Troubleshooting &amp; FAQ</a>
   <ul class="collapse">
-  <li><a href="#what-is-cyclonetix" id="toc-what-is-cyclonetix" class="nav-link" data-scroll-target="#what-is-cyclonetix">What is Cyclonetix?</a></li>
-  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
-  <li><a href="#project-philosophy" id="toc-project-philosophy" class="nav-link" data-scroll-target="#project-philosophy">Project Philosophy</a></li>
-  <li><a href="#where-to-go-next" id="toc-where-to-go-next" class="nav-link" data-scroll-target="#where-to-go-next">Where to Go Next</a></li>
+  <li><a href="#installation-issues" id="toc-installation-issues" class="nav-link" data-scroll-target="#installation-issues">Installation Issues</a>
+  <ul class="collapse">
+  <li><a href="#failed-to-build-from-source" id="toc-failed-to-build-from-source" class="nav-link" data-scroll-target="#failed-to-build-from-source">Failed to Build from Source</a></li>
+  <li><a href="#docker-image-not-starting" id="toc-docker-image-not-starting" class="nav-link" data-scroll-target="#docker-image-not-starting">Docker Image Not Starting</a></li>
+  </ul></li>
+  <li><a href="#connection-issues" id="toc-connection-issues" class="nav-link" data-scroll-target="#connection-issues">Connection Issues</a>
+  <ul class="collapse">
+  <li><a href="#redis-connection-failures" id="toc-redis-connection-failures" class="nav-link" data-scroll-target="#redis-connection-failures">Redis Connection Failures</a></li>
+  <li><a href="#web-ui-not-accessible" id="toc-web-ui-not-accessible" class="nav-link" data-scroll-target="#web-ui-not-accessible">Web UI Not Accessible</a></li>
+  </ul></li>
+  <li><a href="#task-execution-issues" id="toc-task-execution-issues" class="nav-link" data-scroll-target="#task-execution-issues">Task Execution Issues</a>
+  <ul class="collapse">
+  <li><a href="#tasks-stuck-in-pending-state" id="toc-tasks-stuck-in-pending-state" class="nav-link" data-scroll-target="#tasks-stuck-in-pending-state">Tasks Stuck in Pending State</a></li>
+  <li><a href="#tasks-failing-with-no-error-message" id="toc-tasks-failing-with-no-error-message" class="nav-link" data-scroll-target="#tasks-failing-with-no-error-message">Tasks Failing with No Error Message</a></li>
+  <li><a href="#agent-not-picking-up-tasks" id="toc-agent-not-picking-up-tasks" class="nav-link" data-scroll-target="#agent-not-picking-up-tasks">Agent Not Picking Up Tasks</a></li>
+  </ul></li>
+  <li><a href="#dag-and-workflow-issues" id="toc-dag-and-workflow-issues" class="nav-link" data-scroll-target="#dag-and-workflow-issues">DAG and Workflow Issues</a>
+  <ul class="collapse">
+  <li><a href="#dag-not-assembling-correctly" id="toc-dag-not-assembling-correctly" class="nav-link" data-scroll-target="#dag-not-assembling-correctly">DAG Not Assembling Correctly</a></li>
+  <li><a href="#tasks-executing-in-unexpected-order" id="toc-tasks-executing-in-unexpected-order" class="nav-link" data-scroll-target="#tasks-executing-in-unexpected-order">Tasks Executing in Unexpected Order</a></li>
+  <li><a href="#workflow-hanging-at-completion" id="toc-workflow-hanging-at-completion" class="nav-link" data-scroll-target="#workflow-hanging-at-completion">Workflow Hanging at Completion</a></li>
+  </ul></li>
+  <li><a href="#state-management-issues" id="toc-state-management-issues" class="nav-link" data-scroll-target="#state-management-issues">State Management Issues</a>
+  <ul class="collapse">
+  <li><a href="#lost-state-after-restart" id="toc-lost-state-after-restart" class="nav-link" data-scroll-target="#lost-state-after-restart">Lost State After Restart</a></li>
+  <li><a href="#duplicate-task-executions" id="toc-duplicate-task-executions" class="nav-link" data-scroll-target="#duplicate-task-executions">Duplicate Task Executions</a></li>
+  </ul></li>
+  <li><a href="#ui-issues" id="toc-ui-issues" class="nav-link" data-scroll-target="#ui-issues">UI Issues</a>
+  <ul class="collapse">
+  <li><a href="#visualization-not-showing-full-dag" id="toc-visualization-not-showing-full-dag" class="nav-link" data-scroll-target="#visualization-not-showing-full-dag">Visualization Not Showing Full DAG</a></li>
+  <li><a href="#slow-ui-performance" id="toc-slow-ui-performance" class="nav-link" data-scroll-target="#slow-ui-performance">Slow UI Performance</a></li>
+  </ul></li>
+  <li><a href="#frequently-asked-questions" id="toc-frequently-asked-questions" class="nav-link" data-scroll-target="#frequently-asked-questions">Frequently Asked Questions</a>
+  <ul class="collapse">
+  <li><a href="#general-questions" id="toc-general-questions" class="nav-link" data-scroll-target="#general-questions">General Questions</a></li>
+  <li><a href="#performance-questions" id="toc-performance-questions" class="nav-link" data-scroll-target="#performance-questions">Performance Questions</a></li>
+  <li><a href="#security-questions" id="toc-security-questions" class="nav-link" data-scroll-target="#security-questions">Security Questions</a></li>
+  <li><a href="#integration-questions" id="toc-integration-questions" class="nav-link" data-scroll-target="#integration-questions">Integration Questions</a></li>
+  </ul></li>
+  <li><a href="#still-having-issues" id="toc-still-having-issues" class="nav-link" data-scroll-target="#still-having-issues">Still Having Issues?</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -357,50 +428,344 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<section id="what-is-cyclonetix" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-cyclonetix">What is Cyclonetix?</h2>
-<p>Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be <strong>fast, easy to use, and highly scalable</strong>. It is built for <strong>both cloud-native and on-premises deployments</strong>, supporting <strong>outcome-based scheduling, self-assembling DAGs, and manual DAG execution</strong>.</p>
-<p>With Cyclonetix, you can:</p>
-<ul>
-<li><strong>Define tasks</strong> with dependencies, commands, and parameters</li>
-<li><strong>Build execution graphs</strong> explicitly or let them self-assemble</li>
-<li><strong>Schedule outcomes</strong> and let the system determine the execution path</li>
-<li><strong>Monitor executions</strong> in real-time through a modern web UI</li>
-<li><strong>Scale</strong> from development environments to large-scale production deployments</li>
-</ul>
-</section>
-<section id="key-features" class="level2">
-<h2 class="anchored" data-anchor-id="key-features">Key Features</h2>
-<p>Cyclonetix aims to be:</p>
-<ul>
-<li><strong>Effortlessly simple to get started with</strong></li>
-<li><strong>Exceptionally fast and lightweight</strong></li>
-<li><strong>Flexible enough for both beginners and enterprise-scale workloads</strong></li>
-<li><strong>Clever by design, reducing user cognitive load</strong></li>
-<li><strong>Capable of advanced scheduling mechanisms</strong> (outcome-based scheduling + explicit DAG execution)</li>
-</ul>
-</section>
-<section id="project-philosophy" class="level2">
-<h2 class="anchored" data-anchor-id="project-philosophy">Project Philosophy</h2>
-<p>Cyclonetix was designed with several core principles in mind:</p>
+<section id="troubleshooting-faq" class="level1">
+<h1>Troubleshooting &amp; FAQ</h1>
+<p>This guide addresses common issues you might encounter when using Cyclonetix and provides solutions for troubleshooting them.</p>
+<section id="installation-issues" class="level2">
+<h2 class="anchored" data-anchor-id="installation-issues">Installation Issues</h2>
+<section id="failed-to-build-from-source" class="level3">
+<h3 class="anchored" data-anchor-id="failed-to-build-from-source">Failed to Build from Source</h3>
+<p><strong>Problem</strong>: Error when running <code>cargo build</code></p>
+<p><strong>Solutions</strong>:</p>
 <ol type="1">
-<li><strong>Reduce cognitive load</strong> - Users shouldn’t need to understand complex concepts to orchestrate simple workflows</li>
-<li><strong>Start small, scale big</strong> - The same system should work for both local development and massive production deployments</li>
-<li><strong>Simple things should be simple, complex things should be possible</strong> - Basic use cases should require minimal effort</li>
-<li><strong>Design for the real world</strong> - Built based on experience with real-world orchestration challenges</li>
-<li><strong>Performance matters</strong> - A lightweight core that executes jobs efficiently with minimal overhead</li>
+<li><p>Ensure you have Rust 1.84+ installed:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rustc</span> <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Check for missing dependencies:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install build-essential pkg-config libssl-dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Update Rust and dependencies:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rustup</span> update</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> update</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 </ol>
-<p>Whether you’re running data pipelines, ML training jobs, or software deployment processes, Cyclonetix provides the flexibility, performance, and ease of use to make your workflow orchestration simpler and more efficient.</p>
 </section>
-<section id="where-to-go-next" class="level2">
-<h2 class="anchored" data-anchor-id="where-to-go-next">Where to Go Next</h2>
+<section id="docker-image-not-starting" class="level3">
+<h3 class="anchored" data-anchor-id="docker-image-not-starting">Docker Image Not Starting</h3>
+<p><strong>Problem</strong>: Docker container exits immediately after starting</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Check Docker logs:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> logs <span class="op">&lt;</span>container_id<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Ensure Redis is accessible if using Redis backend:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> exec <span class="op">&lt;</span>container_id<span class="op">&gt;</span> redis-cli <span class="at">-h</span> redis ping</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Verify your configuration is mounted correctly:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> exec <span class="op">&lt;</span>container_id<span class="op">&gt;</span> cat /config/config.yaml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+</section>
+<section id="connection-issues" class="level2">
+<h2 class="anchored" data-anchor-id="connection-issues">Connection Issues</h2>
+<section id="redis-connection-failures" class="level3">
+<h3 class="anchored" data-anchor-id="redis-connection-failures">Redis Connection Failures</h3>
+<p><strong>Problem</strong>: Cyclonetix can’t connect to Redis</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Verify Redis is running:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">redis-cli</span> ping</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Check your Redis URL in <code>config.yaml</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">backend_url</span><span class="kw">:</span><span class="at"> </span><span class="st">"redis://localhost:6379"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Ensure Redis is accepting connections from your network:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> netstat <span class="at">-pnlt</span> <span class="kw">|</span> <span class="fu">grep</span> 6379</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="web-ui-not-accessible" class="level3">
+<h3 class="anchored" data-anchor-id="web-ui-not-accessible">Web UI Not Accessible</h3>
+<p><strong>Problem</strong>: Can’t access the Cyclonetix UI at http://localhost:3000</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Confirm Cyclonetix is running:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ps</span> aux <span class="kw">|</span> <span class="fu">grep</span> cyclonetix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Check if another service is using port 3000:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> netstat <span class="at">-pnlt</span> <span class="kw">|</span> <span class="fu">grep</span> 3000</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Verify firewall settings:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> ufw status</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+</section>
+<section id="task-execution-issues" class="level2">
+<h2 class="anchored" data-anchor-id="task-execution-issues">Task Execution Issues</h2>
+<section id="tasks-stuck-in-pending-state" class="level3">
+<h3 class="anchored" data-anchor-id="tasks-stuck-in-pending-state">Tasks Stuck in Pending State</h3>
+<p><strong>Problem</strong>: Tasks remain in pending state and never execute</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Check for missing dependencies:</p>
 <ul>
-<li><a href="./getting-started.html">Getting Started</a> - Install and run your first workflow</li>
-<li><a href="./core-concepts/architecture.html">Core Concepts</a> - Learn about Cyclonetix’s architecture</li>
-<li><a href="./user-guide/task-definition.html">User Guide</a> - Practical guides for using Cyclonetix</li>
-<li><a href="./developer-guide.html">Developer Guide</a> - Contributing to Cyclonetix</li>
+<li>Verify that all dependencies exist and are correctly spelled</li>
+<li>Check task definitions for circular dependencies</li>
+</ul></li>
+<li><p>Ensure agents are running:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check agent status in UI</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Or via CLI</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./cyclonetix</span> list-agents</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Confirm agents are subscribed to the right queues:</p>
+<ul>
+<li>Check your agent configuration against task queue assignments</li>
+</ul></li>
+</ol>
+</section>
+<section id="tasks-failing-with-no-error-message" class="level3">
+<h3 class="anchored" data-anchor-id="tasks-failing-with-no-error-message">Tasks Failing with No Error Message</h3>
+<p><strong>Problem</strong>: Tasks show as failed but no error message is visible</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Enable verbose logging:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="va">RUST_LOG</span><span class="op">=</span>debug <span class="ex">./cyclonetix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Check agent logs for command execution errors:</p>
+<ul>
+<li>Look for environment variable issues</li>
+<li>Check for permission problems with executed commands</li>
+</ul></li>
+<li><p>Verify the task command is valid:</p>
+<ul>
+<li>Try running the command manually on the agent machine</li>
+</ul></li>
+</ol>
+</section>
+<section id="agent-not-picking-up-tasks" class="level3">
+<h3 class="anchored" data-anchor-id="agent-not-picking-up-tasks">Agent Not Picking Up Tasks</h3>
+<p><strong>Problem</strong>: Tasks are queued but no agent picks them up</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Verify agent is running and connected:</p>
+<ul>
+<li>Check the Agents page in the UI</li>
+<li>Look for heartbeat updates</li>
+</ul></li>
+<li><p>Ensure the agent is subscribed to the right queue:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In config.yaml</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">queues</span><span class="kw">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"default"</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="st">"high_memory"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Check agent logs for connection issues:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="va">RUST_LOG</span><span class="op">=</span>debug <span class="ex">./cyclonetix</span> <span class="at">--agent</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+</section>
+<section id="dag-and-workflow-issues" class="level2">
+<h2 class="anchored" data-anchor-id="dag-and-workflow-issues">DAG and Workflow Issues</h2>
+<section id="dag-not-assembling-correctly" class="level3">
+<h3 class="anchored" data-anchor-id="dag-not-assembling-correctly">DAG Not Assembling Correctly</h3>
+<p><strong>Problem</strong>: Self-assembling DAG is missing expected tasks</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Verify task dependencies are correctly defined:</p>
+<ul>
+<li>Check each task YAML file for the correct dependency list</li>
+</ul></li>
+<li><p>Check for typos in task IDs:</p>
+<ul>
+<li>Ensure dependency references match exactly with task IDs</li>
+</ul></li>
+<li><p>Enable debug logging to see how the DAG is assembled:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="va">RUST_LOG</span><span class="op">=</span>debug <span class="ex">./cyclonetix</span> schedule-task <span class="op">&lt;</span>final_task<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="tasks-executing-in-unexpected-order" class="level3">
+<h3 class="anchored" data-anchor-id="tasks-executing-in-unexpected-order">Tasks Executing in Unexpected Order</h3>
+<p><strong>Problem</strong>: Tasks are executing in an order you didn’t expect</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li>Review the DAG visualization in the UI:
+<ul>
+<li>Check the actual dependency structure</li>
+</ul></li>
+<li>Verify there are no missing or incorrect dependencies:
+<ul>
+<li>Tasks with no dependencies (or fewer than expected) will start earlier</li>
+</ul></li>
+<li>Remember that independent parallel paths will execute concurrently:
+<ul>
+<li>The exact order of parallel tasks depends on agent availability</li>
+</ul></li>
+</ol>
+</section>
+<section id="workflow-hanging-at-completion" class="level3">
+<h3 class="anchored" data-anchor-id="workflow-hanging-at-completion">Workflow Hanging at Completion</h3>
+<p><strong>Problem</strong>: Workflow shows as running even though all tasks are complete</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Check for tasks in unknown states:</p>
+<ul>
+<li>Look for tasks that failed to report completion</li>
+</ul></li>
+<li><p>Try manually refreshing the DAG status:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./cyclonetix</span> refresh-dag <span class="op">&lt;</span>dag_id<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Restart the orchestrator as a last resort:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart cyclonetix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+</section>
+<section id="state-management-issues" class="level2">
+<h2 class="anchored" data-anchor-id="state-management-issues">State Management Issues</h2>
+<section id="lost-state-after-restart" class="level3">
+<h3 class="anchored" data-anchor-id="lost-state-after-restart">Lost State After Restart</h3>
+<p><strong>Problem</strong>: Workflow state is lost after restarting Cyclonetix</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Ensure you’re using a persistent backend:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In config.yaml</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">backend</span><span class="kw">:</span><span class="at"> </span><span class="st">"redis"</span><span class="co">  # Not "memory"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Check if Redis persistence is enabled:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">redis-cli</span> config get save</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Verify data is being written to Redis:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">redis-cli</span> keys <span class="st">"Cyclonetix:*"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="duplicate-task-executions" class="level3">
+<h3 class="anchored" data-anchor-id="duplicate-task-executions">Duplicate Task Executions</h3>
+<p><strong>Problem</strong>: Some tasks are being executed multiple times</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li>Check for multiple agents listening to the same queue:
+<ul>
+<li>This is expected behavior for high concurrency</li>
+<li>Ensure your tasks are idempotent</li>
+</ul></li>
+<li>Look for agent failures and task reassignments:
+<ul>
+<li>When an agent fails, its tasks are reassigned</li>
+</ul></li>
+<li>Verify that multiple orchestrators aren’t scheduling the same DAG:
+<ul>
+<li>Check for duplicate process instances</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="ui-issues" class="level2">
+<h2 class="anchored" data-anchor-id="ui-issues">UI Issues</h2>
+<section id="visualization-not-showing-full-dag" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-not-showing-full-dag">Visualization Not Showing Full DAG</h3>
+<p><strong>Problem</strong>: DAG visualization in UI is incomplete or incorrect</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li>Try refreshing the browser:
+<ul>
+<li>Some complex DAGs may not render completely on first load</li>
+</ul></li>
+<li>Adjust zoom and layout:
+<ul>
+<li>Use mouse wheel to zoom</li>
+<li>Drag nodes to adjust layout</li>
+</ul></li>
+<li>Clear browser cache:
+<ul>
+<li>Outdated JS assets might cause rendering issues</li>
+</ul></li>
+</ol>
+</section>
+<section id="slow-ui-performance" class="level3">
+<h3 class="anchored" data-anchor-id="slow-ui-performance">Slow UI Performance</h3>
+<p><strong>Problem</strong>: UI becomes slow or unresponsive with large DAGs</p>
+<p><strong>Solutions</strong>:</p>
+<ol type="1">
+<li><p>Limit the DAG size in visualization:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In config.yaml</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ui</span><span class="kw">:</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">max_dag_nodes</span><span class="kw">:</span><span class="at"> </span><span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Filter your view to show only active tasks:</p>
+<ul>
+<li>Use the task filter in the UI</li>
+</ul></li>
+<li><p>Use a more powerful browser:</p>
+<ul>
+<li>Chrome or Firefox often perform better than Safari for complex visualizations</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="frequently-asked-questions" class="level2">
+<h2 class="anchored" data-anchor-id="frequently-asked-questions">Frequently Asked Questions</h2>
+<section id="general-questions" class="level3">
+<h3 class="anchored" data-anchor-id="general-questions">General Questions</h3>
+<section id="what-is-the-difference-between-a-task-and-a-dag" class="level4">
+<h4 class="anchored" data-anchor-id="what-is-the-difference-between-a-task-and-a-dag">What is the difference between a task and a DAG?</h4>
+<p>A task is a single unit of work, while a DAG (Directed Acyclic Graph) is a collection of tasks with dependencies that form a workflow.</p>
+</section>
+<section id="can-i-use-cyclonetix-without-redis" class="level4">
+<h4 class="anchored" data-anchor-id="can-i-use-cyclonetix-without-redis">Can I use Cyclonetix without Redis?</h4>
+<p>Yes, Cyclonetix has an in-memory backend that’s perfect for development and testing. However, for production use or persistence across restarts, Redis is recommended.</p>
+</section>
+<section id="how-do-i-backup-my-workflows" class="level4">
+<h4 class="anchored" data-anchor-id="how-do-i-backup-my-workflows">How do I backup my workflows?</h4>
+<p>The primary data to backup is: - Your task definitions in <code>data/tasks/</code> - Your DAG definitions in <code>data/dags/</code> - Your context definitions in <code>data/contexts/</code></p>
+<p>For runtime state, back up your Redis database.</p>
+</section>
+</section>
+<section id="performance-questions" class="level3">
+<h3 class="anchored" data-anchor-id="performance-questions">Performance Questions</h3>
+<section id="how-many-tasks-can-cyclonetix-handle" class="level4">
+<h4 class="anchored" data-anchor-id="how-many-tasks-can-cyclonetix-handle">How many tasks can Cyclonetix handle?</h4>
+<p>Cyclonetix is designed to scale to thousands of tasks with a properly configured Redis backend. The limit is mostly determined by your Redis server capacity and network performance.</p>
+</section>
+<section id="whats-the-recommended-agent-to-orchestrator-ratio" class="level4">
+<h4 class="anchored" data-anchor-id="whats-the-recommended-agent-to-orchestrator-ratio">What’s the recommended agent-to-orchestrator ratio?</h4>
+<p>A single orchestrator can typically handle multiple agents. A common starting point is: - 1 orchestrator - 3-5 agents - 1 Redis instance</p>
+<p>Scale up from there based on your workload.</p>
+</section>
+<section id="how-do-i-optimize-for-large-workflows" class="level4">
+<h4 class="anchored" data-anchor-id="how-do-i-optimize-for-large-workflows">How do I optimize for large workflows?</h4>
+<p>For large workflows: 1. Use multiple agents 2. Increase agent concurrency 3. Consider sharding your Redis backend 4. Use PostgreSQL backend for very large deployments 5. Break extremely large workflows into smaller sub-workflows</p>
+</section>
+</section>
+<section id="security-questions" class="level3">
+<h3 class="anchored" data-anchor-id="security-questions">Security Questions</h3>
+<section id="how-do-i-secure-access-to-the-ui" class="level4">
+<h4 class="anchored" data-anchor-id="how-do-i-secure-access-to-the-ui">How do I secure access to the UI?</h4>
+<p>Cyclonetix supports: - Basic authentication - OAuth2 for enterprise authentication - API keys for programmatic access</p>
+<p>Configure these in the <code>security</code> section of your config.yaml.</p>
+</section>
+<section id="is-communication-between-components-encrypted" class="level4">
+<h4 class="anchored" data-anchor-id="is-communication-between-components-encrypted">Is communication between components encrypted?</h4>
+<p>By default, communication is not encrypted. For production deployments, consider: - Using Redis with TLS - Placing all components behind a VPN - Using an HTTPS proxy for the UI</p>
+</section>
+</section>
+<section id="integration-questions" class="level3">
+<h3 class="anchored" data-anchor-id="integration-questions">Integration Questions</h3>
+<section id="can-cyclonetix-execute-tasks-in-docker-containers" class="level4">
+<h4 class="anchored" data-anchor-id="can-cyclonetix-execute-tasks-in-docker-containers">Can Cyclonetix execute tasks in Docker containers?</h4>
+<p>Yes, there are two approaches: 1. Run the agent inside a container and have it execute docker commands 2. Use the command field to invoke docker: <code>yaml    command: "docker run --rm my-image:latest python /script.py"</code></p>
+</section>
+<section id="can-i-trigger-tasks-based-on-external-events" class="level4">
+<h4 class="anchored" data-anchor-id="can-i-trigger-tasks-based-on-external-events">Can I trigger tasks based on external events?</h4>
+<p>Yes, you can trigger tasks via: - The REST API - Webhook endpoints (coming soon) - Kafka integration (coming soon)</p>
+</section>
+<section id="how-do-i-integrate-with-cicd-pipelines" class="level4">
+<h4 class="anchored" data-anchor-id="how-do-i-integrate-with-cicd-pipelines">How do I integrate with CI/CD pipelines?</h4>
+<p>Cyclonetix can be integrated with CI/CD using: 1. API calls from your CI/CD system 2. Git-based execution for code from repositories 3. Shared task definitions between development and production</p>
+</section>
+</section>
+</section>
+<section id="still-having-issues" class="level2">
+<h2 class="anchored" data-anchor-id="still-having-issues">Still Having Issues?</h2>
+<p>If you’re still experiencing problems:</p>
+<ol type="1">
+<li>Check the <a href="https://github.com/neural-chilli/Cyclonetix/issues">GitHub Issues</a> for similar problems</li>
+<li>Enable debug logging: <code>RUST_LOG=debug ./cyclonetix</code></li>
+<li>Open a new issue with:
+<ul>
+<li>A detailed description of the problem</li>
+<li>Steps to reproduce</li>
+<li>Log output</li>
+<li>Configuration (redacted of sensitive information)</li>
+</ul></li>
+</ol>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
+<ul>
+<li>Review the <a href="./reference/configuration.html">Configuration Reference</a> for detailed settings</li>
+<li>Explore <a href="./advanced/evaluation-points.html">Advanced Features</a> for complex workflows</li>
+<li>Check the <a href="./roadmap.html">Roadmap</a> for upcoming features</li>
 </ul>
 
 

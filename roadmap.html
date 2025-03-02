@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Cyclonetix</title>
+<title>roadmap – Cyclonetix</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -114,7 +114,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./roadmap.html">Roadmap</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -128,7 +128,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introduction</span></a>
   </div>
 </li>
@@ -327,7 +327,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./roadmap.html" class="sidebar-item-text sidebar-link">
+  <a href="./roadmap.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Roadmap</span></a>
   </div>
 </li>
@@ -341,12 +341,39 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#roadmap" id="toc-roadmap" class="nav-link active" data-scroll-target="#roadmap">Roadmap</a>
   <ul class="collapse">
-  <li><a href="#what-is-cyclonetix" id="toc-what-is-cyclonetix" class="nav-link" data-scroll-target="#what-is-cyclonetix">What is Cyclonetix?</a></li>
-  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
-  <li><a href="#project-philosophy" id="toc-project-philosophy" class="nav-link" data-scroll-target="#project-philosophy">Project Philosophy</a></li>
-  <li><a href="#where-to-go-next" id="toc-where-to-go-next" class="nav-link" data-scroll-target="#where-to-go-next">Where to Go Next</a></li>
+  <li><a href="#current-status" id="toc-current-status" class="nav-link" data-scroll-target="#current-status">Current Status</a></li>
+  <li><a href="#immediate-priorities-next-4-weeks" id="toc-immediate-priorities-next-4-weeks" class="nav-link" data-scroll-target="#immediate-priorities-next-4-weeks">Immediate Priorities (Next 4 Weeks)</a>
+  <ul class="collapse">
+  <li><a href="#core-functionality" id="toc-core-functionality" class="nav-link" data-scroll-target="#core-functionality">Core Functionality</a></li>
+  <li><a href="#user-experience" id="toc-user-experience" class="nav-link" data-scroll-target="#user-experience">User Experience</a></li>
+  <li><a href="#documentation" id="toc-documentation" class="nav-link" data-scroll-target="#documentation">Documentation</a></li>
+  </ul></li>
+  <li><a href="#short-term-goals-next-2-3-months" id="toc-short-term-goals-next-2-3-months" class="nav-link" data-scroll-target="#short-term-goals-next-2-3-months">Short-Term Goals (Next 2-3 Months)</a>
+  <ul class="collapse">
+  <li><a href="#feature-enhancements" id="toc-feature-enhancements" class="nav-link" data-scroll-target="#feature-enhancements">Feature Enhancements</a></li>
+  <li><a href="#usability-improvements" id="toc-usability-improvements" class="nav-link" data-scroll-target="#usability-improvements">Usability Improvements</a></li>
+  <li><a href="#performance-optimizations" id="toc-performance-optimizations" class="nav-link" data-scroll-target="#performance-optimizations">Performance Optimizations</a></li>
+  </ul></li>
+  <li><a href="#medium-term-goals-3-6-months" id="toc-medium-term-goals-3-6-months" class="nav-link" data-scroll-target="#medium-term-goals-3-6-months">Medium-Term Goals (3-6 Months)</a>
+  <ul class="collapse">
+  <li><a href="#advanced-features" id="toc-advanced-features" class="nav-link" data-scroll-target="#advanced-features">Advanced Features</a></li>
+  <li><a href="#security-and-authentication" id="toc-security-and-authentication" class="nav-link" data-scroll-target="#security-and-authentication">Security and Authentication</a></li>
+  <li><a href="#observability" id="toc-observability" class="nav-link" data-scroll-target="#observability">Observability</a></li>
+  </ul></li>
+  <li><a href="#long-term-vision-6-months" id="toc-long-term-vision-6-months" class="nav-link" data-scroll-target="#long-term-vision-6-months">Long-Term Vision (6+ Months)</a>
+  <ul class="collapse">
+  <li><a href="#cloud-integration" id="toc-cloud-integration" class="nav-link" data-scroll-target="#cloud-integration">Cloud Integration</a></li>
+  <li><a href="#advanced-use-cases" id="toc-advanced-use-cases" class="nav-link" data-scroll-target="#advanced-use-cases">Advanced Use Cases</a></li>
+  <li><a href="#enterprise-features" id="toc-enterprise-features" class="nav-link" data-scroll-target="#enterprise-features">Enterprise Features</a></li>
+  <li><a href="#ui-and-ux-enhancements" id="toc-ui-and-ux-enhancements" class="nav-link" data-scroll-target="#ui-and-ux-enhancements">UI and UX Enhancements</a></li>
+  </ul></li>
+  <li><a href="#community-and-ecosystem" id="toc-community-and-ecosystem" class="nav-link" data-scroll-target="#community-and-ecosystem">Community and Ecosystem</a></li>
+  <li><a href="#contribution-opportunities" id="toc-contribution-opportunities" class="nav-link" data-scroll-target="#contribution-opportunities">Contribution Opportunities</a></li>
+  <li><a href="#feedback-and-prioritization" id="toc-feedback-and-prioritization" class="nav-link" data-scroll-target="#feedback-and-prioritization">Feedback and Prioritization</a></li>
+  <li><a href="#keeping-up-to-date" id="toc-keeping-up-to-date" class="nav-link" data-scroll-target="#keeping-up-to-date">Keeping Up to Date</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -357,50 +384,194 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<section id="what-is-cyclonetix" class="level2">
-<h2 class="anchored" data-anchor-id="what-is-cyclonetix">What is Cyclonetix?</h2>
-<p>Cyclonetix is a lightweight, Rust-based workflow orchestrator designed to be <strong>fast, easy to use, and highly scalable</strong>. It is built for <strong>both cloud-native and on-premises deployments</strong>, supporting <strong>outcome-based scheduling, self-assembling DAGs, and manual DAG execution</strong>.</p>
-<p>With Cyclonetix, you can:</p>
+<section id="roadmap" class="level1">
+<h1>Roadmap</h1>
+<p>This roadmap outlines the planned development for Cyclonetix, from immediate priorities to long-term vision. Our goal is to create a workflow orchestrator that excels in ease of use, performance, and flexibility.</p>
+<section id="current-status" class="level2">
+<h2 class="anchored" data-anchor-id="current-status">Current Status</h2>
+<p>Cyclonetix is currently in active development with a functioning core that includes:</p>
 <ul>
-<li><strong>Define tasks</strong> with dependencies, commands, and parameters</li>
-<li><strong>Build execution graphs</strong> explicitly or let them self-assemble</li>
-<li><strong>Schedule outcomes</strong> and let the system determine the execution path</li>
-<li><strong>Monitor executions</strong> in real-time through a modern web UI</li>
-<li><strong>Scale</strong> from development environments to large-scale production deployments</li>
+<li>Basic task execution and dependency management</li>
+<li>Self-assembling DAGs via outcome-based scheduling</li>
+<li>Redis-based state management</li>
+<li>Web UI for monitoring and management</li>
+<li>Agent-based task execution</li>
 </ul>
 </section>
-<section id="key-features" class="level2">
-<h2 class="anchored" data-anchor-id="key-features">Key Features</h2>
-<p>Cyclonetix aims to be:</p>
+<section id="immediate-priorities-next-4-weeks" class="level2">
+<h2 class="anchored" data-anchor-id="immediate-priorities-next-4-weeks">Immediate Priorities (Next 4 Weeks)</h2>
+<p>Our immediate focus is on stabilizing the core functionality and improving user experience:</p>
+<section id="core-functionality" class="level3">
+<h3 class="anchored" data-anchor-id="core-functionality">Core Functionality</h3>
 <ul>
-<li><strong>Effortlessly simple to get started with</strong></li>
-<li><strong>Exceptionally fast and lightweight</strong></li>
-<li><strong>Flexible enough for both beginners and enterprise-scale workloads</strong></li>
-<li><strong>Clever by design, reducing user cognitive load</strong></li>
-<li><strong>Capable of advanced scheduling mechanisms</strong> (outcome-based scheduling + explicit DAG execution)</li>
+<li><strong>Finalize task recovery logic</strong>: Enhance the mechanism for recovering from agent failures and retrying failed tasks</li>
+<li><strong>Improve orchestrator state handling</strong>: Refine how the orchestrator manages and persists state across restarts</li>
+<li><strong>Complete Redis-based backend</strong>: Ensure all features work correctly with the Redis backend</li>
+<li><strong>Develop PostgreSQL-based StateManager</strong>: Add support for PostgreSQL as an alternative backend for high-scale deployments</li>
 </ul>
 </section>
-<section id="project-philosophy" class="level2">
-<h2 class="anchored" data-anchor-id="project-philosophy">Project Philosophy</h2>
-<p>Cyclonetix was designed with several core principles in mind:</p>
+<section id="user-experience" class="level3">
+<h3 class="anchored" data-anchor-id="user-experience">User Experience</h3>
+<ul>
+<li><strong>Enhance the first version of the UI</strong>: Improve the Axum SSR + Tabler.js + Cytoscape.js based user interface</li>
+<li><strong>Add search and filtering in the UI</strong>: Make it easier to find specific tasks and DAGs</li>
+<li><strong>Improve DAG visualization</strong>: Enhance the graph visualization with more interactive features and details</li>
+</ul>
+</section>
+<section id="documentation" class="level3">
+<h3 class="anchored" data-anchor-id="documentation">Documentation</h3>
+<ul>
+<li><strong>Expand documentation</strong>: Create comprehensive guides for all features</li>
+<li><strong>Add examples</strong>: Provide example workflows for common use cases</li>
+<li><strong>Improve API documentation</strong>: Document all public APIs with detailed explanations</li>
+</ul>
+</section>
+</section>
+<section id="short-term-goals-next-2-3-months" class="level2">
+<h2 class="anchored" data-anchor-id="short-term-goals-next-2-3-months">Short-Term Goals (Next 2-3 Months)</h2>
+<section id="feature-enhancements" class="level3">
+<h3 class="anchored" data-anchor-id="feature-enhancements">Feature Enhancements</h3>
+<ul>
+<li><strong>Event-driven execution triggers</strong>: Support for Kafka, webhooks, and API calls to trigger workflows</li>
+<li><strong>REST API for external integration</strong>: Expose a comprehensive REST API for integrating with other systems</li>
+<li><strong>Kubernetes auto-scaling</strong>: Refine the logic for scaling agents based on queue depth</li>
+<li><strong>Git-based execution</strong>: Enhance support for executing code directly from Git repositories</li>
+</ul>
+</section>
+<section id="usability-improvements" class="level3">
+<h3 class="anchored" data-anchor-id="usability-improvements">Usability Improvements</h3>
+<ul>
+<li><strong>Parameter sets</strong>: Formalize the concept of parameter sets for task configuration</li>
+<li><strong>Context inheritance</strong>: Implement hierarchical contexts with overrides</li>
+<li><strong>Improved logging</strong>: Enhanced logging and tracing for better debugging</li>
+<li><strong>Dashboard enhancements</strong>: Add more metrics and visualizations to the dashboard</li>
+</ul>
+</section>
+<section id="performance-optimizations" class="level3">
+<h3 class="anchored" data-anchor-id="performance-optimizations">Performance Optimizations</h3>
+<ul>
+<li><strong>Optimized graph traversal</strong>: Improve the performance of dependency resolution</li>
+<li><strong>Reduced Redis operations</strong>: Minimize the number of Redis operations for better scalability</li>
+<li><strong>Task batching</strong>: Support for batching small tasks for more efficient execution</li>
+</ul>
+</section>
+</section>
+<section id="medium-term-goals-3-6-months" class="level2">
+<h2 class="anchored" data-anchor-id="medium-term-goals-3-6-months">Medium-Term Goals (3-6 Months)</h2>
+<section id="advanced-features" class="level3">
+<h3 class="anchored" data-anchor-id="advanced-features">Advanced Features</h3>
+<ul>
+<li><strong>Workflow versioning</strong>: Track changes to workflows over time</li>
+<li><strong>A/B testing support</strong>: Run multiple variants of workflows for comparison</li>
+<li><strong>Conditional branching</strong>: Enhanced support for complex conditional logic</li>
+<li><strong>Time-based scheduling</strong>: Cron-like scheduling capabilities</li>
+<li><strong>Resource management</strong>: Better control over resource allocation for tasks</li>
+<li><strong>Task timeouts and error handling</strong>: More sophisticated error handling and timeout mechanisms</li>
+</ul>
+</section>
+<section id="security-and-authentication" class="level3">
+<h3 class="anchored" data-anchor-id="security-and-authentication">Security and Authentication</h3>
+<ul>
+<li><strong>Role-based access control (RBAC)</strong>: Granular permissions for different users</li>
+<li><strong>Audit logging</strong>: Track all actions for compliance and security</li>
+<li><strong>Secret management</strong>: Secure handling of credentials and sensitive information</li>
+<li><strong>Enhanced OAuth integration</strong>: Support for more OAuth providers</li>
+</ul>
+</section>
+<section id="observability" class="level3">
+<h3 class="anchored" data-anchor-id="observability">Observability</h3>
+<ul>
+<li><strong>Metrics collection</strong>: Gather performance metrics for tasks and workflows</li>
+<li><strong>Prometheus integration</strong>: Export metrics to Prometheus</li>
+<li><strong>Detailed execution history</strong>: Improved tracking of past executions</li>
+<li><strong>Advanced filtering and search</strong>: Better tools for finding specific executions</li>
+</ul>
+</section>
+</section>
+<section id="long-term-vision-6-months" class="level2">
+<h2 class="anchored" data-anchor-id="long-term-vision-6-months">Long-Term Vision (6+ Months)</h2>
+<section id="cloud-integration" class="level3">
+<h3 class="anchored" data-anchor-id="cloud-integration">Cloud Integration</h3>
+<ul>
+<li><strong>Cloud deployment automation</strong>: Terraform/Pulumi integration for easy deployment</li>
+<li><strong>Multi-cloud support</strong>: Run workflows across different cloud providers</li>
+<li><strong>Serverless execution</strong>: Support for serverless task execution</li>
+<li><strong>Cost optimization</strong>: Intelligent scheduling to minimize cloud costs</li>
+</ul>
+</section>
+<section id="advanced-use-cases" class="level3">
+<h3 class="anchored" data-anchor-id="advanced-use-cases">Advanced Use Cases</h3>
+<ul>
+<li><strong>Jupyter notebook execution as DAGs</strong>: Convert annotated notebooks into production-ready workflows</li>
+<li><strong>WASM execution support</strong>: Ultra-lightweight task execution using WebAssembly</li>
+<li><strong>AI-driven optimization</strong>: Use AI to optimize workflow scheduling and resource allocation</li>
+<li><strong>Cross-organization workflows</strong>: Support for workflows that span multiple organizations</li>
+</ul>
+</section>
+<section id="enterprise-features" class="level3">
+<h3 class="anchored" data-anchor-id="enterprise-features">Enterprise Features</h3>
+<ul>
+<li><strong>Multi-tenancy</strong>: Support for multiple isolated tenants sharing the same infrastructure</li>
+<li><strong>High availability</strong>: Enhanced fault tolerance and failover capabilities</li>
+<li><strong>Disaster recovery</strong>: Automated backup and recovery procedures</li>
+<li><strong>Compliance features</strong>: Support for regulatory compliance requirements</li>
+</ul>
+</section>
+<section id="ui-and-ux-enhancements" class="level3">
+<h3 class="anchored" data-anchor-id="ui-and-ux-enhancements">UI and UX Enhancements</h3>
+<ul>
+<li><strong>Live execution tracking with WebSockets</strong>: Real-time updates on execution state</li>
+<li><strong>Advanced visualization</strong>: More sophisticated visualization of complex workflows</li>
+<li><strong>Mobile support</strong>: Responsive design for mobile monitoring</li>
+<li><strong>Customizable dashboards</strong>: User-definable dashboards and views</li>
+</ul>
+</section>
+</section>
+<section id="community-and-ecosystem" class="level2">
+<h2 class="anchored" data-anchor-id="community-and-ecosystem">Community and Ecosystem</h2>
+<ul>
+<li><strong>Plugin system</strong>: Support for community-developed plugins</li>
+<li><strong>Integration marketplace</strong>: Pre-built integrations with popular tools and services</li>
+<li><strong>Expanded documentation</strong>: Comprehensive guides, tutorials, and examples</li>
+<li><strong>Community forums</strong>: Dedicated space for user discussions and support</li>
+</ul>
+</section>
+<section id="contribution-opportunities" class="level2">
+<h2 class="anchored" data-anchor-id="contribution-opportunities">Contribution Opportunities</h2>
+<p>We welcome contributions in the following areas:</p>
+<ul>
+<li><strong>Backend implementations</strong>: Additional state manager backends (e.g., MongoDB, DynamoDB)</li>
+<li><strong>UI improvements</strong>: Enhanced visualizations and usability features</li>
+<li><strong>Documentation</strong>: Tutorials, examples, and clarifications</li>
+<li><strong>Testing</strong>: Additional test cases and improved test coverage</li>
+<li><strong>Performance optimizations</strong>: Identifying and addressing bottlenecks</li>
+</ul>
+</section>
+<section id="feedback-and-prioritization" class="level2">
+<h2 class="anchored" data-anchor-id="feedback-and-prioritization">Feedback and Prioritization</h2>
+<p>This roadmap is not set in stone. We actively adjust our priorities based on:</p>
+<ul>
+<li><strong>User feedback</strong>: What problems are users trying to solve?</li>
+<li><strong>Community contributions</strong>: Where is the community showing interest?</li>
+<li><strong>Industry trends</strong>: How is the workflow orchestration landscape evolving?</li>
+</ul>
+<p>If you have suggestions or want to contribute to a specific area, please:</p>
 <ol type="1">
-<li><strong>Reduce cognitive load</strong> - Users shouldn’t need to understand complex concepts to orchestrate simple workflows</li>
-<li><strong>Start small, scale big</strong> - The same system should work for both local development and massive production deployments</li>
-<li><strong>Simple things should be simple, complex things should be possible</strong> - Basic use cases should require minimal effort</li>
-<li><strong>Design for the real world</strong> - Built based on experience with real-world orchestration challenges</li>
-<li><strong>Performance matters</strong> - A lightweight core that executes jobs efficiently with minimal overhead</li>
+<li><strong>Open an issue</strong>: Describe your idea or problem</li>
+<li><strong>Start a discussion</strong>: Share your thoughts on the direction of the project</li>
+<li><strong>Submit a PR</strong>: Contribute code or documentation improvements</li>
 </ol>
-<p>Whether you’re running data pipelines, ML training jobs, or software deployment processes, Cyclonetix provides the flexibility, performance, and ease of use to make your workflow orchestration simpler and more efficient.</p>
 </section>
-<section id="where-to-go-next" class="level2">
-<h2 class="anchored" data-anchor-id="where-to-go-next">Where to Go Next</h2>
+<section id="keeping-up-to-date" class="level2">
+<h2 class="anchored" data-anchor-id="keeping-up-to-date">Keeping Up to Date</h2>
+<p>The roadmap will be updated quarterly to reflect evolving priorities and progress. Check back regularly for the latest information on Cyclonetix’s development direction.</p>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
 <ul>
-<li><a href="./getting-started.html">Getting Started</a> - Install and run your first workflow</li>
-<li><a href="./core-concepts/architecture.html">Core Concepts</a> - Learn about Cyclonetix’s architecture</li>
-<li><a href="./user-guide/task-definition.html">User Guide</a> - Practical guides for using Cyclonetix</li>
-<li><a href="./developer-guide.html">Developer Guide</a> - Contributing to Cyclonetix</li>
+<li>Explore the <a href="./developer-guide.html">Developer Guide</a> to understand the code</li>
+<li>Check the <a href="https://github.com/neural-chilli/Cyclonetix">GitHub repository</a> for current issues and PRs</li>
+<li>Join the discussion in the <a href="https://github.com/neural-chilli/Cyclonetix/discussions">Discussions</a> section</li>
 </ul>
 
 
