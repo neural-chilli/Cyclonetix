@@ -1,12 +1,12 @@
+use crate::models::task::TaskInstance;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::models::task::TaskInstance;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Context {
     pub id: String,
-    
+
     pub variables: HashMap<String, String>,
 
     #[serde(with = "chrono::serde::ts_seconds")]
@@ -42,15 +42,12 @@ impl Context {
     }
 
     /// Retrieves all environment variables for a specific task instance
-    pub fn get_task_env(
-        &self,
-        task_instance: TaskInstance,
-    ) -> HashMap<String, String> {
+    pub fn get_task_env(&self, task_instance: TaskInstance) -> HashMap<String, String> {
         let mut env = HashMap::new();
 
         for (key, value) in &self.variables {
             task_instance.parameters.iter().for_each(|(_param_key, _)| {
-                    env.insert(key.clone(), value.clone());
+                env.insert(key.clone(), value.clone());
             });
             self.variables.iter().for_each(|(key, value)| {
                 env.insert(key.clone(), value.clone());

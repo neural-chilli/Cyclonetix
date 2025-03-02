@@ -31,18 +31,17 @@ pub struct TaskTemplate {
 pub struct TaskInstance {
     pub run_id: String,
     pub task_id: String,
-    pub dag_id: String,         
+    pub dag_id: String,
     pub name: String,
     pub description: Option<String>,
     pub command: String,
     pub parameters: HashMap<String, String>,
     pub queue: String,
     pub status: String,
-    pub last_updated: DateTime<Utc>,  
+    pub last_updated: DateTime<Utc>,
     pub started_at: Option<DateTime<Utc>>,
     pub completed_at: Option<DateTime<Utc>>,
     pub error_message: Option<String>,
     #[serde(default)]
     pub evaluation_point: bool,
 }
-

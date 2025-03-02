@@ -1,5 +1,5 @@
-use crate::models::dag::{DagTemplate};
 use crate::graph::orchestrator::{schedule_dag, schedule_dag_from_task};
+use crate::models::dag::DagTemplate;
 use crate::state::state_manager::StateManager;
 use clap::{ArgAction, Parser, Subcommand};
 use std::fs;

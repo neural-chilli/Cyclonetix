@@ -3,17 +3,14 @@ use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
 use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::state::state_manager::{AgentStatus, StateManager, TaskPayload};
 use crate::utils::config::SerializationFormat;
-use crate::utils::constants::{PENDING_STATUS};
+use crate::utils::constants::PENDING_STATUS;
 use async_trait::async_trait;
 use dashmap::DashMap;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{ HashSet, VecDeque};
 use std::error::Error;
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::broadcast;
-use tokio::sync::mpsc;
-use tokio::sync::mpsc::Sender;
-use std::collections::BTreeMap;
 use tracing::{debug, error, info, warn};
 
 // Struct to hold an in-memory queue
@@ -26,11 +23,6 @@ impl InMemoryQueue {
         Self {
             tasks: RwLock::new(VecDeque::new()),
         }
-    }
-
-    fn push_front(&self, task: TaskPayload) {
-        let mut tasks = self.tasks.write().unwrap();
-        tasks.push_front(task);
     }
 
     fn push_back(&self, task: TaskPayload) {
@@ -122,7 +114,9 @@ impl MemoryStateManager {
         };
 
         // Initialize default queue
-        instance.queues.insert("work_queue".to_string(), Arc::new(InMemoryQueue::new()));
+        instance
+            .queues
+            .insert("work_queue".to_string(), Arc::new(InMemoryQueue::new()));
 
         instance
     }
@@ -176,7 +170,9 @@ impl StateManager for MemoryStateManager {
     }
 
     async fn load_task_status(&self, task_instance_run_id: &str) -> Option<String> {
-        self.task_instances.get(task_instance_run_id).map(|t| t.status.clone())
+        self.task_instances
+            .get(task_instance_run_id)
+            .map(|t| t.status.clone())
     }
 
     async fn save_task_status(&self, task_instance_run_id: &str, status: &str) {
@@ -200,7 +196,8 @@ impl StateManager for MemoryStateManager {
     }
 
     async fn save_task_instance(&self, task: &TaskInstance) {
-        self.task_instances.insert(task.run_id.clone(), task.clone());
+        self.task_instances
+            .insert(task.run_id.clone(), task.clone());
     }
 
     async fn save_context(&self, context: &Context) {
@@ -212,8 +209,10 @@ impl StateManager for MemoryStateManager {
     }
 
     async fn save_dag_instance(&self, dag_instance: &DagInstance) {
-        self.dag_instances.insert(dag_instance.run_id.clone(), dag_instance.clone());
-        self.dag_statuses.insert(dag_instance.run_id.clone(), dag_instance.status.clone());
+        self.dag_instances
+            .insert(dag_instance.run_id.clone(), dag_instance.clone());
+        self.dag_statuses
+            .insert(dag_instance.run_id.clone(), dag_instance.status.clone());
         debug!("Stored DagInstance: {}", dag_instance.run_id);
     }
 
@@ -244,19 +243,26 @@ impl StateManager for MemoryStateManager {
     async fn load_dag_status(&self, run_id: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
         match self.dag_statuses.get(run_id) {
             Some(status) => Ok(status.clone()),
-            None => Ok(PENDING_STATUS.to_string())
+            None => Ok(PENDING_STATUS.to_string()),
         }
     }
 
-    async fn save_dag_status(&self, run_id: &str, status: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-        self.dag_statuses.insert(run_id.to_string(), status.to_string());
+    async fn save_dag_status(
+        &self,
+        run_id: &str,
+        status: &str,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        self.dag_statuses
+            .insert(run_id.to_string(), status.to_string());
         debug!("Updated DAG status for {}: {}", run_id, status);
         Ok(())
     }
 
     async fn save_graph_instance(&self, graph_instance: &GraphInstance) {
-        self.graph_instances.insert(graph_instance.run_id.clone(), graph_instance.clone());
-        self.graph_statuses.insert(graph_instance.run_id.clone(), PENDING_STATUS.to_string());
+        self.graph_instances
+            .insert(graph_instance.run_id.clone(), graph_instance.clone());
+        self.graph_statuses
+            .insert(graph_instance.run_id.clone(), PENDING_STATUS.to_string());
         debug!("Stored GraphInstance: {}", graph_instance.run_id);
     }
 
@@ -310,7 +316,8 @@ impl StateManager for MemoryStateManager {
         };
 
         self.agents.insert(agent_id.to_string(), agent_status);
-        self.agent_tasks.insert(agent_id.to_string(), HashSet::new());
+        self.agent_tasks
+            .insert(agent_id.to_string(), HashSet::new());
 
         info!("Registered agent {}", agent_id);
     }
@@ -427,16 +434,18 @@ impl StateManager for MemoryStateManager {
 
 #[cfg(test)]
 mod tests {
+    use crate::graph::graph_manager::ExecutionGraph;
     use crate::models::context::Context;
     use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
     use crate::models::task::{TaskInstance, TaskTemplate};
     use crate::state::memory_state_manager::MemoryStateManager;
     use crate::state::state_manager::{StateManager, TaskPayload};
     use crate::utils::config::SerializationFormat;
-    use crate::utils::constants::{COMPLETED_STATUS, FAILED_STATUS, PENDING_STATUS, RUNNING_STATUS};
-    use crate::graph::graph_manager::ExecutionGraph;
+    use crate::utils::constants::{
+        COMPLETED_STATUS, PENDING_STATUS, RUNNING_STATUS,
+    };
     use chrono::Utc;
-    use serde_json::{json, Value};
+    use serde_json::json;
     use std::collections::HashMap;
     use std::sync::Arc;
     use std::time::Duration;
@@ -466,7 +475,10 @@ mod tests {
         state_manager.save_task(&task).await;
 
         // Load the task and verify
-        let loaded_task = state_manager.load_task("task1").await.expect("Failed to load task");
+        let loaded_task = state_manager
+            .load_task("task1")
+            .await
+            .expect("Failed to load task");
         assert_eq!(loaded_task.id, task.id);
         assert_eq!(loaded_task.name, task.name);
         assert_eq!(loaded_task.command, task.command);
@@ -503,13 +515,19 @@ mod tests {
         state_manager.save_task_instance(&task_instance).await;
 
         // Load the task instance and verify
-        let loaded_instance = state_manager.load_task_instance("run1").await.expect("Failed to load task instance");
+        let loaded_instance = state_manager
+            .load_task_instance("run1")
+            .await
+            .expect("Failed to load task instance");
         assert_eq!(loaded_instance.run_id, task_instance.run_id);
         assert_eq!(loaded_instance.status, PENDING_STATUS);
 
         // Update task status
         state_manager.save_task_status("run1", RUNNING_STATUS).await;
-        let updated_status = state_manager.load_task_status("run1").await.expect("Failed to load task status");
+        let updated_status = state_manager
+            .load_task_status("run1")
+            .await
+            .expect("Failed to load task status");
         assert_eq!(updated_status, RUNNING_STATUS);
     }
 
@@ -527,7 +545,10 @@ mod tests {
         state_manager.save_context(&context).await;
 
         // Load the context and verify
-        let loaded_context = state_manager.load_context("ctx1").await.expect("Failed to load context");
+        let loaded_context = state_manager
+            .load_context("ctx1")
+            .await
+            .expect("Failed to load context");
         assert_eq!(loaded_context.id, context.id);
         assert_eq!(loaded_context.get("key1"), Some(&"value1".to_string()));
         assert_eq!(loaded_context.get("key2"), Some(&"value2".to_string()));
@@ -546,19 +567,27 @@ mod tests {
         };
 
         // Push to queue
-        state_manager.put_work_on_queue(&task_payload, "test_queue").await;
+        state_manager
+            .put_work_on_queue(&task_payload, "test_queue")
+            .await;
 
         // Check queue contents
         let queue_tasks = state_manager.get_queue_tasks("test_queue").await;
         assert_eq!(queue_tasks.len(), 1);
 
         // Get work from queue
-        let retrieved_payload = state_manager.get_work_from_queue("test_queue").await.expect("Failed to get work from queue");
+        let retrieved_payload = state_manager
+            .get_work_from_queue("test_queue")
+            .await
+            .expect("Failed to get work from queue");
         assert_eq!(retrieved_payload.task_run_id, task_payload.task_run_id);
         assert_eq!(retrieved_payload.dag_run_id, task_payload.dag_run_id);
 
         // Queue should now be empty
-        assert!(state_manager.get_work_from_queue("test_queue").await.is_none());
+        assert!(state_manager
+            .get_work_from_queue("test_queue")
+            .await
+            .is_none());
     }
 
     #[tokio::test]
@@ -572,7 +601,9 @@ mod tests {
         state_manager.update_agent_heartbeat("agent1").await;
 
         // Assign task to agent
-        state_manager.assign_task_to_agent("agent1", "task1|dag1").await;
+        state_manager
+            .assign_task_to_agent("agent1", "task1|dag1")
+            .await;
 
         // Load all agents
         let agents = state_manager.load_all_agents().await;
@@ -582,7 +613,9 @@ mod tests {
         assert!(agents[0].tasks.contains(&"task1|dag1".to_string()));
 
         // Remove task from agent
-        state_manager.remove_task_from_agent("agent1", "task1|dag1").await;
+        state_manager
+            .remove_task_from_agent("agent1", "task1|dag1")
+            .await;
 
         // Check that task was removed
         let updated_agents = state_manager.load_all_agents().await;
@@ -606,7 +639,10 @@ mod tests {
         state_manager.save_dag_template(&dag_template).await;
 
         // Load DAG template
-        let loaded_template = state_manager.load_dag_template("dag1").await.expect("Failed to load DAG template");
+        let loaded_template = state_manager
+            .load_dag_template("dag1")
+            .await
+            .expect("Failed to load DAG template");
         assert_eq!(loaded_template.id, dag_template.id);
         assert_eq!(loaded_template.name, dag_template.name);
 
@@ -626,13 +662,22 @@ mod tests {
         state_manager.save_dag_instance(&dag_instance).await;
 
         // Load DAG instance
-        let loaded_instance = state_manager.load_dag_instance("run1").await.expect("Failed to load DAG instance");
+        let loaded_instance = state_manager
+            .load_dag_instance("run1")
+            .await
+            .expect("Failed to load DAG instance");
         assert_eq!(loaded_instance.run_id, dag_instance.run_id);
         assert_eq!(loaded_instance.status, PENDING_STATUS);
 
         // Update DAG status
-        state_manager.save_dag_status("run1", RUNNING_STATUS).await.expect("Failed to save DAG status");
-        let updated_status = state_manager.load_dag_status("run1").await.expect("Failed to load DAG status");
+        state_manager
+            .save_dag_status("run1", RUNNING_STATUS)
+            .await
+            .expect("Failed to save DAG status");
+        let updated_status = state_manager
+            .load_dag_status("run1")
+            .await
+            .expect("Failed to load DAG status");
         assert_eq!(updated_status, RUNNING_STATUS);
 
         // Load scheduled DAG instances
@@ -660,10 +705,7 @@ mod tests {
         node_map.insert("task1".to_string(), node1);
         node_map.insert("task2".to_string(), node2);
 
-        let exec_graph = ExecutionGraph {
-            graph,
-            node_map,
-        };
+        let exec_graph = ExecutionGraph { graph, node_map };
 
         // Create graph instance
         let graph_instance = GraphInstance {
@@ -676,14 +718,18 @@ mod tests {
         state_manager.save_graph_instance(&graph_instance).await;
 
         // Load graph instance
-        let loaded_graph = state_manager.load_graph_instance("run1").await.expect("Failed to load graph instance");
+        let loaded_graph = state_manager
+            .load_graph_instance("run1")
+            .await
+            .expect("Failed to load graph instance");
         assert_eq!(loaded_graph.run_id, graph_instance.run_id);
         assert_eq!(loaded_graph.dag_id, graph_instance.dag_id);
     }
 
     #[tokio::test]
     async fn test_pub_sub() {
-        let state_manager = Arc::new(MemoryStateManager::new("test-cluster", SerializationFormat::Json).await);
+        let state_manager =
+            Arc::new(MemoryStateManager::new("test-cluster", SerializationFormat::Json).await);
 
         // Create mock graph instance for updates
         let mut graph = petgraph::graph::DiGraph::new();
@@ -692,10 +738,7 @@ mod tests {
         let mut node_map = HashMap::new();
         node_map.insert("task1".to_string(), node);
 
-        let exec_graph = ExecutionGraph {
-            graph,
-            node_map,
-        };
+        let exec_graph = ExecutionGraph { graph, node_map };
 
         let graph_instance = GraphInstance {
             run_id: "run1".to_string(),
@@ -792,7 +835,9 @@ mod tests {
 
         // Assign task to agent
         let assignment = format!("{}|{}", task_instance.run_id, dag_instance.run_id);
-        state_manager.assign_task_to_agent("agent1", &assignment).await;
+        state_manager
+            .assign_task_to_agent("agent1", &assignment)
+            .await;
 
         // Force the heartbeat to be old (directly modify the agent)
         {
@@ -802,7 +847,10 @@ mod tests {
         }
 
         // Call reset tasks
-        state_manager.reset_tasks_from_downed_agents(10).await.expect("Failed to reset tasks");
+        state_manager
+            .reset_tasks_from_downed_agents(10)
+            .await
+            .expect("Failed to reset tasks");
 
         // Check if agent is removed
         let agents = state_manager.load_all_agents().await;
@@ -813,7 +861,10 @@ mod tests {
         assert_eq!(queue_tasks.len(), 1);
 
         // Verify task status was reset to pending
-        let updated_status = state_manager.load_task_status("task1").await.expect("Failed to load task status");
+        let updated_status = state_manager
+            .load_task_status("task1")
+            .await
+            .expect("Failed to load task status");
         assert_eq!(updated_status, PENDING_STATUS);
     }
 
@@ -822,10 +873,16 @@ mod tests {
         let state_manager = create_test_state_manager().await;
 
         // Default values
-        let count = state_manager.get_orchestrator_count().await.expect("Failed to get orchestrator count");
+        let count = state_manager
+            .get_orchestrator_count()
+            .await
+            .expect("Failed to get orchestrator count");
         assert_eq!(count, 1);
 
-        let id = state_manager.get_orchestrator_id().await.expect("Failed to get orchestrator ID");
+        let id = state_manager
+            .get_orchestrator_id()
+            .await
+            .expect("Failed to get orchestrator ID");
         assert_eq!(id, 0);
 
         // Update values directly for testing
@@ -838,10 +895,16 @@ mod tests {
         }
 
         // Check updated values
-        let updated_count = state_manager.get_orchestrator_count().await.expect("Failed to get updated count");
+        let updated_count = state_manager
+            .get_orchestrator_count()
+            .await
+            .expect("Failed to get updated count");
         assert_eq!(updated_count, 3);
 
-        let updated_id = state_manager.get_orchestrator_id().await.expect("Failed to get updated ID");
+        let updated_id = state_manager
+            .get_orchestrator_id()
+            .await
+            .expect("Failed to get updated ID");
         assert_eq!(updated_id, 2);
     }
 
@@ -907,7 +970,9 @@ mod tests {
         assert!(state_manager.load_task_instance("task2").await.is_some());
 
         // Delete DAG instance
-        state_manager.delete_dag_instance("run1", &["task1".to_string(), "task2".to_string()]).await
+        state_manager
+            .delete_dag_instance("run1", &["task1".to_string(), "task2".to_string()])
+            .await
             .expect("Failed to delete DAG instance");
 
         // Verify they're gone

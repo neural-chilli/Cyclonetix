@@ -1,20 +1,16 @@
 use clap::Parser;
+use cyclonetix::state::memory_state_manager::MemoryStateManager;
 use cyclonetix::utils::app_state::AppState;
 use cyclonetix::utils::cli::{ensure_config_exists, handle_scheduling, Cli};
 use cyclonetix::utils::constants::DEFAULT_QUEUE;
 use cyclonetix::utils::logging::init_tracing;
 use cyclonetix::{
-    agent::agent::Agent,
-    graph::orchestrator::*,
-    server,
-    state::bootstrapper::Bootstrapper,
-    state::redis_state_manager::RedisStateManager,
-    state::state_manager::StateManager,
+    agent::agent::Agent, graph::orchestrator::*, server, state::bootstrapper::Bootstrapper,
+    state::redis_state_manager::RedisStateManager, state::state_manager::StateManager,
     utils::config::CyclonetixConfig,
 };
 use std::sync::Arc;
 use tracing::{error, info};
-use cyclonetix::state::memory_state_manager::MemoryStateManager;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
@@ -33,14 +29,10 @@ async fn main() -> std::io::Result<()> {
                 &config.cluster_id,
                 config.serialization_format.clone(), // <-- pass it here
             )
-                .await,
+            .await,
         ),
         "memory" => Arc::new(
-            MemoryStateManager::new(
-                &config.cluster_id,
-                config.serialization_format.clone()
-            )
-                .await,
+            MemoryStateManager::new(&config.cluster_id, config.serialization_format.clone()).await,
         ),
         "postgresql" => unimplemented!("PostgreSQL backend"),
         other => panic!("Unsupported backend: {}", other),
@@ -138,5 +130,9 @@ async fn start_graph_monitor(app_state: Arc<AppState>) {
 
 async fn start_update_listener(app_state: Arc<AppState>) {
     info!("Starting update listener...");
-    app_state.state_manager.clone().subscribe_to_graph_updates().await;
+    app_state
+        .state_manager
+        .clone()
+        .subscribe_to_graph_updates()
+        .await;
 }

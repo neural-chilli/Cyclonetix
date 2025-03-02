@@ -1,13 +1,11 @@
 use crate::server::dashboard::AgentOverview;
 use crate::server::state::AppStateWithTera;
-use crate::utils::constants::{COMPLETED_STATUS, FAILED_STATUS, PENDING_STATUS, RUNNING_STATUS};
 use crate::utils::id_tools::strip_guid;
 use axum::{
     extract::State,
     http::StatusCode,
     response::{Html, IntoResponse},
 };
-use serde::Serialize;
 use tera::Context;
 
 /// Handler for the dashboard page.

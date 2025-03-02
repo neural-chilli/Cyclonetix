@@ -3,7 +3,7 @@ use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
 use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::state::state_manager::StateManager;
 use crate::utils::constants::{COMPLETED_STATUS, DEFAULT_QUEUE, PENDING_STATUS};
-use crate::utils::id_tools::{generate_compound_run_id};
+use crate::utils::id_tools::generate_compound_run_id;
 use chrono::Utc;
 use petgraph::algo::toposort;
 use petgraph::graph::{DiGraph, NodeIndex};
@@ -24,7 +24,7 @@ impl ExecutionGraph {
         provided_context: Option<Context>,
     ) -> (DagInstance, Vec<TaskInstance>, GraphInstance) {
         // Create a new dag_run_id
-        let dag_run_id =  generate_compound_run_id(dag_template.name.clone().as_str());
+        let dag_run_id = generate_compound_run_id(dag_template.name.clone().as_str());
 
         // Create TaskInstances for each task in DagTemplate.
         let now = Utc::now();
@@ -33,7 +33,7 @@ impl ExecutionGraph {
         let mut node_map: HashMap<String, NodeIndex> = HashMap::new();
 
         for task in &dag_template.tasks {
-            let instance_run_id =  generate_compound_run_id(task.name.clone().as_str());
+            let instance_run_id = generate_compound_run_id(task.name.clone().as_str());
             let parameters_map = if let Some(obj) = task.parameters.as_object() {
                 obj.iter()
                     .map(|(k, v)| (k.clone(), v.to_string()))

@@ -88,9 +88,7 @@ impl Default for SecurityConfig {
                 "/auth/*".to_string(),
                 "/health".to_string(),
             ],
-            api_paths: vec![
-                "/api/*".to_string(),
-            ],
+            api_paths: vec!["/api/*".to_string()],
         }
     }
 }
