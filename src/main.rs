@@ -20,9 +20,9 @@ async fn main() -> std::io::Result<()> {
     init_tracing();
     info!("Cyclonetix is starting...");
     let cli = Cli::parse();
-    ensure_config_exists(&cli.config_file);
+    ensure_config_exists(&cli.config);
 
-    let config = Arc::new(CyclonetixConfig::load(&cli.config_file));
+    let config = Arc::new(CyclonetixConfig::load(&cli.config));
 
     // Pass the chosen serialization_format into RedisStateManager here:
     let state_manager: Arc<dyn StateManager> = match config.backend.as_str() {

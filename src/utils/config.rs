@@ -9,7 +9,7 @@ use std::fs;
 #[command(about = "A high-performance orchestration framework")]
 pub struct Config {
     #[arg(long, default_value = "config.yaml")]
-    pub config_file: String,
+    pub config: String,
 }
 
 #[derive(Debug, Deserialize, Clone)]

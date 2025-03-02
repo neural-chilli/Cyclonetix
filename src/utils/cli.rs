@@ -16,7 +16,7 @@ use tracing::{error, info, warn};
 pub struct Cli {
     /// Path to the configuration file (if none provided, uses `config.yaml`)
     #[arg(short, long, default_value = "config.yaml")]
-    pub config_file: String,
+    pub config: String,
 
     /// Start the UI server
     #[arg(long, action = ArgAction::SetTrue)]
