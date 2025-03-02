@@ -4,6 +4,7 @@ use crate::utils::hostname_helper::get_hostname;
 use crate::utils::id_tools::{generate_compound_run_id, strip_guid};
 use std::sync::Arc;
 use std::time::Duration;
+use chrono::Utc;
 use tokio::process::Command;
 use tokio::time::sleep;
 use tracing::{error, info};
@@ -101,6 +102,14 @@ impl<S: 'static + StateManager + ?Sized> Agent<S> {
                 return;
             }
 
+            let mut instance = self.state_manager.load_task_instance(&task_payload.task_run_id)
+                .await.unwrap();
+            
+            instance.status = RUNNING_STATUS.to_string();
+            instance.started_at = Some(Utc::now());
+            instance.assigned_agent = Some(self.agent_id.clone());
+            self.state_manager.save_task_instance(&instance).await;
+
             // Mark as running and execute.
             self.state_manager
                 .save_task_status(&task_payload.task_run_id, RUNNING_STATUS)
@@ -111,6 +120,11 @@ impl<S: 'static + StateManager + ?Sized> Agent<S> {
             } else {
                 FAILED_STATUS
             };
+            
+            instance.status = new_status.to_string();
+            instance.completed_at = Some(Utc::now());
+            self.state_manager.save_task_instance(&instance).await;
+            
             self.state_manager
                 .save_task_status(&task_payload.task_run_id, new_status)
                 .await;
