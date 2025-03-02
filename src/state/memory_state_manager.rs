@@ -424,3 +424,495 @@ impl StateManager for MemoryStateManager {
         self.dag_instances.iter().map(|d| d.key().clone()).collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::models::context::Context;
+    use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
+    use crate::models::task::{TaskInstance, TaskTemplate};
+    use crate::state::memory_state_manager::MemoryStateManager;
+    use crate::state::state_manager::{StateManager, TaskPayload};
+    use crate::utils::config::SerializationFormat;
+    use crate::utils::constants::{COMPLETED_STATUS, FAILED_STATUS, PENDING_STATUS, RUNNING_STATUS};
+    use crate::graph::graph_manager::ExecutionGraph;
+    use chrono::Utc;
+    use serde_json::{json, Value};
+    use std::collections::HashMap;
+    use std::sync::Arc;
+    use std::time::Duration;
+    use tokio::time::sleep;
+
+    async fn create_test_state_manager() -> Arc<MemoryStateManager> {
+        Arc::new(MemoryStateManager::new("test-cluster", SerializationFormat::Json).await)
+    }
+
+    #[tokio::test]
+    async fn test_task_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create a test task template
+        let task = TaskTemplate {
+            id: "task1".to_string(),
+            name: "Test Task".to_string(),
+            description: Some("A test task".to_string()),
+            command: "echo 'test'".to_string(),
+            parameters: json!({}),
+            dependencies: vec![],
+            queue: Some("test_queue".to_string()),
+            evaluation_point: false,
+        };
+
+        // Save the task
+        state_manager.save_task(&task).await;
+
+        // Load the task and verify
+        let loaded_task = state_manager.load_task("task1").await.expect("Failed to load task");
+        assert_eq!(loaded_task.id, task.id);
+        assert_eq!(loaded_task.name, task.name);
+        assert_eq!(loaded_task.command, task.command);
+
+        // Load all tasks
+        let all_tasks = state_manager.load_all_tasks().await;
+        assert_eq!(all_tasks.len(), 1);
+        assert_eq!(all_tasks[0].id, task.id);
+    }
+
+    #[tokio::test]
+    async fn test_task_instance_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create a test task instance
+        let task_instance = TaskInstance {
+            run_id: "run1".to_string(),
+            task_id: "task1".to_string(),
+            dag_id: "dag1".to_string(),
+            name: "Test Task Instance".to_string(),
+            description: Some("A test task instance".to_string()),
+            command: "echo 'test'".to_string(),
+            parameters: HashMap::new(),
+            queue: "test_queue".to_string(),
+            status: PENDING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            started_at: None,
+            completed_at: None,
+            error_message: None,
+            evaluation_point: false,
+        };
+
+        // Save the task instance
+        state_manager.save_task_instance(&task_instance).await;
+
+        // Load the task instance and verify
+        let loaded_instance = state_manager.load_task_instance("run1").await.expect("Failed to load task instance");
+        assert_eq!(loaded_instance.run_id, task_instance.run_id);
+        assert_eq!(loaded_instance.status, PENDING_STATUS);
+
+        // Update task status
+        state_manager.save_task_status("run1", RUNNING_STATUS).await;
+        let updated_status = state_manager.load_task_status("run1").await.expect("Failed to load task status");
+        assert_eq!(updated_status, RUNNING_STATUS);
+    }
+
+    #[tokio::test]
+    async fn test_context_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create test context
+        let mut context = Context::new();
+        context.id = "ctx1".to_string();
+        context.set("key1", "value1");
+        context.set("key2", "value2");
+
+        // Save the context
+        state_manager.save_context(&context).await;
+
+        // Load the context and verify
+        let loaded_context = state_manager.load_context("ctx1").await.expect("Failed to load context");
+        assert_eq!(loaded_context.id, context.id);
+        assert_eq!(loaded_context.get("key1"), Some(&"value1".to_string()));
+        assert_eq!(loaded_context.get("key2"), Some(&"value2".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_queue_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create task payload
+        let task_payload = TaskPayload {
+            task_run_id: "task1".to_string(),
+            dag_run_id: "dag1".to_string(),
+            command: "echo 'test'".to_string(),
+            env_vars: HashMap::new(),
+        };
+
+        // Push to queue
+        state_manager.put_work_on_queue(&task_payload, "test_queue").await;
+
+        // Check queue contents
+        let queue_tasks = state_manager.get_queue_tasks("test_queue").await;
+        assert_eq!(queue_tasks.len(), 1);
+
+        // Get work from queue
+        let retrieved_payload = state_manager.get_work_from_queue("test_queue").await.expect("Failed to get work from queue");
+        assert_eq!(retrieved_payload.task_run_id, task_payload.task_run_id);
+        assert_eq!(retrieved_payload.dag_run_id, task_payload.dag_run_id);
+
+        // Queue should now be empty
+        assert!(state_manager.get_work_from_queue("test_queue").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_agent_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Register agent
+        state_manager.register_agent("agent1").await;
+
+        // Update heartbeat
+        state_manager.update_agent_heartbeat("agent1").await;
+
+        // Assign task to agent
+        state_manager.assign_task_to_agent("agent1", "task1|dag1").await;
+
+        // Load all agents
+        let agents = state_manager.load_all_agents().await;
+        assert_eq!(agents.len(), 1);
+        assert_eq!(agents[0].agent_id, "agent1");
+        assert_eq!(agents[0].tasks.len(), 1);
+        assert!(agents[0].tasks.contains(&"task1|dag1".to_string()));
+
+        // Remove task from agent
+        state_manager.remove_task_from_agent("agent1", "task1|dag1").await;
+
+        // Check that task was removed
+        let updated_agents = state_manager.load_all_agents().await;
+        assert_eq!(updated_agents[0].tasks.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_dag_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create DAG template
+        let dag_template = DagTemplate {
+            id: "dag1".to_string(),
+            name: "Test DAG".to_string(),
+            description: Some("A test DAG".to_string()),
+            tasks: vec![],
+            tags: Some(vec!["test".to_string()]),
+        };
+
+        // Save DAG template
+        state_manager.save_dag_template(&dag_template).await;
+
+        // Load DAG template
+        let loaded_template = state_manager.load_dag_template("dag1").await.expect("Failed to load DAG template");
+        assert_eq!(loaded_template.id, dag_template.id);
+        assert_eq!(loaded_template.name, dag_template.name);
+
+        // Create DAG instance
+        let dag_instance = DagInstance {
+            run_id: "run1".to_string(),
+            dag_id: "dag1".to_string(),
+            context: Context::new(),
+            task_count: 2,
+            completed_tasks: 0,
+            status: PENDING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            tags: Some(vec!["test".to_string()]),
+        };
+
+        // Save DAG instance
+        state_manager.save_dag_instance(&dag_instance).await;
+
+        // Load DAG instance
+        let loaded_instance = state_manager.load_dag_instance("run1").await.expect("Failed to load DAG instance");
+        assert_eq!(loaded_instance.run_id, dag_instance.run_id);
+        assert_eq!(loaded_instance.status, PENDING_STATUS);
+
+        // Update DAG status
+        state_manager.save_dag_status("run1", RUNNING_STATUS).await.expect("Failed to save DAG status");
+        let updated_status = state_manager.load_dag_status("run1").await.expect("Failed to load DAG status");
+        assert_eq!(updated_status, RUNNING_STATUS);
+
+        // Load scheduled DAG instances
+        let scheduled_dags = state_manager.load_scheduled_dag_instances().await;
+        assert_eq!(scheduled_dags.len(), 1);
+        assert_eq!(scheduled_dags[0].run_id, dag_instance.run_id);
+
+        // Load scheduled DAG keys
+        let keys = state_manager.load_scheduled_dag_keys().await;
+        assert_eq!(keys.len(), 1);
+        assert_eq!(keys[0], "run1");
+    }
+
+    #[tokio::test]
+    async fn test_graph_operations() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create mock execution graph
+        let mut graph = petgraph::graph::DiGraph::new();
+        let node1 = graph.add_node("task1".to_string());
+        let node2 = graph.add_node("task2".to_string());
+        graph.add_edge(node1, node2, ());
+
+        let mut node_map = HashMap::new();
+        node_map.insert("task1".to_string(), node1);
+        node_map.insert("task2".to_string(), node2);
+
+        let exec_graph = ExecutionGraph {
+            graph,
+            node_map,
+        };
+
+        // Create graph instance
+        let graph_instance = GraphInstance {
+            run_id: "run1".to_string(),
+            dag_id: "dag1".to_string(),
+            graph: exec_graph,
+        };
+
+        // Save graph instance
+        state_manager.save_graph_instance(&graph_instance).await;
+
+        // Load graph instance
+        let loaded_graph = state_manager.load_graph_instance("run1").await.expect("Failed to load graph instance");
+        assert_eq!(loaded_graph.run_id, graph_instance.run_id);
+        assert_eq!(loaded_graph.dag_id, graph_instance.dag_id);
+    }
+
+    #[tokio::test]
+    async fn test_pub_sub() {
+        let state_manager = Arc::new(MemoryStateManager::new("test-cluster", SerializationFormat::Json).await);
+
+        // Create mock graph instance for updates
+        let mut graph = petgraph::graph::DiGraph::new();
+        let node = graph.add_node("task1".to_string());
+
+        let mut node_map = HashMap::new();
+        node_map.insert("task1".to_string(), node);
+
+        let exec_graph = ExecutionGraph {
+            graph,
+            node_map,
+        };
+
+        let graph_instance = GraphInstance {
+            run_id: "run1".to_string(),
+            dag_id: "dag1".to_string(),
+            graph: exec_graph,
+        };
+
+        // Save the graph instance
+        state_manager.save_graph_instance(&graph_instance).await;
+
+        // Create DAG instance
+        let dag_instance = DagInstance {
+            run_id: "run1".to_string(),
+            dag_id: "dag1".to_string(),
+            context: Context::new(),
+            task_count: 1,
+            completed_tasks: 0,
+            status: PENDING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            tags: None,
+        };
+
+        // Save the DAG instance
+        state_manager.save_dag_instance(&dag_instance).await;
+
+        // Create a flag to track if we received the update
+        let received = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let received_clone = received.clone();
+
+        // Create a subscriber in a separate task
+        let state_manager_for_subscriber = state_manager.clone();
+        tokio::spawn(async move {
+            let mut rx = state_manager_for_subscriber.pubsub_channel.subscribe();
+            if let Ok(msg) = rx.recv().await {
+                if msg == "run1" {
+                    received_clone.store(true, std::sync::atomic::Ordering::SeqCst);
+                }
+            }
+        });
+
+        // Give the subscriber time to set up
+        sleep(Duration::from_millis(100)).await;
+
+        // Publish a graph update
+        state_manager.publish_graph_update("run1").await;
+
+        // Give time for the update to propagate
+        sleep(Duration::from_millis(500)).await;
+
+        // Check if we received the update
+        assert!(received.load(std::sync::atomic::Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn test_reset_tasks_from_downed_agents() {
+        let state_manager = create_test_state_manager().await;
+
+        // Register agent
+        state_manager.register_agent("agent1").await;
+
+        // Create a task instance
+        let task_instance = TaskInstance {
+            run_id: "task1".to_string(),
+            task_id: "task-id1".to_string(),
+            dag_id: "dag1".to_string(),
+            name: "Test Task".to_string(),
+            description: None,
+            command: "echo 'test'".to_string(),
+            parameters: HashMap::new(),
+            queue: "test_queue".to_string(),
+            status: RUNNING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            started_at: Some(Utc::now()),
+            completed_at: None,
+            error_message: None,
+            evaluation_point: false,
+        };
+
+        // Create DAG instance
+        let dag_instance = DagInstance {
+            run_id: "dag1".to_string(),
+            dag_id: "dag-template-1".to_string(),
+            context: Context::new(),
+            task_count: 1,
+            completed_tasks: 0,
+            status: RUNNING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            tags: None,
+        };
+
+        // Save task and DAG
+        state_manager.save_task_instance(&task_instance).await;
+        state_manager.save_dag_instance(&dag_instance).await;
+
+        // Assign task to agent
+        let assignment = format!("{}|{}", task_instance.run_id, dag_instance.run_id);
+        state_manager.assign_task_to_agent("agent1", &assignment).await;
+
+        // Force the heartbeat to be old (directly modify the agent)
+        {
+            if let Some(mut agent) = state_manager.agents.get_mut("agent1") {
+                agent.last_heartbeat -= 100; // Set heartbeat 100 seconds in the past
+            }
+        }
+
+        // Call reset tasks
+        state_manager.reset_tasks_from_downed_agents(10).await.expect("Failed to reset tasks");
+
+        // Check if agent is removed
+        let agents = state_manager.load_all_agents().await;
+        assert_eq!(agents.len(), 0);
+
+        // Check if task is back in the queue
+        let queue_tasks = state_manager.get_queue_tasks("test_queue").await;
+        assert_eq!(queue_tasks.len(), 1);
+
+        // Verify task status was reset to pending
+        let updated_status = state_manager.load_task_status("task1").await.expect("Failed to load task status");
+        assert_eq!(updated_status, PENDING_STATUS);
+    }
+
+    #[tokio::test]
+    async fn test_orchestrator_settings() {
+        let state_manager = create_test_state_manager().await;
+
+        // Default values
+        let count = state_manager.get_orchestrator_count().await.expect("Failed to get orchestrator count");
+        assert_eq!(count, 1);
+
+        let id = state_manager.get_orchestrator_id().await.expect("Failed to get orchestrator ID");
+        assert_eq!(id, 0);
+
+        // Update values directly for testing
+        {
+            let mut count_lock = state_manager.orchestrator_count.lock().unwrap();
+            *count_lock = 3;
+
+            let mut id_lock = state_manager.orchestrator_id.lock().unwrap();
+            *id_lock = 2;
+        }
+
+        // Check updated values
+        let updated_count = state_manager.get_orchestrator_count().await.expect("Failed to get updated count");
+        assert_eq!(updated_count, 3);
+
+        let updated_id = state_manager.get_orchestrator_id().await.expect("Failed to get updated ID");
+        assert_eq!(updated_id, 2);
+    }
+
+    #[tokio::test]
+    async fn test_delete_dag_instance() {
+        let state_manager = create_test_state_manager().await;
+
+        // Create DAG instance
+        let dag_instance = DagInstance {
+            run_id: "run1".to_string(),
+            dag_id: "dag1".to_string(),
+            context: Context::new(),
+            task_count: 2,
+            completed_tasks: 0,
+            status: PENDING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            tags: None,
+        };
+
+        // Create task instances
+        let task1 = TaskInstance {
+            run_id: "task1".to_string(),
+            task_id: "task-id1".to_string(),
+            dag_id: "dag1".to_string(),
+            name: "Task 1".to_string(),
+            description: None,
+            command: "echo 'task1'".to_string(),
+            parameters: HashMap::new(),
+            queue: "test_queue".to_string(),
+            status: COMPLETED_STATUS.to_string(),
+            last_updated: Utc::now(),
+            started_at: Some(Utc::now()),
+            completed_at: Some(Utc::now()),
+            error_message: None,
+            evaluation_point: false,
+        };
+
+        let task2 = TaskInstance {
+            run_id: "task2".to_string(),
+            task_id: "task-id2".to_string(),
+            dag_id: "dag1".to_string(),
+            name: "Task 2".to_string(),
+            description: None,
+            command: "echo 'task2'".to_string(),
+            parameters: HashMap::new(),
+            queue: "test_queue".to_string(),
+            status: PENDING_STATUS.to_string(),
+            last_updated: Utc::now(),
+            started_at: None,
+            completed_at: None,
+            error_message: None,
+            evaluation_point: false,
+        };
+
+        // Save DAG and tasks
+        state_manager.save_dag_instance(&dag_instance).await;
+        state_manager.save_task_instance(&task1).await;
+        state_manager.save_task_instance(&task2).await;
+
+        // Verify they exist
+        assert!(state_manager.load_dag_instance("run1").await.is_some());
+        assert!(state_manager.load_task_instance("task1").await.is_some());
+        assert!(state_manager.load_task_instance("task2").await.is_some());
+
+        // Delete DAG instance
+        state_manager.delete_dag_instance("run1", &["task1".to_string(), "task2".to_string()]).await
+            .expect("Failed to delete DAG instance");
+
+        // Verify they're gone
+        assert!(state_manager.load_dag_instance("run1").await.is_none());
+        assert!(state_manager.load_task_instance("task1").await.is_none());
+        assert!(state_manager.load_task_instance("task2").await.is_none());
+    }
+}
