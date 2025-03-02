@@ -1,11 +1,8 @@
+use crate::utils::config::SerializationFormat;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use crate::utils::config::SerializationFormat;
 
-pub fn serialize<T>(
-    value: &T,
-    format: &SerializationFormat,
-) -> Result<Vec<u8>, Box<dyn Error>>
+pub fn serialize<T>(value: &T, format: &SerializationFormat) -> Result<Vec<u8>, Box<dyn Error>>
 where
     T: Serialize,
 {
@@ -28,10 +25,7 @@ where
     }
 }
 
-pub fn deserialize<T>(
-    raw: &[u8],
-    format: &SerializationFormat,
-) -> Result<T, Box<dyn Error>>
+pub fn deserialize<T>(raw: &[u8], format: &SerializationFormat) -> Result<T, Box<dyn Error>>
 where
     T: for<'de> Deserialize<'de>,
 {
@@ -56,11 +50,10 @@ where
                     expected_len,
                     payload.len()
                 )
-                    .into());
+                .into());
             }
             let obj = rmp_serde::from_slice(payload)?;
             Ok(obj)
         }
     }
 }
-

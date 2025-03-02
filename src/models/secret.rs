@@ -1,6 +1,6 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use chrono::{DateTime, Utc};
 
 /// Defines how a secret should be exposed to a task
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -142,22 +142,16 @@ impl TaskSecrets {
     pub fn add_secret(&mut self, secret: ResolvedSecret) {
         match secret.instance.exposure_type {
             SecretExposureType::EnvironmentVariable => {
-                self.environment_variables.insert(
-                    secret.instance.exposure_name.clone(),
-                    secret.value
-                );
-            },
+                self.environment_variables
+                    .insert(secret.instance.exposure_name.clone(), secret.value);
+            }
             SecretExposureType::File => {
-                self.secret_files.insert(
-                    secret.instance.exposure_name.clone(),
-                    secret.value
-                );
-            },
+                self.secret_files
+                    .insert(secret.instance.exposure_name.clone(), secret.value);
+            }
             SecretExposureType::InMemory => {
-                self.in_memory_secrets.insert(
-                    secret.instance.exposure_name.clone(),
-                    secret.value
-                );
+                self.in_memory_secrets
+                    .insert(secret.instance.exposure_name.clone(), secret.value);
             }
         }
     }

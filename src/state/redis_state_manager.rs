@@ -2,8 +2,8 @@ use crate::models::context::Context;
 use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
 use crate::models::task::{TaskInstance, TaskTemplate};
 use crate::state::state_manager::{AgentStatus, StateManager, TaskPayload};
-use crate::utils::constants::{DEFAULT_QUEUE, PENDING_STATUS};
 use crate::utils::config::SerializationFormat;
+use crate::utils::constants::{DEFAULT_QUEUE, PENDING_STATUS};
 use crate::utils::serialization::{deserialize, serialize};
 use async_trait::async_trait;
 use deadpool_redis::redis::{self, AsyncCommands};
@@ -46,7 +46,7 @@ impl RedisStateManager {
     fn build_key(&self, entity_type: &str, id: Option<&str>) -> String {
         match id {
             Some(id) => format!("{}:{}:{}", self.prefix(), entity_type, id),
-            None => format!("{}:{}", self.prefix(), entity_type)
+            None => format!("{}:{}", self.prefix(), entity_type),
         }
     }
 
@@ -112,7 +112,12 @@ impl RedisStateManager {
     }
 
     fn agent_tasks_key(&self, agent_id: &str) -> String {
-        format!("{}:{}:{}", self.agent_key(agent_id), Self::ENTITY_AGENT_TASKS, "")
+        format!(
+            "{}:{}:{}",
+            self.agent_key(agent_id),
+            Self::ENTITY_AGENT_TASKS,
+            ""
+        )
     }
 
     fn agents_set_key(&self) -> String {
@@ -143,9 +148,9 @@ impl StateManager for RedisStateManager {
                 Ok(payload) => Some(payload),
                 Err(e) => {
                     error!(
-                    "Failed to parse task payload from queue: {:?}. Error: {:?}",
-                    queue_item, e
-                );
+                        "Failed to parse task payload from queue: {:?}. Error: {:?}",
+                        queue_item, e
+                    );
                     None
                 }
             }
@@ -156,8 +161,8 @@ impl StateManager for RedisStateManager {
 
     async fn put_work_on_queue(&self, task_payload: &TaskPayload, queue: &str) {
         let mut conn = self.get_connection().await;
-        let payload_encoded =
-            serialize(task_payload, &self.serialization_format).expect("Failed to serialize task_payload");
+        let payload_encoded = serialize(task_payload, &self.serialization_format)
+            .expect("Failed to serialize task_payload");
         let queue_key = self.queue_key(queue);
         let _: () = conn.lpush(queue_key, payload_encoded).await.unwrap();
         debug!(
@@ -169,8 +174,8 @@ impl StateManager for RedisStateManager {
     async fn save_task(&self, task: &TaskTemplate) {
         let mut conn = self.get_connection().await;
         let key = self.build_task_key(&task.id);
-        let encoded = serialize(task, &self.serialization_format)
-            .expect("Failed to serialize TaskTemplate");
+        let encoded =
+            serialize(task, &self.serialization_format).expect("Failed to serialize TaskTemplate");
         let _: () = conn.set(key, encoded).await.unwrap();
     }
 
@@ -192,8 +197,7 @@ impl StateManager for RedisStateManager {
         let mut tasks = Vec::new();
         for key in keys {
             if let Ok(encoded) = conn.get::<_, Vec<u8>>(key).await {
-                if let Ok(task) =
-                    deserialize::<TaskTemplate>(&encoded, &self.serialization_format)
+                if let Ok(task) = deserialize::<TaskTemplate>(&encoded, &self.serialization_format)
                 {
                     tasks.push(task);
                 }
@@ -206,9 +210,7 @@ impl StateManager for RedisStateManager {
         let mut conn = self.get_connection().await;
         let key = self.task_instance_key(task_instance_run_id);
         if let Ok(encoded) = conn.get::<_, Vec<u8>>(key).await {
-            if let Ok(ti) =
-                deserialize::<TaskInstance>(&encoded, &self.serialization_format)
-            {
+            if let Ok(ti) = deserialize::<TaskInstance>(&encoded, &self.serialization_format) {
                 Some(ti.status)
             } else {
                 None
@@ -250,8 +252,7 @@ impl StateManager for RedisStateManager {
     async fn save_task_instance(&self, task: &TaskInstance) {
         let mut conn = self.get_connection().await;
         let key = self.task_instance_key(&task.run_id);
-        let encoded =
-            serialize(task, &self.serialization_format).expect("Serialize TaskInstance");
+        let encoded = serialize(task, &self.serialization_format).expect("Serialize TaskInstance");
         let _: () = conn.set(key, encoded).await.unwrap();
     }
 
@@ -276,8 +277,7 @@ impl StateManager for RedisStateManager {
 
     async fn save_dag_instance(&self, dag_instance: &DagInstance) {
         let mut conn = self.get_connection().await;
-        let dag_bytes =
-            serialize(dag_instance, &self.serialization_format).expect("Serialize Dag");
+        let dag_bytes = serialize(dag_instance, &self.serialization_format).expect("Serialize Dag");
         let _: i32 = conn
             .hset(self.dag_instance_set_key(), &dag_instance.run_id, dag_bytes)
             .await
@@ -348,7 +348,11 @@ impl StateManager for RedisStateManager {
         Ok(status.unwrap_or_else(|| PENDING_STATUS.to_string()))
     }
 
-    async fn save_dag_status(&self, run_id: &str, status: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+    async fn save_dag_status(
+        &self,
+        run_id: &str,
+        status: &str,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let mut conn = self.get_connection().await;
         let key = self.dag_status_key(run_id);
         let _: () = conn
@@ -393,8 +397,7 @@ impl StateManager for RedisStateManager {
 
     async fn save_dag_template(&self, dag: &DagTemplate) {
         let mut conn = self.get_connection().await;
-        let dag_bytes =
-            serialize(dag, &self.serialization_format).expect("Serialize DagTemplate");
+        let dag_bytes = serialize(dag, &self.serialization_format).expect("Serialize DagTemplate");
         let _: () = conn
             .set(self.dag_definition_key(&dag.id), dag_bytes)
             .await

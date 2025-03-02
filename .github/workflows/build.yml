@@ -17,6 +17,10 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Test
+        run: |
+          cargo test
+
       - name: Build (release mode)
         run: |
           cargo build --release

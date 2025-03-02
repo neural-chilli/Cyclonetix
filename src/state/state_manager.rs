@@ -1,5 +1,5 @@
 use crate::models::context::Context;
-use crate::models::dag::{DagTemplate, DagInstance, GraphInstance};
+use crate::models::dag::{DagInstance, DagTemplate, GraphInstance};
 use crate::models::task::{TaskInstance, TaskTemplate};
 use async_trait::async_trait;
 use std::collections::HashMap;
@@ -42,9 +42,17 @@ pub trait StateManager: Sync + Send {
     async fn save_dag_instance(&self, dag_instance: &DagInstance);
     async fn load_dag_instance(&self, run_id: &str) -> Option<DagInstance>;
     async fn load_scheduled_dag_instances(&self) -> Vec<DagInstance>;
-    async fn delete_dag_instance(&self, run_id: &str, task_run_ids: &[String]) -> Result<(), Box<dyn Error + Send + Sync>>;
+    async fn delete_dag_instance(
+        &self,
+        run_id: &str,
+        task_run_ids: &[String],
+    ) -> Result<(), Box<dyn Error + Send + Sync>>;
     async fn load_dag_status(&self, run_id: &str) -> Result<String, Box<dyn Error + Send + Sync>>;
-    async fn save_dag_status(&self, run_id: &str, status: &str) -> Result<(), Box<dyn Error + Send + Sync>>;
+    async fn save_dag_status(
+        &self,
+        run_id: &str,
+        status: &str,
+    ) -> Result<(), Box<dyn Error + Send + Sync>>;
     // Immutable dependency graph
     async fn save_graph_instance(&self, graph_instance: &GraphInstance);
     async fn load_graph_instance(&self, run_id: &str) -> Option<GraphInstance>;
@@ -68,8 +76,10 @@ pub trait StateManager: Sync + Send {
     // For UI visualization (detailed view)
     async fn get_dag_visualization(&self, run_id: &str) -> Option<String>;
     // Reset tasks from downed agents
-    async fn reset_tasks_from_downed_agents(&self, heartbeat_threshold: u64) -> Result<(), Box<dyn Error + Send + Sync>>;
+    async fn reset_tasks_from_downed_agents(
+        &self,
+        heartbeat_threshold: u64,
+    ) -> Result<(), Box<dyn Error + Send + Sync>>;
     // For orchestrator recovery – get keys for mutable DagInstances
     async fn load_scheduled_dag_keys(&self) -> Vec<String>;
-
 }

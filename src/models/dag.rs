@@ -19,7 +19,7 @@ pub struct DagInstance {
     pub run_id: String,
     pub dag_id: String,
     pub context: Context,
-    pub task_count: usize,       // total number of tasks scheduled
+    pub task_count: usize, // total number of tasks scheduled
     pub completed_tasks: usize,
     pub status: String,
     pub last_updated: DateTime<Utc>,
@@ -33,4 +33,3 @@ pub struct GraphInstance {
     pub dag_id: String,
     pub graph: crate::graph::graph_manager::ExecutionGraph,
 }
-
