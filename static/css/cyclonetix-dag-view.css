@@ -29,11 +29,11 @@
 
 /* Task Info Panel styles */
 .task-info-panel {
-    background-color: #191919;
+    background-color: #222222;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     padding: 16px;
-    max-height: 80vh;
+    max-height: 75vh;
     height: calc(100vh - 150px);
     overflow-y: auto;
     display: flex;
@@ -50,7 +50,7 @@
 
 .task-details dt {
     font-weight: 600;
-    color: var(--bs-secondary);
+    color: white;
 }
 
 .task-details dd {
@@ -58,6 +58,7 @@
 }
 
 .task-status {
+    color: white;
     display: inline-flex;
     align-items: center;
     padding: 4px 8px;
@@ -75,6 +76,7 @@
 }
 
 .code-block {
+    color: white;
     background-color: var(--bs-dark);
     border-radius: 4px;
     padding: 10px;
@@ -88,6 +90,7 @@
 
 /* Accordion customization */
 .accordion-button {
+    color: white !important;
     padding: 0.5rem 1rem;
     font-size: 0.95rem;
     font-weight: 500;
@@ -95,14 +98,21 @@
 
 .accordion-button:not(.collapsed) {
     background-color: var(--bs-tertiary-bg);
-    color: var(--bs-emphasis-color);
+    color: var(--bs-emphasis-color) !important;
 }
 
 .accordion-body {
+    color: white;
+    padding: 0.5rem 1rem;
+}
+
+.accordion-item {
+    color: white;
     padding: 0.5rem 1rem;
 }
 
 .param-table {
+    color: var(--bs-secondary);
     width: 100%;
     margin-bottom: 8px;
 }
@@ -126,6 +136,7 @@
 
 /* Scrollable content area within the task info panel */
 .task-info-scroll {
+    color: var(--bs-secondary);
     scrollbar-width: thin;
     scrollbar-color: var(--bs-gray-600) var(--bs-dark-bg-subtle);
 }
