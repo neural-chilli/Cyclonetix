@@ -2,9 +2,7 @@
 
 {% block title %}DAG Visualization - Cyclonetix{% endblock title %}
 
-{% block head %}
-
-{% endblock head %}
+{% block head %}{% endblock head %}
 
 {% block content %}
 <div class="container-fluid p-0 mt-0">
@@ -14,7 +12,6 @@
             <h1 id="dag-name">Loading DAG...</h1>
         </div>
         <div class="d-flex align-items-center">
-<!--            <span class="refresh-timer me-3">Auto-refresh in <span id="refresh-countdown">10</span>s</span>-->
             <button id="refresh-btn" class="btn btn-outline-primary me-2">
                 Refresh
             </button>
@@ -23,7 +20,7 @@
 
     <!-- DAG Visualization Container -->
     <div id="dag-container" class="visualization-container mt-3" style="height: 81vh; position: relative;">
-        <!-- Legend overlay positioned in the top right corner -->
+        <!-- Legend overlay positioned in the top left corner -->
         <div class="legend-overlay">
             <div class="legend">
                 <div class="legend-item">
@@ -51,29 +48,119 @@
 
         <!-- Cytoscape will render here -->
 
-        <!-- Task Info Panel (hidden by default) -->
+        <!-- Enhanced Task Info Panel (hidden by default) -->
         <div id="task-info-panel" class="task-info-panel info-panel"
-             style="display: none; position: absolute; top: 20px; right: 20px; width: 350px; z-index: 10;">
-            <h5 id="task-info-title">Task Details</h5>
-            <hr>
-            <dl class="task-details">
-                <dt>Task ID</dt>
-                <dd id="task-info-id">-</dd>
-                <dt>Status</dt>
-                <dd id="task-info-status">-</dd>
-                <dt>Started</dt>
-                <dd id="task-info-started">-</dd>
-                <dt>Duration</dt>
-                <dd id="task-info-duration">-</dd>
-                <dt>Command</dt>
-                <dd><code id="task-info-command" class="small">-</code></dd>
-                <dt>Parameters</dt>
-                <dd>
-                    <pre id="task-info-parameters" class="small">-</pre>
-                </dd>
-            </dl>
-            <div class="text-end">
-                <button id="close-task-info" class="btn btn-sm btn-outline-light">Close</button>
+             style="display: none; position: absolute; top: 20px; right: 20px; width: 380px; z-index: 10;">
+            <h5 id="task-info-title" class="d-flex justify-content-between align-items-center">
+                Task Details
+                <button id="close-task-info" class="btn-close" aria-label="Close"></button>
+            </h5>
+            <div id="task-info-status-badge" class="mb-2"></div>
+
+            <!-- Scrollable content area -->
+            <div class="task-info-scroll" style="flex: 1; overflow-y: auto; padding-right: 6px;">
+                <div class="task-basic-info mb-3">
+                    <dl class="task-details mb-0">
+<!--                        <dt>Task ID</dt>-->
+<!--                        <dd id="task-info-id" class="text-truncate"></dd>-->
+
+                        <dt>Task Run ID</dt>
+                        <dd id="task-info-run-id" class="text-truncate"></dd>
+
+                        <dt>Queue</dt>
+                        <dd id="task-info-queue"></dd>
+                    </dl>
+                </div>
+
+                <div class="accordion" id="taskInfoAccordion">
+                    <!-- Execution Details -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#executionDetails" aria-expanded="true">
+                                Execution Details
+                            </button>
+                        </h2>
+                        <div id="executionDetails" class="accordion-collapse collapse show"
+                             data-bs-parent="#taskInfoAccordion">
+                            <div class="accordion-body py-2">
+                                <dl class="task-details mb-0">
+                                    <dt>Started</dt>
+                                    <dd id="task-info-started">-</dd>
+
+                                    <dt>Completed</dt>
+                                    <dd id="task-info-completed">-</dd>
+
+                                    <dt>Duration</dt>
+                                    <dd id="task-info-duration">-</dd>
+
+                                    <dt>Agent</dt>
+                                    <dd id="task-info-agent">-</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Command -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#commandDetails" aria-expanded="true">
+                                Command
+                            </button>
+                        </h2>
+                        <div id="commandDetails" class="accordion-collapse collapse show"
+                             data-bs-parent="#taskInfoAccordion">
+                            <div class="accordion-body py-2">
+                                <div id="task-info-command" class="code-block"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#parametersDetails">
+                                Parameters
+                            </button>
+                        </h2>
+                        <div id="parametersDetails" class="accordion-collapse collapse"
+                             data-bs-parent="#taskInfoAccordion">
+                            <div class="accordion-body py-2">
+                                <div id="task-info-parameters">
+                                    <div class="alert alert-secondary py-2">No parameters available</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Environment Variables -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#envVarsDetails">
+                                Environment Variables
+                            </button>
+                        </h2>
+                        <div id="envVarsDetails" class="accordion-collapse collapse"
+                             data-bs-parent="#taskInfoAccordion">
+                            <div class="accordion-body py-2">
+                                <div id="task-info-env-vars">
+                                    <div class="alert alert-secondary py-2">No environment variables available</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions fixed at bottom -->
+            <div class="task-actions mt-3 pt-2 border-top">
+                <div class="d-flex gap-2">
+                    <button id="btn-rerun-task" class="btn btn-sm btn-outline-primary">Rerun Task</button>
+                    <button id="btn-view-logs" class="btn btn-sm btn-outline-secondary">View Logs</button>
+                </div>
             </div>
         </div>
     </div>
@@ -101,6 +188,8 @@
     let refreshTimer;
     let selectedTask = null;
     let initialLoad = true;
+    let allTasksData = [];  // Store all tasks data
+    let dagData = null;     // Store DAG data
 
     const statusColors = {
         'pending': '#6c757d',
@@ -122,6 +211,33 @@
 
         document.getElementById('close-task-info').addEventListener('click', function () {
             hideTaskInfo();
+        });
+
+        // Add event listeners for task action buttons
+        document.getElementById('btn-rerun-task').addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent event from bubbling up
+            if (selectedTask) {
+                rerunTask(selectedTask.id);
+            }
+        });
+
+        document.getElementById('btn-view-logs').addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent event from bubbling up
+            if (selectedTask) {
+                viewTaskLogs(selectedTask.id);
+            }
+        });
+
+        // Prevent clicks inside task info panel from closing it
+        document.getElementById('task-info-panel').addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent event from reaching the cy tap handler
+        });
+
+        // Add keyboard event listener for ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && document.getElementById('task-info-panel').style.display === 'block') {
+                hideTaskInfo();
+            }
         });
     });
 
@@ -169,6 +285,10 @@
                     style: { 'background-color': statusColors.pending }
                 },
                 {
+                    selector: '.status-queued',
+                    style: { 'background-color': statusColors.queued }
+                },
+                {
                     selector: '.status-running',
                     style: { 'background-color': statusColors.running }
                 },
@@ -203,6 +323,12 @@
         });
 
         cy.on('tap', function (event) {
+            const panel = document.getElementById('task-info-panel');
+            // Check if the tap event originated from within the task info panel
+            if (panel && panel.contains(event.originalEvent.target)) {
+                return; // Do nothing if clicking inside the panel
+            }
+            // Only hide the panel if the click is on the background (i.e. the Cytoscape container itself)
             if (event.target === cy) {
                 hideTaskInfo();
             }
@@ -214,6 +340,8 @@
         fetch(`/api/dag/${dagRunId}`)
             .then(response => response.json())
             .then(data => {
+                dagData = data.dag;
+                allTasksData = data.tasks || [];
                 updateDagInfo(data.dag);
                 renderDag(data.tasks, data.graph);
             })
@@ -226,7 +354,7 @@
 
     function updateDagInfo(dag) {
         if (!dag) return;
-        document.getElementById('dag-name').textContent = dag.dag_id;
+        document.getElementById('dag-name').textContent = dag.run_id.replace(/\|\|/g, '   -    run ID: ');
     }
 
     function renderDag(tasks, graph) {
@@ -259,9 +387,6 @@
                     }
 
                     const statusClass = matchingTask ? `status-${matchingTask.status.toLowerCase()}` : 'status-pending';
-
-                    // Add debugging
-                    console.log(`Node ${taskId} (${fullLabel}) - Status: ${matchingTask?.status || 'unknown'}`);
 
                     cy.add({
                         group: 'nodes',
@@ -335,18 +460,151 @@
         node.addClass('selected');
         const data = node.data();
         selectedTask = data;
-        showTaskInfo(data);
+
+        // Find the full task data
+        getTaskInfo(data).then(taskInfo => {
+            showTaskInfo(data, taskInfo);
+        });
     }
 
-    function showTaskInfo(data) {
+    async function getTaskInfo(nodeData) {
+        const runId = nodeData.runId;
+
+        if (!runId) {
+            return null;
+        }
+
+        try {
+            // First try to get detailed info from the API
+            const response = await fetch(`/api/task_instance/${runId}`);
+
+            if (response.ok) {
+                return await response.json();
+            } else {
+                console.warn(`API returned ${response.status} for task ${runId}`);
+            }
+        } catch (error) {
+            console.error(`Error fetching task instance data for ${runId}:`, error);
+        }
+
+        // Fall back to local data if API call fails
+        let taskInfo = allTasksData.find(t => t.run_id === runId);
+
+        // If not found and we have a task_id, try that
+        if (!taskInfo && nodeData.taskId) {
+            taskInfo = allTasksData.find(t => t.task_id === nodeData.taskId);
+        }
+
+        return taskInfo || null;
+    }
+
+    function showTaskInfo(nodeData, taskInfo) {
         const panel = document.getElementById('task-info-panel');
-        document.getElementById('task-info-title').textContent = data.label || data.id;
-        document.getElementById('task-info-id').textContent = data.id;
-        document.getElementById('task-info-status').textContent = 'No additional info';
-        document.getElementById('task-info-command').textContent = data.fullLabel || '-';
-        document.getElementById('task-info-parameters').textContent = 'No parameters available';
-        document.getElementById('task-info-started').textContent = '-';
-        document.getElementById('task-info-duration').textContent = '-';
+
+        // Set basic info
+        document.getElementById('task-info-title').innerHTML =
+            `${nodeData.label || 'Task'} <small class="text-muted">Details</small>`;
+
+        // Set task IDs
+        // document.getElementById('task-info-id').textContent = nodeData.taskId || 'Unknown';
+        document.getElementById('task-info-run-id').textContent = taskInfo.run_id || 'Unknown';
+
+        // Format status badge
+        const status = (taskInfo?.status || nodeData.status || 'pending').toLowerCase();
+        const statusColor = statusColors[status] || '#6c757d';
+        document.getElementById('task-info-status-badge').innerHTML = `
+            <div class="task-status" style="background-color: rgba(${hexToRgb(statusColor)}, 0.2);">
+                <span class="task-status-indicator" style="background-color: ${statusColor};"></span>
+                <span style="color: ${statusColor};">${capitalizeFirstLetter(status)}</span>
+            </div>
+        `;
+
+        // Set queue
+        document.getElementById('task-info-queue').textContent = taskInfo?.queue || 'default';
+
+        // Set timing info
+        document.getElementById('task-info-started').textContent =
+            taskInfo?.started_at ? formatDateTime(taskInfo.started_at) : 'Not started';
+
+        document.getElementById('task-info-completed').textContent =
+            taskInfo?.completed_at ? formatDateTime(taskInfo.completed_at) : 'Not completed';
+
+        // Calculate duration if both start and end times exist
+        if (taskInfo?.started_at && taskInfo?.completed_at) {
+            const start = new Date(taskInfo.started_at);
+            const end = new Date(taskInfo.completed_at);
+            const durationMs = end - start;
+            document.getElementById('task-info-duration').textContent = formatDuration(durationMs);
+        } else if (taskInfo?.started_at && status === 'running') {
+            const start = new Date(taskInfo.started_at);
+            const now = new Date();
+            const durationMs = now - start;
+            document.getElementById('task-info-duration').textContent =
+                formatDuration(durationMs) + ' (running)';
+        } else {
+            document.getElementById('task-info-duration').textContent = '-';
+        }
+
+        // Set agent info - this would need to be retrieved from additional API calls
+        document.getElementById('task-info-agent').textContent = taskInfo.assigned_agent;
+
+        // Set command
+        const commandElement = document.getElementById('task-info-command');
+        if (taskInfo?.command) {
+            commandElement.textContent = taskInfo.command;
+        } else {
+            commandElement.textContent = 'No command available';
+        }
+
+        // Set parameters
+        const paramsElement = document.getElementById('task-info-parameters');
+        if (taskInfo?.parameters && Object.keys(taskInfo.parameters).length > 0) {
+            let tableHtml = '<table class="param-table">';
+            tableHtml += '<thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>';
+
+            for (const [key, value] of Object.entries(taskInfo.parameters)) {
+                tableHtml += `<tr>
+                    <td>${escapeHtml(key)}</td>
+                    <td>${escapeHtml(String(value))}</td>
+                </tr>`;
+            }
+
+            tableHtml += '</tbody></table>';
+            paramsElement.innerHTML = tableHtml;
+        } else {
+            paramsElement.innerHTML = '<div class="alert alert-secondary">No parameters available</div>';
+        }
+
+        // Set environment variables (this would normally come from the task payload)
+        const envVarsElement = document.getElementById('task-info-env-vars');
+
+        // For now, we'll show DAG context variables if available
+        if (dagData?.context?.variables && Object.keys(dagData.context.variables).length > 0) {
+            let tableHtml = '<table class="param-table">';
+            tableHtml += '<thead><tr><th>Variable</th><th>Value</th></tr></thead><tbody>';
+
+            for (const [key, value] of Object.entries(dagData.context.variables)) {
+                tableHtml += `<tr>
+                    <td>${escapeHtml(key)}</td>
+                    <td>${escapeHtml(String(value))}</td>
+                </tr>`;
+            }
+
+            tableHtml += '</tbody></table>';
+            envVarsElement.innerHTML = tableHtml;
+        } else {
+            envVarsElement.innerHTML = '<div class="alert alert-secondary">No environment variables available</div>';
+        }
+
+        // Make sure existing accordion items don't trigger panel close
+        const accordionButtons = panel.querySelectorAll('.accordion-button');
+        accordionButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent closing the panel when clicking accordion buttons
+            });
+        });
+
+        // Show panel
         panel.style.display = 'block';
     }
 
@@ -356,13 +614,22 @@
         selectedTask = null;
     }
 
+    function rerunTask(taskId) {
+        // This would call an API endpoint to rerun the task
+        alert(`Rerunning task ${taskId} - API endpoint not implemented`);
+    }
+
+    function viewTaskLogs(taskId) {
+        // This would navigate to a logs view page
+        alert(`Viewing logs for task ${taskId} - Feature not implemented`);
+    }
+
     function startRefreshTimer() {
         if (refreshTimer) clearInterval(refreshTimer);
         refreshCountdown = 10;
-        //document.getElementById('refresh-countdown').textContent = refreshCountdown;
+
         refreshTimer = setInterval(() => {
             refreshCountdown--;
-            //document.getElementById('refresh-countdown').textContent = refreshCountdown;
             if (refreshCountdown <= 0) {
                 loadDagData();
                 resetRefreshTimer();
@@ -372,7 +639,52 @@
 
     function resetRefreshTimer() {
         refreshCountdown = 10;
-        document.getElementById('refresh-countdown').textContent = refreshCountdown;
+    }
+
+    // Utility functions
+    function formatDateTime(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleString();
+    }
+
+    function formatDuration(ms) {
+        if (ms < 0) return '-';
+
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${seconds % 60}s`;
+        } else {
+            return `${seconds}s`;
+        }
+    }
+
+    function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return `${r}, ${g}, ${b}`;
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return str
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     window.addEventListener('beforeunload', function () {
@@ -380,3 +692,5 @@
     });
 </script>
 {% endblock scripts %}
+</document_content>
+</invoke>

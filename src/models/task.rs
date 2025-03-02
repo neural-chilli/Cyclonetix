@@ -44,4 +44,5 @@ pub struct TaskInstance {
     pub error_message: Option<String>,
     #[serde(default)]
     pub evaluation_point: bool,
+    pub assigned_agent: Option<String>,
 }

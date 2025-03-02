@@ -2,12 +2,33 @@ use crate::server::dashboard::DAGOverview;
 use crate::server::state::AppStateWithTera;
 use crate::utils::constants::{COMPLETED_STATUS, FAILED_STATUS, PENDING_STATUS, RUNNING_STATUS};
 use crate::utils::id_tools::strip_guid;
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::{Html, IntoResponse},
-};
+use axum::{extract::State, http::StatusCode, response::{Html, IntoResponse}, Json};
+use axum::extract::Path;
+use serde::Serialize;
 use tera::Context;
+use crate::graph::cache::GRAPH_CACHE;
+use crate::models;
+
+/// Render the DAG visualization page
+pub async fn dag_view_page(State(state): State<AppStateWithTera>) -> impl IntoResponse {
+    // Prepare template context
+    let context = Context::new();
+
+    // Render the dag view template
+    match state.tera.lock() {
+        Ok(tera) => match tera.render("dag_view.html", &context) {
+            Ok(html) => Html(html).into_response(),
+            Err(err) => {
+                tracing::error!("Template rendering error: {}", err);
+                (StatusCode::INTERNAL_SERVER_ERROR, "Error rendering page").into_response()
+            }
+        },
+        Err(err) => {
+            tracing::error!("Failed to lock Tera instance: {}", err);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Server error").into_response()
+        }
+    }
+}
 
 /// Handler for the dashboard page.
 pub async fn running_dags(State(state): State<AppStateWithTera>) -> impl IntoResponse {
@@ -70,3 +91,48 @@ pub async fn running_dags(State(state): State<AppStateWithTera>) -> impl IntoRes
         }
     }
 }
+
+/// DAG API response containing all data needed to visualize a DAG
+#[derive(Serialize)]
+pub struct DagApiResponse {
+    dag: Option<models::dag::DagInstance>,
+    tasks: Vec<models::task::TaskInstance>,
+    graph: Option<models::dag::GraphInstance>,
+}
+
+/// Endpoint to get DAG data for visualization
+pub async fn dag_api(
+    State(state): State<AppStateWithTera>,
+    Path(run_id): Path<String>,
+) -> impl IntoResponse {
+    let state_manager = &state.app_state.state_manager;
+
+    // Load the DAG instance
+    let dag = state_manager.load_dag_instance(&run_id).await;
+
+    // Get all task instances related to this DAG
+    let mut tasks = Vec::new();
+
+    // Attempt to get the graph from the cache or load it from storage
+    let graph = if let Some(graph_ref) = GRAPH_CACHE.get(&run_id) {
+        // We're getting a graph from the cache - just clone the entire GraphInstance
+        Some(graph_ref.clone())
+    } else {
+        state_manager.load_graph_instance(&run_id).await
+    };
+
+    // If we have a graph, fetch all tasks referenced by it
+    if let Some(graph_instance) = &graph {
+        for task_id in graph_instance.graph.graph.node_weights() {
+            if let Some(task) = state_manager.load_task_instance(task_id).await {
+                tasks.push(task);
+            }
+        }
+    }
+
+    // Build the response
+    let response = DagApiResponse { dag, tasks, graph };
+
+    (StatusCode::OK, Json(response)).into_response()
+}
+

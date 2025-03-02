@@ -509,6 +509,7 @@ mod tests {
             completed_at: None,
             error_message: None,
             evaluation_point: false,
+            assigned_agent: None,
         };
 
         // Save the task instance
@@ -815,6 +816,7 @@ mod tests {
             completed_at: None,
             error_message: None,
             evaluation_point: false,
+            assigned_agent: None
         };
 
         // Create DAG instance
@@ -940,6 +942,7 @@ mod tests {
             completed_at: Some(Utc::now()),
             error_message: None,
             evaluation_point: false,
+            assigned_agent: None
         };
 
         let task2 = TaskInstance {
@@ -957,6 +960,7 @@ mod tests {
             completed_at: None,
             error_message: None,
             evaluation_point: false,
+            assigned_agent: None
         };
 
         // Save DAG and tasks
