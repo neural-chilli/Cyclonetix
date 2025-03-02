@@ -18,7 +18,11 @@ use std::{
     time::Instant,
 };
 use tera::Tera;
-use tower_http::services::ServeDir;
+use tower_http::{
+    compression::{predicate::SizeAbove, CompressionLayer},
+    services::ServeDir,
+    trace::TraceLayer,
+};
 
 /// Embedded static assets from the `static/` folder.
 #[derive(RustEmbed, Clone)]
@@ -87,6 +91,12 @@ pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {
         dev_mode,
     };
 
+    // Configure compression layer - compress responses that are more than 512 bytes
+    // Use individual compression layers for better control
+    let compression_layer = CompressionLayer::new()
+        // Only compress responses that are larger than 512 bytes
+        .compress_when(SizeAbove::new(512));
+
     // Build our application with routes
     let mut app = Router::new()
         .route("/", get(dashboard))
@@ -98,6 +108,8 @@ pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {
         .route("/api/schedule-task", post(schedule_task))
         .route("/api/dag/{run_id}", get(dag_api))
         .nest_service("/static", ServeDir::new("static"))
+        .layer(compression_layer)  // Add compression for all routes
+        .layer(TraceLayer::new_for_http())  // Add request tracing
         .with_state(state.clone());
 
     // If in dev mode, add middleware to reload templates on each request
