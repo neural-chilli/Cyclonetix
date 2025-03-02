@@ -21,3 +21,4 @@ Cargo.lock
 #.idea/
 /.idea/
 /docs/_site/
+.DS_Store
