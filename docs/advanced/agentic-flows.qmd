@@ -1,0 +1,343 @@
+# AI-First Design: MCP and Agentic Workflows
+
+Cyclonetix is designed to be AI-first from the ground up, integrating intelligent agents directly into the workflow orchestration engine. This document outlines the architecture and features for MCP (Model Context Protocol) integration and agentic workflow capabilities.
+
+## Core Concepts
+
+### Agentic Tasks
+
+Tasks in Cyclonetix can be either traditional (shell commands) or agentic (MCP calls). Agentic tasks leverage AI agents to make intelligent decisions, analyze data, and dynamically modify workflow execution.
+
+### Evaluation Points with Intelligence
+
+Evaluation points serve as decision nodes where AI agents can:
+
+- Analyze workflow state and data
+- Make intelligent routing decisions
+- Determine appropriate next steps based on context
+- Modify execution graphs dynamically
+
+### High-Speed + Intelligent Flows
+
+Cyclonetix combines high-speed stream processing (millions of events/second) with intelligent reasoning where it matters:
+
+- **Fast path**: Traditional stream processing for routine operations
+- **Smart path**: Agentic analysis for edge cases, exceptions, and complex decisions
+- **Human approval gates**: Critical decisions requiring human oversight
+
+## MCP Integration Architecture
+
+### Agent Runtime
+
+- MCP server runs as sidecar to orchestrator
+- Agent pool for concurrent task processing
+- Task routing between traditional and agentic execution paths
+- Context preservation across agent interactions
+
+### Task Types
+
+#### Traditional Tasks
+
+```yaml
+id: "process_data"
+name: "Process Daily Data"
+command: "python process_data.py --input ${INPUT_FILE}"
+type: "traditional"
+```
+
+#### Agentic Tasks
+
+```yaml
+id: "analyze_patterns"
+name: "Analyze Data Patterns"
+command: "mcp://pattern-analyzer"
+type: "agentic"
+context:
+  - data_history
+  - system_conditions
+  - business_rules
+evaluation_point: true
+```
+
+### Agent Evaluation Points
+
+Agents can dynamically modify workflow execution by:
+
+- Adding new tasks based on analysis results
+- Modifying parameters for downstream tasks
+- Branching workflows based on intelligent decisions
+- Updating context for subsequent operations
+
+## Use Case Examples
+
+### Intelligent Data Processing
+
+```yaml
+workflow: "data_processing"
+description: "AI-powered data processing with dynamic response"
+tasks:
+  - id: "ingest_data"
+    type: "traditional"
+    command: "kafka-consumer --topic data-stream"
+    
+  - id: "analyze_patterns"
+    type: "agentic" 
+    command: "mcp://pattern-analyzer"
+    dependencies: ["ingest_data"]
+    evaluation_point: true
+    context:
+      - data_history
+      - system_metrics
+      - business_rules
+    
+  - id: "generate_insights"
+    type: "conditional"  # Created dynamically by agent
+    command: "python generate_insights.py --severity ${SEVERITY}"
+```
+
+### Compliance Automation
+
+```yaml
+workflow: "compliance_monitoring"
+description: "Automated compliance monitoring and reporting"
+tasks:
+  - id: "collect_data"
+    type: "traditional"
+    command: "extract_data.py --date ${DATE}"
+    
+  - id: "compliance_check"
+    type: "agentic"
+    command: "mcp://compliance-analyzer"
+    dependencies: ["collect_data"]
+    evaluation_point: true
+    context:
+      - regulation_text
+      - historical_cases
+      - company_policies
+    
+  - id: "risk_assessment"
+    type: "agentic"
+    command: "mcp://risk-evaluator"
+    dependencies: ["compliance_check"]
+    context:
+      - compliance_results
+      - entity_profile
+      - transaction_history
+```
+
+### Dynamic Exception Handling
+
+Agents can intelligently route exceptions based on:
+
+- **Severity analysis**: Determine if manual review is required
+- **Historical patterns**: Learn from previous resolutions
+- **Context awareness**: Consider system conditions, entity risk profiles
+- **Escalation logic**: Automatically involve appropriate teams
+
+## Technical Implementation
+
+### Event-Driven Architecture
+
+```rust
+#[derive(Clone, Debug)]
+pub enum CyclonetixEvent {
+    // Traditional events
+    TaskCompleted { task_id: String, result: TaskResult },
+    
+    // Agentic events
+    AgentAnalysisRequested { task_id: String, context: AgentContext },
+    AgentDecisionMade { task_id: String, decision: AgentDecision },
+    WorkflowModified { run_id: String, modifications: Vec<GraphModification> },
+}
+```
+
+### MCP Integration Layer
+
+```rust
+pub struct MCPIntegration {
+    server_pool: MCPServerPool,
+    context_manager: ContextManager,
+    decision_engine: DecisionEngine,
+}
+
+impl MCPIntegration {
+    pub async fn execute_agentic_task(
+        &self, 
+        task: &AgenticTask,
+        context: &WorkflowContext
+    ) -> Result<AgentDecision, MCPError> {
+        // Execute MCP call with context
+        // Parse agent response
+        // Return decision with graph modifications
+    }
+}
+```
+
+### Agent Decision Format
+
+```json
+{
+  "decision": "route_for_review",
+  "confidence": 0.85,
+  "reasoning": "Unusual pattern detected in data processing pipeline",
+  "next_tasks": ["escalate_to_team", "generate_detailed_report"],
+  "parameters": {
+    "escalate_to_team": {
+      "priority": "high",
+      "reviewer": "senior_analyst"
+    }
+  },
+  "context_updates": {
+    "risk_level": "elevated",
+    "requires_review": true
+  },
+  "metadata": {
+    "analysis_time_ms": 250,
+    "data_sources": ["historical_data", "system_metrics", "entity_profile"]
+  }
+}
+```
+
+## Governance and Compliance
+
+### AI Decision Auditing
+
+- Full audit trail for all agent decisions
+- Reasoning capture for compliance review
+- Human override capabilities
+- Performance metrics and accuracy tracking
+
+### Data Classification and Security
+
+- Context isolation per workflow run
+- Data classification enforcement (Public, Internal, Restricted)
+- PII handling with automatic redaction
+- Secure agent communication via encrypted channels
+
+### Human-in-the-Loop Controls
+
+- Approval gates for high-risk decisions
+- Confidence thresholds for automatic execution
+- Escalation paths for uncertain outcomes
+- Override mechanisms for exceptional cases
+
+## Performance Characteristics
+
+### Latency Targets
+
+- **Traditional tasks**: Sub-5ms scheduling
+- **Agentic tasks**: Sub-500ms analysis and decision
+- **Graph modification**: Sub-100ms workflow updates
+- **Human approval**: Configurable timeout with fallback
+
+### Scalability
+
+- **Concurrent agents**: Horizontal scaling of MCP servers
+- **Context caching**: Efficient reuse of analysis results
+- **Batch processing**: Group similar decisions for efficiency
+- **Resource isolation**: Prevent agent workloads from impacting core orchestration
+
+## Integration Examples
+
+### External System Integration
+
+```yaml
+workflow: "system_validation"
+tasks:
+  - id: "fetch_data"
+    command: "external-api --endpoint data --filter ${FILTER}"
+    
+  - id: "validate_data"
+    type: "agentic"
+    command: "mcp://data-validator"
+    context:
+      - data_schemas
+      - validation_rules
+      - historical_patterns
+    evaluation_point: true
+    
+  - id: "exception_analysis"
+    type: "conditional"  # Created by agent if exceptions found
+    command: "mcp://exception-analyzer"
+```
+
+### Real-Time Monitoring
+
+```yaml
+workflow: "real_time_monitoring"
+trigger: "kafka://system-events"
+tasks:
+  - id: "metric_calculation"
+    type: "traditional"
+    command: "calculate_metrics.py --input ${INPUT}"
+    
+  - id: "threshold_analysis"
+    type: "agentic"
+    command: "mcp://threshold-analyzer"
+    context:
+      - system_limits
+      - historical_variance
+      - current_load
+    evaluation_point: true
+```
+
+## Future Enhancements
+
+### Multi-Agent Coordination
+
+- Agent collaboration on complex decisions
+- Consensus mechanisms for critical choices
+- Specialized agents for different domains (compliance, operations, analysis)
+
+### Learning and Adaptation
+
+- Decision feedback loops for continuous improvement
+- Pattern recognition from historical outcomes
+- Adaptive thresholds based on performance metrics
+
+### Advanced Context Management
+
+- Cross-workflow context sharing
+- Temporal context for time-series analysis
+- External data integration (feeds, news, regulatory updates)
+
+## Success Metrics
+
+### Performance Metrics
+
+- Agent decision latency (target: <500ms)
+- Workflow modification time (target: <100ms)
+- Context retrieval efficiency
+- Resource utilization per agent
+
+### Business Metrics
+
+- False positive reduction in monitoring
+- Exception handling automation rate
+- Process review efficiency
+- Human intervention reduction
+
+### Quality Metrics
+
+- Agent decision accuracy
+- Reasoning quality scores
+- Audit trail completeness
+- Compliance adherence
+
+## Design Principles
+
+- **Intelligence where it matters**: Use AI for complex decisions, traditional processing for routine operations
+- **Audit everything**: Full traceability for regulatory compliance
+- **Human oversight**: Always maintain human control and override capabilities
+- **Performance first**: AI enhancement should not compromise core orchestration speed
+- **Context awareness**: Agents should understand business context, not just technical data
+- **Fail safely**: Graceful degradation when AI services are unavailable
+
+This AI-first design positions Cyclonetix as the next generation of workflow orchestration, combining the speed of traditional processing with the intelligence of modern AI agents.
+
+## Next Steps
+
+- Review the [Evaluation Points](evaluation-points.qmd) documentation for implementing dynamic workflows
+- Explore [Contexts & Parameters](contexts-parameters.qmd) for managing agent context
+- Check the [Developer Guide](../developer-guide.qmd) for extending AI capabilities
+- See the [Cookbook](../cookbook.qmd) for practical AI workflow examples
