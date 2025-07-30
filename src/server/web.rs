@@ -1,8 +1,8 @@
 use crate::server::agents::agents;
 use crate::server::dashboard::dashboard;
-use crate::server::running_dags::running_dags;
+use crate::server::dags::{dag_view_page, dag_api, running_dags};
 use crate::server::state::AppStateWithTera;
-use crate::server::tasks::{dag_api, dag_view_page, schedule_task, tasks_api, tasks_page};
+use crate::server::tasks::{schedule_task, tasks_api, tasks_instance_api, tasks_page};
 use crate::utils::app_state::AppState;
 use axum::http::Request;
 use axum::{
@@ -105,6 +105,7 @@ pub async fn start_server(app_state: Arc<AppState>) -> std::io::Result<()> {
         .route("/running-dags", get(running_dags))
         .route("/agent-list", get(agents))
         .route("/api/tasks", get(tasks_api))
+        .route("/api/task_instance/{instance_id}", get(tasks_instance_api))
         .route("/api/schedule-task", post(schedule_task))
         .route("/api/dag/{run_id}", get(dag_api))
         .nest_service("/static", ServeDir::new("static"))

@@ -59,6 +59,7 @@ impl ExecutionGraph {
                 completed_at: None,
                 error_message: None,
                 evaluation_point: task.evaluation_point,
+                assigned_agent: None,
             };
             task_instances.push(instance);
         }
@@ -193,6 +194,7 @@ impl ExecutionGraph {
                 completed_at: None,
                 error_message: None,
                 evaluation_point: task.evaluation_point,
+                assigned_agent: None,
             };
             task_instances.push(instance);
         }

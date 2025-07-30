@@ -1,0 +1,406 @@
+# Cyclonetix: Additional Design Thinking
+
+## Introduction
+
+This document captures additional design considerations for the Cyclonetix orchestration framework, focusing on practical enhancements that deliver maximum value with minimal implementation effort. These ideas prioritize flexibility, user experience, and integration with existing developer workflows rather than reinventing solved problems.
+
+## 1. Pragmatic Data Lineage
+
+### Design Approach
+
+For users bringing their own tasks, data lineage can be captured through a standardized reporting mechanism:
+
+1. **Standardized JSON Schema**:
+   ```json
+   {
+     "task_id": "extract_customer_data",
+     "inputs": [
+       {"source": "postgres://main_db/customers", "type": "table"},
+       {"source": "s3://config-bucket/extraction_rules.json", "type": "file"}
+     ],
+     "outputs": [
+       {"destination": "s3://data-lake/customers/2025-03-04/", "type": "directory"},
+       {"destination": "redis://cache/customer_stats", "type": "cache"}
+     ],
+     "transformation": "extract_and_partition",
+     "metadata": {
+       "records_processed": 12456,
+       "bytes_processed": 45678912
+     }
+   }
+   ```
+
+2. **Multiple Reporting Methods**:
+    - **Stdout markers**: `##CYCLONETIX_LINEAGE_BEGIN##` and `##CYCLONETIX_LINEAGE_END##`
+    - **Local HTTP endpoint**: POST to agent-provided endpoint
+    - **Environment variables**: Pre-populated task context information
+
+3. **Helper Libraries**:
+   ```python
+   from cyclonetix import report_lineage
+   
+   # Simple reporting function
+   report_lineage(
+       inputs=["postgres://main_db/customers"],
+       outputs=["s3://data-lake/customers/"]
+   )
+   ```
+
+### Visualization & Analysis
+
+- **Toggle between task view and data view**
+- **Lineage queries**: "What's the source of this data?" or "What consumes this data?"
+- **Impact analysis**: "If I change this dataset, what downstream processes are affected?"
+
+## 2. Task Recovery & Checkpoints
+
+### Checkpoint Registry
+
+Provide a simple API for tasks to save and retrieve checkpoint information:
+
+```python
+from cyclonetix import checkpoints
+
+# Save current progress
+checkpoints.save({
+    "processed_items": 500,
+    "last_processed_id": "item_123",
+    "calculation_state": {"sum": 12345, "count": 500}
+})
+
+# Later, retrieve checkpoint
+checkpoint = checkpoints.get()
+if checkpoint:
+    # Resume processing
+    start_from_id = checkpoint["last_processed_id"]
+```
+
+### Checkpoint Features
+
+1. **Versioned checkpoints**: Store multiple checkpoints with labels
+2. **TTL options**: Automatically expire old checkpoints
+3. **Size limits**: Prevent excessive storage use
+4. **Encryption**: Securely store sensitive checkpoint data
+
+### Recovery UI
+
+- **Restart options**: "From beginning" vs "From checkpoint"
+- **Checkpoint browser**: View available checkpoints and their metadata
+- **Manual checkpoint creation**: For administrative intervention
+
+## 3. Enhanced DAG Control
+
+### Partial Execution
+
+Provide context menu options in the UI:
+
+- **Skip this task**: Mark as successful without running
+- **Skip all downstream**: Skip this task and all dependent tasks
+- **Run only this branch**: Execute just this task and its dependencies
+- **Run from here**: Skip upstream tasks (if outputs available)
+
+### Task Pinning
+
+- **Pin task version**: Lock a specific task implementation while iterating on others
+- **Pin task output**: Use cached output even when re-running
+
+### Execution Controls
+
+- **Pause execution**: Temporarily halt a running DAG
+- **Resource throttling**: Limit resource usage during execution
+- **Priority adjustment**: Change priority mid-execution
+
+## 4. Smart Logging
+
+### Log Enhancement
+
+1. **Contextual enrichment**: Automatically add DAG/task context to all logs
+2. **Structured logging**: Encourage JSON-formatted logs for better parsing
+3. **Log levels**: Support standard levels (DEBUG, INFO, WARN, ERROR)
+
+### Log Correlation
+
+- **Execution trace IDs**: Automatically generate and propagate trace IDs
+- **Cross-service tracing**: Helpers to propagate IDs across API calls
+
+Example library usage:
+```python
+from cyclonetix import logging
+
+# Logs automatically include execution context
+logging.info("Processing batch", extra={"batch_size": 1000})
+
+# Create a correlation context
+with logging.correlation_context(operation="data_import"):
+    # All logs within this block share correlation ID
+    result = process_data()
+    
+    # HTTP requests automatically propagate the correlation ID
+    response = requests.get("https://api.example.com/data")
+```
+
+### Log Visualization
+
+- **Structured log explorer**: Filter, search, and visualize logs
+- **Pattern detection**: Highlight anomalies and common error patterns
+- **Context-aware grouping**: Group related logs across components
+
+## 5. Practical Alerting
+
+### Alert Configuration
+
+- **Alert builder**: Visual interface for alert conditions
+- **Multi-channel delivery**: Email, Slack, webhook, PagerDuty, etc.
+- **Alert templates**: Pre-configured alert patterns
+
+### Playbooks & Runbooks
+
+- **Action buttons**: Add custom actions to alert notifications
+- **Runbook links**: Connect alerts to documentation
+- **Resolution tracking**: Record alert resolution steps
+
+### Alert Analytics
+
+- **Alert frequency tracking**: Identify noisy alerts
+- **MTTR analysis**: Measure time to resolve different alert types
+- **Alert correlation**: Group related alerts for easier triage
+
+## 6. Versioned DAGs
+
+### Version Management
+
+Implement simple but effective versioning:
+
+- **Auto-versioning**: Increment version on DAG changes
+- **Version tagging**: Allow custom tags (e.g., "prod-release-1.2")
+- **Current flag**: Mark one version as current/active
+
+### Version UI
+
+- **Version history**: Show execution stats for each version
+- **Diff view**: Highlight changes between versions
+- **Rollback option**: Restore previous version as current
+
+### Version Controls
+
+- **Run specific version**: Execute non-current versions
+- **A/B testing**: Run multiple versions simultaneously
+- **Gradual rollout**: Transition traffic between versions
+
+## 7. Task Templates & Libraries
+
+### Template System
+
+- **Template library**: Searchable repository of task templates
+- **Template parameters**: Configurable parameters for customization
+- **Categories and tags**: Organize templates by function/domain
+
+### Team Sharing
+
+- **Team templates**: Shared within specific teams
+- **Permission model**: Control who can use/edit templates
+- **Template export/import**: Share across environments
+
+### Integration with Documentation
+
+- **Cookbook examples**: Link templates to documentation
+- **Usage statistics**: Show which templates are most used
+- **Version tracking**: Notify users of template updates
+
+## 8. Sub-workflows & Composition
+
+### Sub-workflow Implementation
+
+- **DAG import**: Reference existing DAGs as components
+- **Input/output mapping**: Connect parent/child data flows
+- **Failure handling**: Configure propagation of failures
+
+### UI Representation
+
+- **Collapsible sub-workflows**: Expand/collapse in the DAG view
+- **Cross-linking**: Navigate between parent/child DAGs
+- **Statistics rollup**: Aggregate metrics across levels
+
+### Reusability Features
+
+- **Parameter passing**: Pass context from parent to child
+- **Conditional execution**: Run sub-workflows based on conditions
+- **Library of common sub-workflows**: E.g., approval, notification, retry patterns
+
+## 9. SLA Management
+
+### SLA Definition Structure
+
+- **Time-based metrics**: Maximum duration, deadlines, time windows
+- **Success criteria**: Completion rate, error budget
+- **Recovery parameters**: MTTR requirements, retry policy
+
+Example SLA configuration:
+```json
+{
+  "name": "Daily Analytics SLA",
+  "time_window": {
+    "start": "01:00",
+    "end": "03:00",
+    "timezone": "UTC"
+  },
+  "max_duration_minutes": 90,
+  "critical_path_tasks": {
+    "data_load": {
+      "max_duration_minutes": 30
+    },
+    "report_generation": {
+      "max_duration_minutes": 20
+    }
+  },
+  "success_criteria": {
+    "completion_rate_percent": 99.5,
+    "error_budget_monthly_failures": 1
+  },
+  "recovery": {
+    "max_mttr_minutes": 60,
+    "auto_retry_count": 2,
+    "auto_retry_delay_seconds": 300
+  }
+}
+```
+
+### SLA Monitoring
+
+- **Real-time compliance indicators**: Green/yellow/red status
+- **Historical compliance charts**: Track SLA performance over time
+- **Trending analysis**: Identify degrading performance before violations
+
+### SLA Alerting
+
+- **Progressive alerting**: Warning at 75% of threshold, critical at 90%
+- **Projected violation alerts**: "At current pace, SLA will be violated in 15 minutes"
+- **Business impact classification**: Tag alerts with business criticality
+
+## 10. Team & Collaboration Features
+
+### Team Organization
+
+- **Team ownership**: Flag DAGs and tasks with team ownership
+- **Team dashboards**: Filtered views of team assets
+- **Permission inheritance**: Role-based access control at team level
+
+### Collaboration Tools
+
+- **Comments & annotations**: Add notes to DAGs and tasks
+- **Sharing controls**: Share assets with individuals or teams
+- **Activity feed**: See recent changes to team assets
+
+### Knowledge Management
+
+- **Documentation integration**: Link to wiki or documentation
+- **Runbook creation**: Create and manage operational procedures
+- **Historical context**: Record decisions and changes
+
+## 11. Mobile Experience
+
+### Focused Mobile Interface
+
+- **Alert notifications**: Receive and respond to alerts
+- **Execution monitoring**: Track critical DAG executions
+- **Quick actions**: Approve, retry, skip, or fail tasks
+- **Status dashboard**: See overall system health
+
+### Progressive Enhancement
+
+- **Responsive core views**: Essential views adapt to mobile
+- **Native notifications**: Integration with mobile notification systems
+- **Offline capabilities**: View critical information offline
+
+## 12. Performance & Scalability
+
+### Progressive Data Retention
+
+Implement tiered data retention policy:
+
+- **Detailed task logs**: 7 days
+- **Task execution metrics**: 30 days
+- **DAG execution metrics**: 90 days
+- **Aggregated performance data**: 1 year
+
+### Performance Optimizations
+
+- **Lazy loading**: Load DAG details on demand
+- **Data summarization**: Pre-aggregate metrics for dashboard views
+- **Pagination controls**: Manage large result sets efficiently
+
+### Scaling Considerations
+
+- **Horizontal scaling**: Design components to scale independently
+- **Resource quotas**: Prevent resource monopolization
+- **Decoupled architecture**: Minimize dependencies between components
+
+## 13. Practical Cloud Cost Tracking
+
+### Tagging Strategy
+
+- **Consistent resource tagging**: `cyclonetix:execution-id`, `cyclonetix:dag-id`, `cyclonetix:task-id`
+- **Tag propagation**: Helper functions to apply tags in user tasks
+- **Documentation**: Guide for effective tagging
+
+### Integration Approach
+
+- **Cloud provider APIs**: Pull cost data from existing billing APIs
+- **Third-party integrations**: Support popular cost management tools
+- **Approximate attribution**: Acknowledge limitations in shared resource attribution
+
+### Usage Allocation for Shared Resources
+
+For long-running K8s containers used by multiple tasks:
+
+- **Time-based allocation**: Divide costs by execution time
+- **Resource-weighted allocation**: Factor in CPU/memory utilization
+- **Idle cost handling**: Track and allocate container idle time
+
+### Cost Visualization
+
+- **Cost summary widget**: Quick view of execution costs
+- **Cost breakdown**: By task, resource type, team
+- **Historical trending**: Track cost patterns over time
+
+## 14. Accessibility & User Experience
+
+### Accessibility Features
+
+- **Screen reader support**: Proper ARIA attributes and labels
+- **Keyboard navigation**: Comprehensive keyboard shortcuts
+- **Color contrast**: Meet WCAG AA standards at minimum
+- **Text scaling**: Support browser text size adjustments
+
+### User Experience Enhancements
+
+- **Dark/light mode**: Based on Quasar's theming support
+- **Contextual help**: Inline documentation and tooltips
+- **Personalization**: User-specific UI customization
+- **Progressive disclosure**: Show complexity progressively
+
+## 15. Business Metrics Connection
+
+### Business Impact Tracking
+
+- **Business KPI mapping**: Connect technical workflows to business metrics
+- **Impact classification**: Tag DAGs with business criticality
+- **Service dependency mapping**: Show which business services depend on which DAGs
+
+### SLA Reporting
+
+- **Business-oriented SLA dashboard**: Show compliance by business area
+- **Customer impact tracking**: Estimate affected customers during incidents
+- **Executive summary reports**: Business-friendly performance overview
+
+## Implementation Philosophy: The 80/20 Approach
+
+The design recommendations in this document follow the principle of achieving 80% of the value with 20% of the effort, through:
+
+1. **Leverage existing solutions** rather than rebuilding
+2. **Start simple, allow growth** for complex features
+3. **Standardize where possible**, but be flexible where needed
+4. **Focus on integration** over reinvention
+5. **Prioritize user experience** over technical elegance
+
+By focusing on these principles, Cyclonetix can deliver a highly competitive orchestration framework that addresses real-world needs without overinvesting in esoteric features or reinventing solved problems.

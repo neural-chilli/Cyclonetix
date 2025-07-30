@@ -1,0 +1,184 @@
+# Cyclonetix UI Design Specification
+
+## Overview
+Cyclonetix is an orchestration framework requiring an intuitive and efficient UI for managing workflows, tasks, agents, and execution monitoring. The UI will be built using **a combination of SSR and ReactFlow**, ensuring a responsive and interactive user experience.
+
+## Core Pages & Features
+
+### 1️⃣ Login Page
+**Purpose:** Authenticate users into the system.
+
+- **Fields:** Email/Username, Password
+- **Actions:** Login Button, Forgot Password Link
+- **API Calls:** `POST /api/auth/login`
+- **Behavior:** Redirects to **Dashboard** on success; shows error message on failure.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Login Form] -->|Submit| B{Auth API};
+    B -->|Success| C[Redirect to Dashboard];
+    B -->|Failure| D[Show Error Message];
+```
+
+---
+
+### 2️⃣ Dashboard
+**Purpose:** Overview of system state, active workflows, and real-time execution stats.
+
+- **Sections:**
+    - **Summary Metrics**
+    - **Table of Queues (Sparklines for activity trends)**
+    - **Navigation Links for DAG filtering**
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Dashboard] --> B[Summary Metrics];
+    A --> C[Queue Activity Sparklines];
+    A --> D[Running DAGs List];
+    A --> E[Failed DAGs List];
+    A --> F[Completed DAGs List];
+```
+
+---
+
+### 3️⃣ DAG List
+**Purpose:** View, filter, and manage DAGs (predefined & dynamic).
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[DAG List Page] --> B[Search & Filters];
+    A --> C[Table of DAGs];
+    C -->|Click DAG| D[DAG Execution View];
+    C -->|Edit DAG| E[DAG Designer];
+```
+
+---
+
+### 4️⃣ Live DAG Execution View (Cytoscape)
+**Purpose:** Display real-time execution of DAGs with a graph-based visualization.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Live DAG Execution] --> B[Cytoscape DAG Graph];
+    B -->|Click Task| C[Task Logs & Execution Details];
+    B -->|Retry Task| D[Task Retry Options];
+```
+
+---
+
+### 5️⃣ Task Editor Page
+**Purpose:** Edit and manage task scripts inline.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Task Editor] --> B[Code Editor Panel];
+    A --> C[Execution Preview];
+    A --> D[Validation & Save];
+```
+
+---
+
+### 6️⃣ DAG Designer (ReactFlow)
+**Purpose:** Drag-and-drop DAG creation.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[DAG Designer] --> B[Graph Canvas (CyEditor)];
+    A --> C[Task Properties Panel];
+    A --> D[Save & Validate DAG];
+```
+
+---
+
+### 7️⃣ Secrets Management Page
+**Purpose:** Manage stored credentials for DAGs.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Secrets Management] --> B[Stored Secrets List];
+    A --> C[Secret Details & Permissions];
+    A --> D[Add/Edit/Delete Secret];
+```
+
+---
+
+### 8️⃣ Agent Management Page
+**Purpose:** View and control execution agents.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Agent Management] --> B[Agent List & Load Metrics];
+    A --> C[Agent Details];
+    A --> D[Scale/Restart Agent];
+```
+
+---
+
+### 9️⃣ Queue Inspection Page
+**Purpose:** Monitor task queues and performance.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Queue Inspection] --> B[Active Queue List];
+    A --> C[Pending Tasks & Queue Depth];
+    A --> D[Priority Adjustment];
+```
+
+---
+
+### 🔟 Config Inspection Page
+**Purpose:** View and modify system-wide configuration settings.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Config Inspection] --> B[Configuration Categories];
+    A --> C[Editable Configurations];
+    A --> D[Save & Apply];
+```
+
+---
+
+### 🔹 State Management Backend Metrics Page
+**Purpose:** Track orchestration engine performance.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[State Management] --> B[System Metrics (Redis, Memory)];
+    A --> C[Execution Latency Graphs];
+    A --> D[Worker Health & Failures];
+```
+
+---
+
+### 🔹 UI Layout Overview
+- **Collapsible Sidebar** with icon links to all sections.
+- **Top Navbar**:
+    - Dropdown menus for grouped sections.
+    - **Dark/Light mode toggle**.
+    - **Link to Documentation**.
+    - **User profile menu** for preferences.
+
+```{mermaid}
+%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Sidebar] -->|Icon Links| B[Navigation Pages];
+    A --> C[Dashboard];
+    A --> D[DAGs];
+    A --> E[Agents];
+    A --> F[Queues];
+    A --> G[Experiments];
+    A --> H[Config];
+    A --> I[Metrics];
+```
+
