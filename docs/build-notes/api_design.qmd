@@ -1,0 +1,903 @@
+# Cyclonetix API Specification
+
+## Overview
+
+This document outlines the REST API endpoints needed to support the Cyclonetix orchestration framework's UI. The API is organized by functional areas that correspond to the core pages and features defined in the UI wireframes.
+
+## Base URL
+
+All API endpoints are relative to: `https://api.cyclonetix.io/v1`
+
+## Authentication
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/login` | Authenticate user and return a JWT token |
+| POST | `/auth/logout` | Log out user and invalidate token |
+| POST | `/auth/refresh` | Refresh an expiring JWT token |
+| POST | `/auth/forgot-password` | Initiate password reset workflow |
+| POST | `/auth/reset-password` | Complete password reset with token |
+
+### Request/Response Examples
+
+#### Login
+
+```
+POST /auth/login
+```
+
+Request:
+```json
+{
+  "username": "user@example.com",
+  "password": "secure_password"
+}
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires_at": "2025-03-11T14:30:00Z",
+    "user": {
+      "id": "usr_123456",
+      "username": "user@example.com",
+      "name": "John Doe",
+      "role": "admin"
+    }
+  }
+}
+```
+
+## Dashboard
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/dashboard/summary` | Get summary metrics for dashboard |
+| GET | `/dashboard/queues` | Get queue activity metrics with sparkline data |
+| GET | `/dashboard/dags/running` | Get list of currently running DAGs |
+| GET | `/dashboard/dags/failed` | Get list of recently failed DAGs |
+| GET | `/dashboard/dags/completed` | Get list of recently completed DAGs |
+
+### Request/Response Examples
+
+#### Dashboard Summary
+
+```
+GET /dashboard/summary
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "total_dags": 256,
+    "running_dags": 12,
+    "completed_dags_24h": 183,
+    "failed_dags_24h": 7,
+    "active_agents": 8,
+    "pending_tasks": 34,
+    "system_load": 68.2
+  }
+}
+```
+
+#### Queue Activity
+
+```
+GET /dashboard/queues
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "queues": [
+      {
+        "id": "q_default",
+        "name": "Default Queue",
+        "current_depth": 5,
+        "tasks_processed_24h": 1245,
+        "avg_wait_time_ms": 340,
+        "sparkline_data": [4, 7, 12, 8, 5, 3, 5, 9, 11, 5]
+      },
+      {
+        "id": "q_high_priority",
+        "name": "High Priority",
+        "current_depth": 1,
+        "tasks_processed_24h": 567,
+        "avg_wait_time_ms": 120,
+        "sparkline_data": [2, 3, 1, 0, 1, 2, 3, 2, 1, 1]
+      }
+    ]
+  }
+}
+```
+
+## DAG Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/dags` | Get paginated list of all DAGs |
+| GET | `/dags/{dag_id}` | Get details of a specific DAG |
+| POST | `/dags` | Create a new DAG |
+| PUT | `/dags/{dag_id}` | Update an existing DAG |
+| DELETE | `/dags/{dag_id}` | Delete a DAG |
+| POST | `/dags/{dag_id}/trigger` | Trigger execution of a DAG |
+| GET | `/dags/search` | Search for DAGs by name, owner, or description |
+
+### Request/Response Examples
+
+#### List DAGs
+
+```
+GET /dags?page=1&limit=20&status=active
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "dags": [
+      {
+        "id": "dag_123456",
+        "name": "Daily Analytics Processing",
+        "description": "Processes daily analytics data",
+        "owner": "data_team",
+        "is_active": true,
+        "schedule": "0 0 * * *",
+        "last_run": "2025-03-03T00:00:00Z",
+        "next_run": "2025-03-04T00:00:00Z",
+        "last_status": "success",
+        "task_count": 8
+      },
+      ...
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 256,
+      "pages": 13
+    }
+  }
+}
+```
+
+#### Get DAG Details
+
+```
+GET /dags/dag_123456
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "dag_123456",
+    "name": "Daily Analytics Processing",
+    "description": "Processes daily analytics data",
+    "owner": "data_team",
+    "is_active": true,
+    "schedule": "0 0 * * *",
+    "created_at": "2024-12-01T09:15:00Z",
+    "updated_at": "2025-02-15T14:22:00Z",
+    "last_run": "2025-03-03T00:00:00Z",
+    "next_run": "2025-03-04T00:00:00Z",
+    "last_status": "success",
+    "tasks": [
+      {
+        "id": "task_a1b2c3",
+        "name": "Extract Data",
+        "type": "python",
+        "upstream": [],
+        "downstream": ["task_d4e5f6"]
+      },
+      {
+        "id": "task_d4e5f6",
+        "name": "Transform Data",
+        "type": "python",
+        "upstream": ["task_a1b2c3"],
+        "downstream": ["task_g7h8i9"]
+      },
+      {
+        "id": "task_g7h8i9",
+        "name": "Load Data",
+        "type": "python",
+        "upstream": ["task_d4e5f6"],
+        "downstream": []
+      }
+    ],
+    "edges": [
+      {
+        "source": "task_a1b2c3",
+        "target": "task_d4e5f6"
+      },
+      {
+        "source": "task_d4e5f6",
+        "target": "task_g7h8i9"
+      }
+    ]
+  }
+}
+```
+
+## DAG Execution
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/executions` | Get paginated list of DAG executions |
+| GET | `/executions/{execution_id}` | Get details of a specific execution |
+| POST | `/executions/{execution_id}/cancel` | Cancel a running execution |
+| GET | `/executions/{execution_id}/tasks` | Get tasks for a specific execution |
+| GET | `/executions/{execution_id}/logs` | Get execution logs |
+| GET | `/executions/{execution_id}/graph` | Get execution graph with state information |
+
+### Request/Response Examples
+
+#### Get DAG Execution Details
+
+```
+GET /executions/exec_789012
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "exec_789012",
+    "dag_id": "dag_123456",
+    "dag_name": "Daily Analytics Processing",
+    "status": "running",
+    "start_time": "2025-03-04T00:00:00Z",
+    "end_time": null,
+    "duration_s": 345,
+    "triggered_by": "scheduler",
+    "execution_params": {
+      "date": "2025-03-03"
+    },
+    "task_summary": {
+      "total": 8,
+      "succeeded": 3,
+      "failed": 0,
+      "running": 2,
+      "pending": 3
+    }
+  }
+}
+```
+
+#### Get Execution Graph
+
+```
+GET /executions/exec_789012/graph
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "nodes": [
+      {
+        "id": "task_a1b2c3",
+        "label": "Extract Data",
+        "status": "success",
+        "start_time": "2025-03-04T00:00:00Z",
+        "end_time": "2025-03-04T00:01:23Z",
+        "duration_s": 83
+      },
+      {
+        "id": "task_d4e5f6",
+        "label": "Transform Data",
+        "status": "running",
+        "start_time": "2025-03-04T00:01:24Z",
+        "end_time": null,
+        "duration_s": 261
+      }
+    ],
+    "edges": [
+      {
+        "source": "task_a1b2c3",
+        "target": "task_d4e5f6",
+        "data_transferred": "1.2GB"
+      }
+    ]
+  }
+}
+```
+
+## Task Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/tasks/{task_id}` | Get task details |
+| PUT | `/tasks/{task_id}` | Update task properties |
+| GET | `/tasks/{task_id}/code` | Get task script code |
+| PUT | `/tasks/{task_id}/code` | Update task script code |
+| GET | `/tasks/{task_id}/logs` | Get task execution logs |
+| POST | `/tasks/{task_id}/retry` | Retry a failed task |
+| POST | `/tasks/{task_id}/test` | Test execute a task with sample data |
+
+### Request/Response Examples
+
+#### Get Task Code
+
+```
+GET /tasks/task_a1b2c3/code
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "code": "import pandas as pd\n\ndef extract_data():\n    df = pd.read_csv('s3://data-bucket/raw/daily.csv')\n    return df\n\nresult = extract_data()",
+    "language": "python",
+    "version": "3.10",
+    "last_updated": "2025-02-15T14:22:00Z",
+    "last_updated_by": "user@example.com"
+  }
+}
+```
+
+#### Update Task Code
+
+```
+PUT /tasks/task_a1b2c3/code
+```
+
+Request:
+```json
+{
+  "code": "import pandas as pd\n\ndef extract_data():\n    # Updated to use the new data source\n    df = pd.read_csv('s3://new-data-bucket/raw/daily.csv')\n    return df\n\nresult = extract_data()",
+  "language": "python",
+  "version": "3.10",
+  "commit_message": "Updated data source"
+}
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "task_a1b2c3",
+    "version": 4,
+    "updated_at": "2025-03-04T12:34:56Z",
+    "validation_status": "passed"
+  }
+}
+```
+
+## DAG Designer
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/designer/task-templates` | Get available task templates |
+| POST | `/designer/validate-dag` | Validate DAG structure without saving |
+| POST | `/designer/validate-task` | Validate task properties without saving |
+| GET | `/designer/inputs-outputs/{task_type}` | Get I/O schema for a task type |
+
+### Request/Response Examples
+
+#### Task Templates
+
+```
+GET /designer/task-templates
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "templates": [
+      {
+        "id": "python_script",
+        "name": "Python Script",
+        "icon": "mdi-language-python",
+        "description": "Run a Python script",
+        "properties": {
+          "version": ["3.8", "3.9", "3.10", "3.11"],
+          "timeout": 3600,
+          "memory": 2048
+        },
+        "code_template": "def main():\n    # Your code here\n    pass\n\nresult = main()"
+      },
+      {
+        "id": "http_request",
+        "name": "HTTP Request",
+        "icon": "mdi-api",
+        "description": "Make an HTTP request",
+        "properties": {
+          "method": ["GET", "POST", "PUT", "DELETE"],
+          "timeout": 60,
+          "retry": 3
+        }
+      }
+    ]
+  }
+}
+```
+
+## Secrets Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/secrets` | Get list of all accessible secrets (names only) |
+| POST | `/secrets` | Create a new secret |
+| GET | `/secrets/{secret_id}` | Get secret metadata (not the value) |
+| PUT | `/secrets/{secret_id}` | Update a secret |
+| DELETE | `/secrets/{secret_id}` | Delete a secret |
+| GET | `/secrets/{secret_id}/permissions` | Get permissions for a secret |
+| PUT | `/secrets/{secret_id}/permissions` | Update permissions for a secret |
+
+### Request/Response Examples
+
+#### List Secrets
+
+```
+GET /secrets
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "secrets": [
+      {
+        "id": "sec_abc123",
+        "name": "AWS_CREDENTIALS",
+        "description": "AWS credentials for data team",
+        "created_at": "2025-01-15T09:10:00Z",
+        "updated_at": "2025-02-20T14:30:00Z",
+        "type": "key_value",
+        "owner": "data_team"
+      },
+      {
+        "id": "sec_def456",
+        "name": "DATABASE_CREDENTIALS",
+        "description": "Production database access",
+        "created_at": "2024-12-10T11:25:00Z",
+        "updated_at": "2024-12-10T11:25:00Z",
+        "type": "key_value",
+        "owner": "infrastructure_team"
+      }
+    ]
+  }
+}
+```
+
+#### Create Secret
+
+```
+POST /secrets
+```
+
+Request:
+```json
+{
+  "name": "API_TOKEN",
+  "description": "Token for external API access",
+  "type": "key_value",
+  "values": {
+    "api_key": "sk_live_1234567890abcdef",
+    "api_secret": "xyz_123456_abcdef"
+  },
+  "permissions": [
+    {
+      "team_id": "team_integration",
+      "access_level": "read"
+    }
+  ]
+}
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "sec_ghi789",
+    "name": "API_TOKEN",
+    "description": "Token for external API access",
+    "created_at": "2025-03-04T12:34:56Z",
+    "updated_at": "2025-03-04T12:34:56Z",
+    "type": "key_value"
+  }
+}
+```
+
+## Agent Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/agents` | Get list of all execution agents |
+| GET | `/agents/{agent_id}` | Get details of a specific agent |
+| POST | `/agents` | Register a new agent |
+| PUT | `/agents/{agent_id}` | Update agent configuration |
+| DELETE | `/agents/{agent_id}` | Deregister an agent |
+| POST | `/agents/{agent_id}/restart` | Restart an agent |
+| POST | `/agents/{agent_id}/drain` | Drain tasks from an agent |
+| GET | `/agents/{agent_id}/metrics` | Get performance metrics for an agent |
+
+### Request/Response Examples
+
+#### List Agents
+
+```
+GET /agents
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "agents": [
+      {
+        "id": "agent_123",
+        "name": "worker-01",
+        "status": "running",
+        "ip": "10.0.1.5",
+        "registered_at": "2025-01-01T00:00:00Z",
+        "last_heartbeat": "2025-03-04T12:30:12Z",
+        "version": "1.2.3",
+        "queues": ["default", "high_priority"],
+        "tags": ["python", "data_processing"],
+        "current_tasks": 2,
+        "capacity": 5,
+        "system_load": 42.5
+      },
+      {
+        "id": "agent_456",
+        "name": "worker-02",
+        "status": "running",
+        "ip": "10.0.1.6",
+        "registered_at": "2025-01-01T00:00:00Z",
+        "last_heartbeat": "2025-03-04T12:30:08Z",
+        "version": "1.2.3",
+        "queues": ["default"],
+        "tags": ["python", "ml"],
+        "current_tasks": 1,
+        "capacity": 3,
+        "system_load": 68.3
+      }
+    ]
+  }
+}
+```
+
+## Queue Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/queues` | Get list of all task queues |
+| GET | `/queues/{queue_id}` | Get details of a specific queue |
+| POST | `/queues` | Create a new queue |
+| PUT | `/queues/{queue_id}` | Update queue properties |
+| DELETE | `/queues/{queue_id}` | Delete a queue |
+| GET | `/queues/{queue_id}/tasks` | Get tasks in a queue |
+| POST | `/queues/{queue_id}/purge` | Purge all tasks from a queue |
+| POST | `/queues/{queue_id}/pause` | Pause a queue |
+| POST | `/queues/{queue_id}/resume` | Resume a paused queue |
+
+### Request/Response Examples
+
+#### Queue Details
+
+```
+GET /queues/q_default
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "q_default",
+    "name": "Default Queue",
+    "description": "General purpose task queue",
+    "status": "active",
+    "priority": 1,
+    "created_at": "2024-10-01T00:00:00Z",
+    "current_depth": 5,
+    "tasks_processed_24h": 1245,
+    "avg_wait_time_ms": 340,
+    "max_concurrent": 100,
+    "assigned_agents": 5,
+    "metrics": {
+      "hourly_throughput": [56, 48, 52, 45, 67, 78, 89, 92],
+      "avg_processing_time_ms": 512
+    }
+  }
+}
+```
+
+## Configuration Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/config` | Get all configuration categories |
+| GET | `/config/{category}` | Get configuration for a specific category |
+| PUT | `/config/{category}` | Update configuration for a category |
+| POST | `/config/validate` | Validate configuration changes without applying |
+| GET | `/config/history` | Get configuration change history |
+
+### Request/Response Examples
+
+#### Get Configuration Category
+
+```
+GET /config/scheduler
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "category": "scheduler",
+    "description": "Task scheduler settings",
+    "updated_at": "2025-02-10T15:30:00Z",
+    "updated_by": "admin@example.com",
+    "settings": [
+      {
+        "key": "scheduler.interval_seconds",
+        "value": 30,
+        "default_value": 60,
+        "description": "How often scheduler checks for new tasks",
+        "type": "integer",
+        "range": [10, 300],
+        "requires_restart": true
+      },
+      {
+        "key": "scheduler.max_concurrent_tasks",
+        "value": 1000,
+        "default_value": 500,
+        "description": "Maximum number of concurrent tasks",
+        "type": "integer",
+        "range": [100, 10000],
+        "requires_restart": false
+      }
+    ]
+  }
+}
+```
+
+## System Metrics
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/metrics/system` | Get system-wide performance metrics |
+| GET | `/metrics/scheduler` | Get scheduler performance metrics |
+| GET | `/metrics/workers` | Get worker performance metrics |
+| GET | `/metrics/database` | Get database performance metrics |
+| GET | `/metrics/redis` | Get Redis/queue performance metrics |
+| GET | `/metrics/dags` | Get DAG execution metrics |
+
+### Request/Response Examples
+
+#### System Metrics
+
+```
+GET /metrics/system
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "timestamp": "2025-03-04T12:34:56Z",
+    "uptime_days": 45.2,
+    "cpu_usage_percent": 68.5,
+    "memory_usage_percent": 72.3,
+    "disk_usage_percent": 45.8,
+    "network_in_mbps": 125.6,
+    "network_out_mbps": 87.2,
+    "active_connections": 35,
+    "total_dags": 256,
+    "total_tasks": 1856,
+    "historical": {
+      "interval": "hourly",
+      "periods": 24,
+      "cpu_usage": [65.2, 67.8, 70.1, 68.5, 64.2, 62.8, 63.5, 67.8],
+      "memory_usage": [70.1, 71.2, 72.8, 72.3, 71.5, 71.2, 72.0, 72.3]
+    }
+  }
+}
+```
+
+## User Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users` | Get paginated list of all users |
+| GET | `/users/{user_id}` | Get details of a specific user |
+| POST | `/users` | Create a new user |
+| PUT | `/users/{user_id}` | Update user information |
+| DELETE | `/users/{user_id}` | Delete a user |
+| GET | `/users/{user_id}/permissions` | Get user permissions |
+| PUT | `/users/{user_id}/permissions` | Update user permissions |
+| GET | `/users/{user_id}/activity` | Get user activity log |
+
+### Request/Response Examples
+
+#### User Details
+
+```
+GET /users/usr_123456
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "usr_123456",
+    "username": "john.doe@example.com",
+    "name": "John Doe",
+    "role": "data_engineer",
+    "created_at": "2024-11-01T09:00:00Z",
+    "updated_at": "2025-02-15T14:30:00Z",
+    "last_login": "2025-03-04T09:15:23Z",
+    "status": "active",
+    "teams": ["data_team", "infrastructure"],
+    "permissions": {
+      "dags": "read_write",
+      "executions": "read_write",
+      "agents": "read",
+      "queues": "read",
+      "config": "none",
+      "secrets": "read"
+    }
+  }
+}
+```
+
+## Team Management
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/teams` | Get list of all teams |
+| GET | `/teams/{team_id}` | Get details of a specific team |
+| POST | `/teams` | Create a new team |
+| PUT | `/teams/{team_id}` | Update team information |
+| DELETE | `/teams/{team_id}` | Delete a team |
+| GET | `/teams/{team_id}/members` | Get team members |
+| POST | `/teams/{team_id}/members` | Add user to team |
+| DELETE | `/teams/{team_id}/members/{user_id}` | Remove user from team |
+| GET | `/teams/{team_id}/permissions` | Get team permissions |
+| PUT | `/teams/{team_id}/permissions` | Update team permissions |
+
+### Request/Response Examples
+
+#### Team Details
+
+```
+GET /teams/team_data
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "team_data",
+    "name": "Data Team",
+    "description": "Data engineering and analytics team",
+    "created_at": "2024-10-01T00:00:00Z",
+    "updated_at": "2025-01-15T10:30:00Z",
+    "member_count": 8,
+    "owner_id": "usr_123456",
+    "permissions": {
+      "dags": "read_write",
+      "executions": "read_write",
+      "agents": "read",
+      "queues": "read",
+      "config": "none",
+      "secrets": "read_write"
+    }
+  }
+}
+```
+
+## Error Handling
+
+All API endpoints follow a consistent error format:
+
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "invalid_request",
+    "message": "The request was invalid for the following reasons",
+    "details": [
+      "Field 'username' is required",
+      "Password must be at least 8 characters long"
+    ]
+  }
+}
+```
+
+### Common Error Codes
+
+| Error Code | HTTP Status | Description |
+|------------|-------------|-------------|
+| `unauthorized` | 401 | Authentication required or invalid token |
+| `forbidden` | 403 | Insufficient permissions for the requested operation |
+| `not_found` | 404 | The requested resource was not found |
+| `invalid_request` | 400 | Invalid request parameters or body |
+| `validation_error` | 400 | Validation failed for the provided data |
+| `conflict` | 409 | Resource conflict (e.g., duplicate name) |
+| `internal_error` | 500 | Server encountered an unexpected error |
+| `service_unavailable` | 503 | Service is temporarily unavailable |
+
+## Pagination
+
+All list endpoints support pagination with the following query parameters:
+
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 100)
+- `sort`: Field to sort by
+- `order`: Sort order (`asc` or `desc`)
+
+Pagination metadata is included in the response:
+
+```json
+{
+  "pagination": {
+    "page": 2,
+    "limit": 20,
+    "total": 256,
+    "pages": 13
+  }
+}
+```
+
+## Rate Limiting
+
+API requests are subject to rate limiting. The current limits are included in the HTTP headers of each response:
+
+```
+X-RateLimit-Limit: 5000
+X-RateLimit-Remaining: 4995
+X-RateLimit-Reset: 1583247600
+```
+
+When the rate limit is exceeded, a 429 Too Many Requests status is returned with a Retry-After header.

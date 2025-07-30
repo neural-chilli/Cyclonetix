@@ -57,15 +57,24 @@
                 Task Details
                 <button id="close-task-info" class="btn-close" aria-label="Close"></button>
             </h5>
-            <div id="task-info-status-badge" class="mb-2"></div>
+
+            <!-- Actions fixed at bottom -->
+            <div class="task-actions mt-1 pt-1 mb-2 border-top">
+                <div class="d-flex gap-2">
+                    <button id="btn-rerun-task" class="btn btn-sm btn-outline-primary">Rerun Task</button>
+                    <button id="btn-view-logs" class="btn btn-sm btn-outline-primary">View Logs</button>
+                    <div id="task-info-status-badge"></div>
+                </div>
+            </div>
 
             <!-- Scrollable content area -->
             <div class="task-info-scroll" style="flex: 1; overflow-y: auto; padding-right: 6px;">
                 <div class="task-basic-info mb-3">
                     <dl class="task-details mb-0">
-<!--                        <dt>Task ID</dt>-->
-<!--                        <dd id="task-info-id" class="text-truncate"></dd>-->
-
+                        <!--
+                        <dt>Task ID</dt>
+                        <dd id="task-info-id" class="text-truncate"></dd>
+                        -->
                         <dt>Task Run ID</dt>
                         <dd id="task-info-run-id" class="text-truncate"></dd>
 
@@ -74,97 +83,70 @@
                     </dl>
                 </div>
 
-                <div class="accordion" id="taskInfoAccordion">
-                    <!-- Execution Details -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#executionDetails" aria-expanded="true">
-                                Execution Details
-                            </button>
-                        </h2>
-                        <div id="executionDetails" class="accordion-collapse collapse show"
-                             data-bs-parent="#taskInfoAccordion">
-                            <div class="accordion-body py-2">
-                                <dl class="task-details mb-0">
-                                    <dt>Started</dt>
-                                    <dd id="task-info-started">-</dd>
+                <!-- Tabs Navigation -->
+                <ul class="nav nav-tabs" id="taskInfoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="execution-tab" data-bs-toggle="tab" data-bs-target="#executionDetails" type="button" role="tab" aria-controls="executionDetails" aria-selected="true">
+                            details
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="command-tab" data-bs-toggle="tab" data-bs-target="#commandDetails" type="button" role="tab" aria-controls="commandDetails" aria-selected="false">
+                            command
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="parameters-tab" data-bs-toggle="tab" data-bs-target="#parametersDetails" type="button" role="tab" aria-controls="parametersDetails" aria-selected="false">
+                            params
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="env-vars-tab" data-bs-toggle="tab" data-bs-target="#envVarsDetails" type="button" role="tab" aria-controls="envVarsDetails" aria-selected="false">
+                            context
+                        </button>
+                    </li>
+                </ul>
 
-                                    <dt>Completed</dt>
-                                    <dd id="task-info-completed">-</dd>
-
-                                    <dt>Duration</dt>
-                                    <dd id="task-info-duration">-</dd>
-
-                                    <dt>Agent</dt>
-                                    <dd id="task-info-agent">-</dd>
-                                </dl>
+                <!-- Tabs Content -->
+                <div class="tab-content" id="taskInfoTabContent">
+                    <div class="tab-pane fade show active" id="executionDetails" role="tabpanel" aria-labelledby="execution-tab">
+                        <div class="py-2">
+                            <dl class="task-details mb-0">
+                                <dt>Started</dt>
+                                <dd id="task-info-started">-</dd>
+                                <dt>Completed</dt>
+                                <dd id="task-info-completed">-</dd>
+                                <dt>Duration</dt>
+                                <dd id="task-info-duration">-</dd>
+                                <dt>Agent</dt>
+                                <dd id="task-info-agent">-</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="commandDetails" role="tabpanel" aria-labelledby="command-tab">
+                        <div class="py-2">
+                            <div id="task-info-command" class="code-block"></div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="parametersDetails" role="tabpanel" aria-labelledby="parameters-tab">
+                        <div class="py-2">
+                            <div id="task-info-parameters">
+                                <div class="alert alert-secondary py-2">No parameters available</div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Command -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#commandDetails" aria-expanded="true">
-                                Command
-                            </button>
-                        </h2>
-                        <div id="commandDetails" class="accordion-collapse collapse show"
-                             data-bs-parent="#taskInfoAccordion">
-                            <div class="accordion-body py-2">
-                                <div id="task-info-command" class="code-block"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Parameters -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#parametersDetails">
-                                Parameters
-                            </button>
-                        </h2>
-                        <div id="parametersDetails" class="accordion-collapse collapse"
-                             data-bs-parent="#taskInfoAccordion">
-                            <div class="accordion-body py-2">
-                                <div id="task-info-parameters">
-                                    <div class="alert alert-secondary py-2">No parameters available</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Environment Variables -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#envVarsDetails">
-                                Environment Variables
-                            </button>
-                        </h2>
-                        <div id="envVarsDetails" class="accordion-collapse collapse"
-                             data-bs-parent="#taskInfoAccordion">
-                            <div class="accordion-body py-2">
-                                <div id="task-info-env-vars">
-                                    <div class="alert alert-secondary py-2">No environment variables available</div>
-                                </div>
+                    <div class="tab-pane fade" id="envVarsDetails" role="tabpanel" aria-labelledby="env-vars-tab">
+                        <div class="py-2">
+                            <div id="task-info-env-vars">
+                                <div class="alert alert-secondary py-2">No environment variables available</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Actions fixed at bottom -->
-            <div class="task-actions mt-3 pt-2 border-top">
-                <div class="d-flex gap-2">
-                    <button id="btn-rerun-task" class="btn btn-sm btn-outline-primary">Rerun Task</button>
-                    <button id="btn-view-logs" class="btn btn-sm btn-outline-secondary">View Logs</button>
-                </div>
             </div>
         </div>
+
     </div>
 </div>
 {% endblock content %}

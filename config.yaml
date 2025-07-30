@@ -3,11 +3,11 @@ context_directory: "./data/contexts"
 parameter_set_directory: "./data/parameter_sets"
 dag_directory: "./data/dags"
 
-#backend: "redis"
-#backend_url: "redis://localhost:6379"
-#serialization_format: "binary"
+backend: "redis"
+backend_url: "redis://localhost:6379"
+serialization_format: "binary"
 
-backend: "memory"
+#backend: "memory"
 
 default_context: "default"
 
