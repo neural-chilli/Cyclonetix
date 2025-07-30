@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>architecture – Cyclonetix</title>
+<title>ui_wireframes – Cyclonetix</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -79,7 +79,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -277,425 +277,337 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../core-concepts/architecture.html">Core Concepts</a></li><li class="breadcrumb-item"><a href="../core-concepts/architecture.html">Architecture Overview</a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-    </div>
-  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Introduction</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../getting-started.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Getting Started</span></a>
-  </div>
-</li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Core Concepts</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../core-concepts/architecture.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Architecture Overview</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../core-concepts/tasks.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tasks and Dependencies</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../core-concepts/execution-flow.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Execution Flow</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../core-concepts/scheduling-models.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Scheduling Models</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">User Guide</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../user-guide/task-definition.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Task Definition</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../user-guide/building-dags.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Building DAGs</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../user-guide/scheduling-workflows.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Scheduling Workflows</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../user-guide/ui-overview.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">UI Overview</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Deployment</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../deployment/installation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../deployment/configuration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Configuration</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../deployment/security.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Security</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../deployment/scaling.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Scaling</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Advanced Features</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../advanced/evaluation-points.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Evaluation Points</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../advanced/git-integration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Git Integration</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../advanced/contexts-parameters.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Contexts &amp; Parameters</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text">Reference</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/configuration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Configuration Reference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/cli.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">CLI Reference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/api.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">API Reference</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/yaml-schema.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">YAML Schema</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../developer-guide.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developer Guide</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../troubleshooting-faq.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Troubleshooting &amp; FAQ</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../cookbook.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Cookbook</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../roadmap.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Roadmap</span></a>
-  </div>
-</li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#architecture-overview" id="toc-architecture-overview" class="nav-link active" data-scroll-target="#architecture-overview">Architecture Overview</a>
+  <li><a href="#cyclonetix-ui-design-specification" id="toc-cyclonetix-ui-design-specification" class="nav-link active" data-scroll-target="#cyclonetix-ui-design-specification">Cyclonetix UI Design Specification</a>
   <ul class="collapse">
-  <li><a href="#core-components" id="toc-core-components" class="nav-link" data-scroll-target="#core-components">Core Components</a></li>
-  <li><a href="#component-interactions" id="toc-component-interactions" class="nav-link" data-scroll-target="#component-interactions">Component Interactions</a></li>
-  <li><a href="#modular-backend-design" id="toc-modular-backend-design" class="nav-link" data-scroll-target="#modular-backend-design">Modular Backend Design</a></li>
-  <li><a href="#task-execution-flow" id="toc-task-execution-flow" class="nav-link" data-scroll-target="#task-execution-flow">Task Execution Flow</a></li>
-  <li><a href="#resilience-and-recovery" id="toc-resilience-and-recovery" class="nav-link" data-scroll-target="#resilience-and-recovery">Resilience and Recovery</a></li>
-  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next Steps</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#core-pages-features" id="toc-core-pages-features" class="nav-link" data-scroll-target="#core-pages-features">Core Pages &amp; Features</a>
+  <ul class="collapse">
+  <li><a href="#login-page" id="toc-login-page" class="nav-link" data-scroll-target="#login-page">1️⃣ Login Page</a></li>
+  <li><a href="#dashboard" id="toc-dashboard" class="nav-link" data-scroll-target="#dashboard">2️⃣ Dashboard</a></li>
+  <li><a href="#dag-list" id="toc-dag-list" class="nav-link" data-scroll-target="#dag-list">3️⃣ DAG List</a></li>
+  <li><a href="#live-dag-execution-view-cytoscape" id="toc-live-dag-execution-view-cytoscape" class="nav-link" data-scroll-target="#live-dag-execution-view-cytoscape">4️⃣ Live DAG Execution View (Cytoscape)</a></li>
+  <li><a href="#task-editor-page" id="toc-task-editor-page" class="nav-link" data-scroll-target="#task-editor-page">5️⃣ Task Editor Page</a></li>
+  <li><a href="#dag-designer-reactflow" id="toc-dag-designer-reactflow" class="nav-link" data-scroll-target="#dag-designer-reactflow">6️⃣ DAG Designer (ReactFlow)</a></li>
+  <li><a href="#secrets-management-page" id="toc-secrets-management-page" class="nav-link" data-scroll-target="#secrets-management-page">7️⃣ Secrets Management Page</a></li>
+  <li><a href="#agent-management-page" id="toc-agent-management-page" class="nav-link" data-scroll-target="#agent-management-page">8️⃣ Agent Management Page</a></li>
+  <li><a href="#queue-inspection-page" id="toc-queue-inspection-page" class="nav-link" data-scroll-target="#queue-inspection-page">9️⃣ Queue Inspection Page</a></li>
+  <li><a href="#config-inspection-page" id="toc-config-inspection-page" class="nav-link" data-scroll-target="#config-inspection-page">🔟 Config Inspection Page</a></li>
+  <li><a href="#state-management-backend-metrics-page" id="toc-state-management-backend-metrics-page" class="nav-link" data-scroll-target="#state-management-backend-metrics-page">🔹 State Management Backend Metrics Page</a></li>
+  <li><a href="#ui-layout-overview" id="toc-ui-layout-overview" class="nav-link" data-scroll-target="#ui-layout-overview">🔹 UI Layout Overview</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../core-concepts/architecture.html">Core Concepts</a></li><li class="breadcrumb-item"><a href="../core-concepts/architecture.html">Architecture Overview</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
 
-<section id="architecture-overview" class="level1">
-<h1>Architecture Overview</h1>
-<p>Cyclonetix is designed with a clean, modular architecture that allows for flexibility, scalability, and ease of maintenance.</p>
-<section id="core-components" class="level2">
-<h2 class="anchored" data-anchor-id="core-components">Core Components</h2>
+<section id="cyclonetix-ui-design-specification" class="level1">
+<h1>Cyclonetix UI Design Specification</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>Cyclonetix is an orchestration framework requiring an intuitive and efficient UI for managing workflows, tasks, agents, and execution monitoring. The UI will be built using <strong>a combination of SSR and ReactFlow</strong>, ensuring a responsive and interactive user experience.</p>
+</section>
+<section id="core-pages-features" class="level2">
+<h2 class="anchored" data-anchor-id="core-pages-features">Core Pages &amp; Features</h2>
+<section id="login-page" class="level3">
+<h3 class="anchored" data-anchor-id="login-page">1️⃣ Login Page</h3>
+<p><strong>Purpose:</strong> Authenticate users into the system.</p>
+<ul>
+<li><strong>Fields:</strong> Email/Username, Password</li>
+<li><strong>Actions:</strong> Login Button, Forgot Password Link</li>
+<li><strong>API Calls:</strong> <code>POST /api/auth/login</code></li>
+<li><strong>Behavior:</strong> Redirects to <strong>Dashboard</strong> on success; shows error message on failure.</li>
+</ul>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
-flowchart TB
-    Orchestrator["Orchestrator - Builds execution graphs - Evaluates task readiness - Schedules work"]
-    Agents["Agents - Pick up tasks from queues - Execute commands - Report results"]
-    UI["UI Server - Web interface - Visualization - Monitoring"]
-    StateManager["State Manager - Persists workflow state - Enables communication - Abstracts storage backend"]
-
-    Redis["Redis (Production)"]
-    PostgreSQL["PostgreSQL (Large-scale)"]
-    InMemory["In-Memory (Development)"]
-
-    Tasks["Task Definitions"] --&gt; Orchestrator
-    DAGs["DAG Definitions"] --&gt; Orchestrator
-    External["External Systems (Triggers/APIs)"] &lt;--&gt; UI
-    Users["Users (Web Interface)"] &lt;--&gt; UI
-    Scripts["Target Scripts and Commands"] &lt;--&gt; Agents
-
-    Orchestrator &lt;--&gt; StateManager
-    Agents &lt;--&gt; StateManager
-    UI &lt;--&gt; StateManager
-    StateManager --- Redis
-    StateManager --- PostgreSQL
-    StateManager --- InMemory
+graph TD;
+    A[Login Form] --&gt;|Submit| B{Auth API};
+    B --&gt;|Success| C[Redirect to Dashboard];
+    B --&gt;|Failure| D[Show Error Message];
 </pre>
 </div>
 <p></p></figure><p></p>
 </div>
 </div>
 </div>
-<p>Cyclonetix consists of the following key components:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 47%">
-<col style="width: 52%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Component</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Orchestrator</strong></td>
-<td>Builds execution graphs, evaluates task readiness, and schedules work.</td>
-</tr>
-<tr class="even">
-<td><strong>Agent</strong></td>
-<td>Picks up tasks from queues and executes them.</td>
-</tr>
-<tr class="odd">
-<td><strong>Execution Graph</strong></td>
-<td>Self-assembled DAG built from tasks, outcomes, and dependencies.</td>
-</tr>
-<tr class="even">
-<td><strong>State Manager</strong></td>
-<td>Stores task states, execution metadata, and scheduled outcomes.</td>
-</tr>
-<tr class="odd">
-<td><strong>UI</strong></td>
-<td>Provides real-time execution tracking and DAG visualization.</td>
-</tr>
-<tr class="even">
-<td><strong>Authentication</strong></td>
-<td>Ensures secure access to Cyclonetix resources.</td>
-</tr>
-</tbody>
-</table>
+<hr>
 </section>
-<section id="component-interactions" class="level2">
-<h2 class="anchored" data-anchor-id="component-interactions">Component Interactions</h2>
-<ol type="1">
-<li><strong>Orchestrator</strong> - The orchestrator is responsible for:
+<section id="dashboard" class="level3">
+<h3 class="anchored" data-anchor-id="dashboard">2️⃣ Dashboard</h3>
+<p><strong>Purpose:</strong> Overview of system state, active workflows, and real-time execution stats.</p>
 <ul>
-<li>Building and updating execution graphs</li>
-<li>Determining which tasks are ready to execute</li>
-<li>Scheduling tasks onto appropriate queues</li>
-<li>Monitoring the overall execution state</li>
+<li><strong>Sections:</strong>
+<ul>
+<li><strong>Summary Metrics</strong></li>
+<li><strong>Table of Queues (Sparklines for activity trends)</strong></li>
+<li><strong>Navigation Links for DAG filtering</strong></li>
 </ul></li>
-<li><strong>Agent</strong> - The agent is responsible for:
-<ul>
-<li>Monitoring one or more queues for available work</li>
-<li>Executing tasks with their required environment</li>
-<li>Reporting task success or failure</li>
-<li>Maintaining heartbeats for health monitoring</li>
-</ul></li>
-<li><strong>State Manager</strong> - Provides a storage backend that:
-<ul>
-<li>Persists task and DAG definitions</li>
-<li>Maintains execution state</li>
-<li>Enables communication between components</li>
-<li>Supports different backends (Redis, PostgreSQL, in-memory)</li>
-</ul></li>
-<li><strong>UI Server</strong> - Provides a web interface for:
-<ul>
-<li>Monitoring execution progress</li>
-<li>Visualizing DAGs</li>
-<li>Scheduling new tasks or DAGs</li>
-<li>Viewing logs and results</li>
-</ul></li>
-</ol>
-</section>
-<section id="modular-backend-design" class="level2">
-<h2 class="anchored" data-anchor-id="modular-backend-design">Modular Backend Design</h2>
-<p>Cyclonetix supports multiple backend storage systems:</p>
-<ul>
-<li><strong>In-memory</strong>: For local development and testing</li>
-<li><strong>Redis</strong>: For production deployments with moderate scale</li>
-<li><strong>PostgreSQL</strong>: (Planned) For high-scale production deployments</li>
 </ul>
-<p>The <code>StateManager</code> trait abstracts these implementations, allowing you to swap backends without changing your application code.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Dashboard] --&gt; B[Summary Metrics];
+    A --&gt; C[Queue Activity Sparklines];
+    A --&gt; D[Running DAGs List];
+    A --&gt; E[Failed DAGs List];
+    A --&gt; F[Completed DAGs List];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
 </section>
-<section id="task-execution-flow" class="level2">
-<h2 class="anchored" data-anchor-id="task-execution-flow">Task Execution Flow</h2>
-<p>When a task is executed, it flows through several components:</p>
-<ol type="1">
-<li><strong>Scheduler</strong> (part of the Orchestrator):
-<ul>
-<li>Determines task readiness based on dependencies</li>
-<li>Assigns tasks to appropriate queues</li>
-</ul></li>
-<li><strong>Queues</strong>:
-<ul>
-<li>Store tasks ready for execution</li>
-<li>Allow prioritization and categorization</li>
-</ul></li>
-<li><strong>Agents</strong>:
-<ul>
-<li>Pull tasks from queues</li>
-<li>Execute tasks in isolated environments</li>
-<li>Report results back to the state manager</li>
-</ul></li>
-<li><strong>Event System</strong>:
-<ul>
-<li>Notifies the orchestrator of task completion</li>
-<li>Triggers evaluation of dependent tasks</li>
-</ul></li>
-</ol>
+<section id="dag-list" class="level3">
+<h3 class="anchored" data-anchor-id="dag-list">3️⃣ DAG List</h3>
+<p><strong>Purpose:</strong> View, filter, and manage DAGs (predefined &amp; dynamic).</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[DAG List Page] --&gt; B[Search &amp; Filters];
+    A --&gt; C[Table of DAGs];
+    C --&gt;|Click DAG| D[DAG Execution View];
+    C --&gt;|Edit DAG| E[DAG Designer];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
 </section>
-<section id="resilience-and-recovery" class="level2">
-<h2 class="anchored" data-anchor-id="resilience-and-recovery">Resilience and Recovery</h2>
-<p>Cyclonetix is designed to handle failures at multiple levels:</p>
+<section id="live-dag-execution-view-cytoscape" class="level3">
+<h3 class="anchored" data-anchor-id="live-dag-execution-view-cytoscape">4️⃣ Live DAG Execution View (Cytoscape)</h3>
+<p><strong>Purpose:</strong> Display real-time execution of DAGs with a graph-based visualization.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Live DAG Execution] --&gt; B[Cytoscape DAG Graph];
+    B --&gt;|Click Task| C[Task Logs &amp; Execution Details];
+    B --&gt;|Retry Task| D[Task Retry Options];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="task-editor-page" class="level3">
+<h3 class="anchored" data-anchor-id="task-editor-page">5️⃣ Task Editor Page</h3>
+<p><strong>Purpose:</strong> Edit and manage task scripts inline.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Task Editor] --&gt; B[Code Editor Panel];
+    A --&gt; C[Execution Preview];
+    A --&gt; D[Validation &amp; Save];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="dag-designer-reactflow" class="level3">
+<h3 class="anchored" data-anchor-id="dag-designer-reactflow">6️⃣ DAG Designer (ReactFlow)</h3>
+<p><strong>Purpose:</strong> Drag-and-drop DAG creation.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[DAG Designer] --&gt; B[Graph Canvas (CyEditor)];
+    A --&gt; C[Task Properties Panel];
+    A --&gt; D[Save &amp; Validate DAG];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="secrets-management-page" class="level3">
+<h3 class="anchored" data-anchor-id="secrets-management-page">7️⃣ Secrets Management Page</h3>
+<p><strong>Purpose:</strong> Manage stored credentials for DAGs.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Secrets Management] --&gt; B[Stored Secrets List];
+    A --&gt; C[Secret Details &amp; Permissions];
+    A --&gt; D[Add/Edit/Delete Secret];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="agent-management-page" class="level3">
+<h3 class="anchored" data-anchor-id="agent-management-page">8️⃣ Agent Management Page</h3>
+<p><strong>Purpose:</strong> View and control execution agents.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Agent Management] --&gt; B[Agent List &amp; Load Metrics];
+    A --&gt; C[Agent Details];
+    A --&gt; D[Scale/Restart Agent];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="queue-inspection-page" class="level3">
+<h3 class="anchored" data-anchor-id="queue-inspection-page">9️⃣ Queue Inspection Page</h3>
+<p><strong>Purpose:</strong> Monitor task queues and performance.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Queue Inspection] --&gt; B[Active Queue List];
+    A --&gt; C[Pending Tasks &amp; Queue Depth];
+    A --&gt; D[Priority Adjustment];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="config-inspection-page" class="level3">
+<h3 class="anchored" data-anchor-id="config-inspection-page">🔟 Config Inspection Page</h3>
+<p><strong>Purpose:</strong> View and modify system-wide configuration settings.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Config Inspection] --&gt; B[Configuration Categories];
+    A --&gt; C[Editable Configurations];
+    A --&gt; D[Save &amp; Apply];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="state-management-backend-metrics-page" class="level3">
+<h3 class="anchored" data-anchor-id="state-management-backend-metrics-page">🔹 State Management Backend Metrics Page</h3>
+<p><strong>Purpose:</strong> Track orchestration engine performance.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[State Management] --&gt; B[System Metrics (Redis, Memory)];
+    A --&gt; C[Execution Latency Graphs];
+    A --&gt; D[Worker Health &amp; Failures];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="ui-layout-overview" class="level3">
+<h3 class="anchored" data-anchor-id="ui-layout-overview">🔹 UI Layout Overview</h3>
 <ul>
-<li><strong>Task Failures</strong>: Failed tasks are marked and can be retried</li>
-<li><strong>Agent Failures</strong>: Heartbeat monitoring detects failed agents, and their tasks are reassigned</li>
-<li><strong>Orchestrator Failures</strong>: Multiple orchestrators can run in parallel with work distribution</li>
-<li><strong>State Recovery</strong>: On startup, the system recovers in-progress executions from the state backend</li>
+<li><strong>Collapsible Sidebar</strong> with icon links to all sections.</li>
+<li><strong>Top Navbar</strong>:
+<ul>
+<li>Dropdown menus for grouped sections.</li>
+<li><strong>Dark/Light mode toggle</strong>.</li>
+<li><strong>Link to Documentation</strong>.</li>
+<li><strong>User profile menu</strong> for preferences.</li>
+</ul></li>
 </ul>
-</section>
-<section id="next-steps" class="level2">
-<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
-<ul>
-<li>Learn about <a href="../core-concepts/tasks.html">Tasks and Dependencies</a></li>
-<li>Understand the <a href="../core-concepts/execution-flow.html">Execution Flow</a></li>
-<li>Explore the different <a href="../core-concepts/scheduling-models.html">Scheduling Models</a></li>
-</ul>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">%%{init: {'theme': 'forest', 'themeCSS': '.node rect { rx: 10; ry: 10; } '}}%%
+graph TD;
+    A[Sidebar] --&gt;|Icon Links| B[Navigation Pages];
+    A --&gt; C[Dashboard];
+    A --&gt; D[DAGs];
+    A --&gt; E[Agents];
+    A --&gt; F[Queues];
+    A --&gt; G[Experiments];
+    A --&gt; H[Config];
+    A --&gt; I[Metrics];
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 </section>
 

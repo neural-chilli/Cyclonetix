@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>api_design – Cyclonetix</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-2fef5ea3f8957b3e4ecc936fc74692ca.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-3fced2653c1411365395c6308d7f7025.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-1e815c4c50043f7e8fc9161d15dcdabb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-3fced2653c1411365395c6308d7f7025.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/logo.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Cyclonetix</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/neural-chilli/Cyclonetix"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/neural-chilli/Cyclonetix/releases"> 
+<span class="menu-text">Download</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cyclonetix-api-specification" id="toc-cyclonetix-api-specification" class="nav-link active" data-scroll-target="#cyclonetix-api-specification">Cyclonetix API Specification</a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#base-url" id="toc-base-url" class="nav-link" data-scroll-target="#base-url">Base URL</a></li>
+  <li><a href="#authentication" id="toc-authentication" class="nav-link" data-scroll-target="#authentication">Authentication</a>
+  <ul class="collapse">
+  <li><a href="#endpoints" id="toc-endpoints" class="nav-link" data-scroll-target="#endpoints">Endpoints</a></li>
+  <li><a href="#requestresponse-examples" id="toc-requestresponse-examples" class="nav-link" data-scroll-target="#requestresponse-examples">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#dashboard" id="toc-dashboard" class="nav-link" data-scroll-target="#dashboard">Dashboard</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-1" id="toc-endpoints-1" class="nav-link" data-scroll-target="#endpoints-1">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-1" id="toc-requestresponse-examples-1" class="nav-link" data-scroll-target="#requestresponse-examples-1">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#dag-management" id="toc-dag-management" class="nav-link" data-scroll-target="#dag-management">DAG Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-2" id="toc-endpoints-2" class="nav-link" data-scroll-target="#endpoints-2">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-2" id="toc-requestresponse-examples-2" class="nav-link" data-scroll-target="#requestresponse-examples-2">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#dag-execution" id="toc-dag-execution" class="nav-link" data-scroll-target="#dag-execution">DAG Execution</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-3" id="toc-endpoints-3" class="nav-link" data-scroll-target="#endpoints-3">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-3" id="toc-requestresponse-examples-3" class="nav-link" data-scroll-target="#requestresponse-examples-3">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#task-management" id="toc-task-management" class="nav-link" data-scroll-target="#task-management">Task Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-4" id="toc-endpoints-4" class="nav-link" data-scroll-target="#endpoints-4">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-4" id="toc-requestresponse-examples-4" class="nav-link" data-scroll-target="#requestresponse-examples-4">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#dag-designer" id="toc-dag-designer" class="nav-link" data-scroll-target="#dag-designer">DAG Designer</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-5" id="toc-endpoints-5" class="nav-link" data-scroll-target="#endpoints-5">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-5" id="toc-requestresponse-examples-5" class="nav-link" data-scroll-target="#requestresponse-examples-5">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#secrets-management" id="toc-secrets-management" class="nav-link" data-scroll-target="#secrets-management">Secrets Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-6" id="toc-endpoints-6" class="nav-link" data-scroll-target="#endpoints-6">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-6" id="toc-requestresponse-examples-6" class="nav-link" data-scroll-target="#requestresponse-examples-6">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#agent-management" id="toc-agent-management" class="nav-link" data-scroll-target="#agent-management">Agent Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-7" id="toc-endpoints-7" class="nav-link" data-scroll-target="#endpoints-7">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-7" id="toc-requestresponse-examples-7" class="nav-link" data-scroll-target="#requestresponse-examples-7">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#queue-management" id="toc-queue-management" class="nav-link" data-scroll-target="#queue-management">Queue Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-8" id="toc-endpoints-8" class="nav-link" data-scroll-target="#endpoints-8">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-8" id="toc-requestresponse-examples-8" class="nav-link" data-scroll-target="#requestresponse-examples-8">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#configuration-management" id="toc-configuration-management" class="nav-link" data-scroll-target="#configuration-management">Configuration Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-9" id="toc-endpoints-9" class="nav-link" data-scroll-target="#endpoints-9">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-9" id="toc-requestresponse-examples-9" class="nav-link" data-scroll-target="#requestresponse-examples-9">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#system-metrics" id="toc-system-metrics" class="nav-link" data-scroll-target="#system-metrics">System Metrics</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-10" id="toc-endpoints-10" class="nav-link" data-scroll-target="#endpoints-10">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-10" id="toc-requestresponse-examples-10" class="nav-link" data-scroll-target="#requestresponse-examples-10">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#user-management" id="toc-user-management" class="nav-link" data-scroll-target="#user-management">User Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-11" id="toc-endpoints-11" class="nav-link" data-scroll-target="#endpoints-11">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-11" id="toc-requestresponse-examples-11" class="nav-link" data-scroll-target="#requestresponse-examples-11">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#team-management" id="toc-team-management" class="nav-link" data-scroll-target="#team-management">Team Management</a>
+  <ul class="collapse">
+  <li><a href="#endpoints-12" id="toc-endpoints-12" class="nav-link" data-scroll-target="#endpoints-12">Endpoints</a></li>
+  <li><a href="#requestresponse-examples-12" id="toc-requestresponse-examples-12" class="nav-link" data-scroll-target="#requestresponse-examples-12">Request/Response Examples</a></li>
+  </ul></li>
+  <li><a href="#error-handling" id="toc-error-handling" class="nav-link" data-scroll-target="#error-handling">Error Handling</a>
+  <ul class="collapse">
+  <li><a href="#common-error-codes" id="toc-common-error-codes" class="nav-link" data-scroll-target="#common-error-codes">Common Error Codes</a></li>
+  </ul></li>
+  <li><a href="#pagination" id="toc-pagination" class="nav-link" data-scroll-target="#pagination">Pagination</a></li>
+  <li><a href="#rate-limiting" id="toc-rate-limiting" class="nav-link" data-scroll-target="#rate-limiting">Rate Limiting</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="cyclonetix-api-specification" class="level1">
+<h1>Cyclonetix API Specification</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>This document outlines the REST API endpoints needed to support the Cyclonetix orchestration framework’s UI. The API is organized by functional areas that correspond to the core pages and features defined in the UI wireframes.</p>
+</section>
+<section id="base-url" class="level2">
+<h2 class="anchored" data-anchor-id="base-url">Base URL</h2>
+<p>All API endpoints are relative to: <code>https://api.cyclonetix.io/v1</code></p>
+</section>
+<section id="authentication" class="level2">
+<h2 class="anchored" data-anchor-id="authentication">Authentication</h2>
+<section id="endpoints" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints">Endpoints</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>POST</td>
+<td><code>/auth/login</code></td>
+<td>Authenticate user and return a JWT token</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/auth/logout</code></td>
+<td>Log out user and invalidate token</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/auth/refresh</code></td>
+<td>Refresh an expiring JWT token</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/auth/forgot-password</code></td>
+<td>Initiate password reset workflow</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/auth/reset-password</code></td>
+<td>Complete password reset with token</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples">Request/Response Examples</h3>
+<section id="login" class="level4">
+<h4 class="anchored" data-anchor-id="login">Login</h4>
+<pre><code>POST /auth/login</code></pre>
+<p>Request:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"username"</span><span class="fu">:</span> <span class="st">"user@example.com"</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"password"</span><span class="fu">:</span> <span class="st">"secure_password"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Response:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"token"</span><span class="fu">:</span> <span class="st">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span><span class="fu">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"expires_at"</span><span class="fu">:</span> <span class="st">"2025-03-11T14:30:00Z"</span><span class="fu">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"user"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"usr_123456"</span><span class="fu">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"username"</span><span class="fu">:</span> <span class="st">"user@example.com"</span><span class="fu">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"John Doe"</span><span class="fu">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"role"</span><span class="fu">:</span> <span class="st">"admin"</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="dashboard" class="level2">
+<h2 class="anchored" data-anchor-id="dashboard">Dashboard</h2>
+<section id="endpoints-1" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-1">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/dashboard/summary</code></td>
+<td>Get summary metrics for dashboard</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/dashboard/queues</code></td>
+<td>Get queue activity metrics with sparkline data</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/dashboard/dags/running</code></td>
+<td>Get list of currently running DAGs</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/dashboard/dags/failed</code></td>
+<td>Get list of recently failed DAGs</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/dashboard/dags/completed</code></td>
+<td>Get list of recently completed DAGs</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-1" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-1">Request/Response Examples</h3>
+<section id="dashboard-summary" class="level4">
+<h4 class="anchored" data-anchor-id="dashboard-summary">Dashboard Summary</h4>
+<pre><code>GET /dashboard/summary</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"total_dags"</span><span class="fu">:</span> <span class="dv">256</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"running_dags"</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"completed_dags_24h"</span><span class="fu">:</span> <span class="dv">183</span><span class="fu">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"failed_dags_24h"</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"active_agents"</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"pending_tasks"</span><span class="fu">:</span> <span class="dv">34</span><span class="fu">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"system_load"</span><span class="fu">:</span> <span class="fl">68.2</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="queue-activity" class="level4">
+<h4 class="anchored" data-anchor-id="queue-activity">Queue Activity</h4>
+<pre><code>GET /dashboard/queues</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"queues"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"q_default"</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Default Queue"</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"current_depth"</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"tasks_processed_24h"</span><span class="fu">:</span> <span class="dv">1245</span><span class="fu">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"avg_wait_time_ms"</span><span class="fu">:</span> <span class="dv">340</span><span class="fu">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"sparkline_data"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">4</span><span class="ot">,</span> <span class="dv">7</span><span class="ot">,</span> <span class="dv">12</span><span class="ot">,</span> <span class="dv">8</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">,</span> <span class="dv">9</span><span class="ot">,</span> <span class="dv">11</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">]</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"q_high_priority"</span><span class="fu">,</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"High Priority"</span><span class="fu">,</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"current_depth"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"tasks_processed_24h"</span><span class="fu">:</span> <span class="dv">567</span><span class="fu">,</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"avg_wait_time_ms"</span><span class="fu">:</span> <span class="dv">120</span><span class="fu">,</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"sparkline_data"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">2</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="dag-management" class="level2">
+<h2 class="anchored" data-anchor-id="dag-management">DAG Management</h2>
+<section id="endpoints-2" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-2">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/dags</code></td>
+<td>Get paginated list of all DAGs</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/dags/{dag_id}</code></td>
+<td>Get details of a specific DAG</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/dags</code></td>
+<td>Create a new DAG</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/dags/{dag_id}</code></td>
+<td>Update an existing DAG</td>
+</tr>
+<tr class="odd">
+<td>DELETE</td>
+<td><code>/dags/{dag_id}</code></td>
+<td>Delete a DAG</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/dags/{dag_id}/trigger</code></td>
+<td>Trigger execution of a DAG</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/dags/search</code></td>
+<td>Search for DAGs by name, owner, or description</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-2" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-2">Request/Response Examples</h3>
+<section id="list-dags" class="level4">
+<h4 class="anchored" data-anchor-id="list-dags">List DAGs</h4>
+<pre><code>GET /dags?page=1&amp;limit=20&amp;status=active</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"dags"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"dag_123456"</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Daily Analytics Processing"</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Processes daily analytics data"</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"owner"</span><span class="fu">:</span> <span class="st">"data_team"</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"is_active"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"schedule"</span><span class="fu">:</span> <span class="st">"0 0 * * *"</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"last_run"</span><span class="fu">:</span> <span class="st">"2025-03-03T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"next_run"</span><span class="fu">:</span> <span class="st">"2025-03-04T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"last_status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"task_count"</span><span class="fu">:</span> <span class="dv">8</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>      <span class="er">...</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"pagination"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"page"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"limit"</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"total"</span><span class="fu">:</span> <span class="dv">256</span><span class="fu">,</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"pages"</span><span class="fu">:</span> <span class="dv">13</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="get-dag-details" class="level4">
+<h4 class="anchored" data-anchor-id="get-dag-details">Get DAG Details</h4>
+<pre><code>GET /dags/dag_123456</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"dag_123456"</span><span class="fu">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Daily Analytics Processing"</span><span class="fu">,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Processes daily analytics data"</span><span class="fu">,</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"owner"</span><span class="fu">:</span> <span class="st">"data_team"</span><span class="fu">,</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"is_active"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"schedule"</span><span class="fu">:</span> <span class="st">"0 0 * * *"</span><span class="fu">,</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2024-12-01T09:15:00Z"</span><span class="fu">,</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-02-15T14:22:00Z"</span><span class="fu">,</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"last_run"</span><span class="fu">:</span> <span class="st">"2025-03-03T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"next_run"</span><span class="fu">:</span> <span class="st">"2025-03-04T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"last_status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"tasks"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"task_a1b2c3"</span><span class="fu">,</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Extract Data"</span><span class="fu">,</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"python"</span><span class="fu">,</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"upstream"</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"downstream"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"task_d4e5f6"</span><span class="ot">]</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"task_d4e5f6"</span><span class="fu">,</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Transform Data"</span><span class="fu">,</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"python"</span><span class="fu">,</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"upstream"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"task_a1b2c3"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"downstream"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"task_g7h8i9"</span><span class="ot">]</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"task_g7h8i9"</span><span class="fu">,</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Load Data"</span><span class="fu">,</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"python"</span><span class="fu">,</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"upstream"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"task_d4e5f6"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"downstream"</span><span class="fu">:</span> <span class="ot">[]</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"edges"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"source"</span><span class="fu">:</span> <span class="st">"task_a1b2c3"</span><span class="fu">,</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"target"</span><span class="fu">:</span> <span class="st">"task_d4e5f6"</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"source"</span><span class="fu">:</span> <span class="st">"task_d4e5f6"</span><span class="fu">,</span></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"target"</span><span class="fu">:</span> <span class="st">"task_g7h8i9"</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="dag-execution" class="level2">
+<h2 class="anchored" data-anchor-id="dag-execution">DAG Execution</h2>
+<section id="endpoints-3" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-3">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/executions</code></td>
+<td>Get paginated list of DAG executions</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/executions/{execution_id}</code></td>
+<td>Get details of a specific execution</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/executions/{execution_id}/cancel</code></td>
+<td>Cancel a running execution</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/executions/{execution_id}/tasks</code></td>
+<td>Get tasks for a specific execution</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/executions/{execution_id}/logs</code></td>
+<td>Get execution logs</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/executions/{execution_id}/graph</code></td>
+<td>Get execution graph with state information</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-3" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-3">Request/Response Examples</h3>
+<section id="get-dag-execution-details" class="level4">
+<h4 class="anchored" data-anchor-id="get-dag-execution-details">Get DAG Execution Details</h4>
+<pre><code>GET /executions/exec_789012</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"exec_789012"</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"dag_id"</span><span class="fu">:</span> <span class="st">"dag_123456"</span><span class="fu">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"dag_name"</span><span class="fu">:</span> <span class="st">"Daily Analytics Processing"</span><span class="fu">,</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"running"</span><span class="fu">,</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"start_time"</span><span class="fu">:</span> <span class="st">"2025-03-04T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"end_time"</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"duration_s"</span><span class="fu">:</span> <span class="dv">345</span><span class="fu">,</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"triggered_by"</span><span class="fu">:</span> <span class="st">"scheduler"</span><span class="fu">,</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"execution_params"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"date"</span><span class="fu">:</span> <span class="st">"2025-03-03"</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"task_summary"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"total"</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"succeeded"</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"failed"</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"running"</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"pending"</span><span class="fu">:</span> <span class="dv">3</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="get-execution-graph" class="level4">
+<h4 class="anchored" data-anchor-id="get-execution-graph">Get Execution Graph</h4>
+<pre><code>GET /executions/exec_789012/graph</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"nodes"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"task_a1b2c3"</span><span class="fu">,</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"label"</span><span class="fu">:</span> <span class="st">"Extract Data"</span><span class="fu">,</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"start_time"</span><span class="fu">:</span> <span class="st">"2025-03-04T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"end_time"</span><span class="fu">:</span> <span class="st">"2025-03-04T00:01:23Z"</span><span class="fu">,</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"duration_s"</span><span class="fu">:</span> <span class="dv">83</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"task_d4e5f6"</span><span class="fu">,</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"label"</span><span class="fu">:</span> <span class="st">"Transform Data"</span><span class="fu">,</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"running"</span><span class="fu">,</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"start_time"</span><span class="fu">:</span> <span class="st">"2025-03-04T00:01:24Z"</span><span class="fu">,</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"end_time"</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"duration_s"</span><span class="fu">:</span> <span class="dv">261</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"edges"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"source"</span><span class="fu">:</span> <span class="st">"task_a1b2c3"</span><span class="fu">,</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"target"</span><span class="fu">:</span> <span class="st">"task_d4e5f6"</span><span class="fu">,</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"data_transferred"</span><span class="fu">:</span> <span class="st">"1.2GB"</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="task-management" class="level2">
+<h2 class="anchored" data-anchor-id="task-management">Task Management</h2>
+<section id="endpoints-4" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-4">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/tasks/{task_id}</code></td>
+<td>Get task details</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/tasks/{task_id}</code></td>
+<td>Update task properties</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/tasks/{task_id}/code</code></td>
+<td>Get task script code</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/tasks/{task_id}/code</code></td>
+<td>Update task script code</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/tasks/{task_id}/logs</code></td>
+<td>Get task execution logs</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/tasks/{task_id}/retry</code></td>
+<td>Retry a failed task</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/tasks/{task_id}/test</code></td>
+<td>Test execute a task with sample data</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-4" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-4">Request/Response Examples</h3>
+<section id="get-task-code" class="level4">
+<h4 class="anchored" data-anchor-id="get-task-code">Get Task Code</h4>
+<pre><code>GET /tasks/task_a1b2c3/code</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"code"</span><span class="fu">:</span> <span class="st">"import pandas as pd</span><span class="ch">\n\n</span><span class="st">def extract_data():</span><span class="ch">\n</span><span class="st">    df = pd.read_csv('s3://data-bucket/raw/daily.csv')</span><span class="ch">\n</span><span class="st">    return df</span><span class="ch">\n\n</span><span class="st">result = extract_data()"</span><span class="fu">,</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"language"</span><span class="fu">:</span> <span class="st">"python"</span><span class="fu">,</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"version"</span><span class="fu">:</span> <span class="st">"3.10"</span><span class="fu">,</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"last_updated"</span><span class="fu">:</span> <span class="st">"2025-02-15T14:22:00Z"</span><span class="fu">,</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"last_updated_by"</span><span class="fu">:</span> <span class="st">"user@example.com"</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="update-task-code" class="level4">
+<h4 class="anchored" data-anchor-id="update-task-code">Update Task Code</h4>
+<pre><code>PUT /tasks/task_a1b2c3/code</code></pre>
+<p>Request:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"code"</span><span class="fu">:</span> <span class="st">"import pandas as pd</span><span class="ch">\n\n</span><span class="st">def extract_data():</span><span class="ch">\n</span><span class="st">    # Updated to use the new data source</span><span class="ch">\n</span><span class="st">    df = pd.read_csv('s3://new-data-bucket/raw/daily.csv')</span><span class="ch">\n</span><span class="st">    return df</span><span class="ch">\n\n</span><span class="st">result = extract_data()"</span><span class="fu">,</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"language"</span><span class="fu">:</span> <span class="st">"python"</span><span class="fu">,</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"version"</span><span class="fu">:</span> <span class="st">"3.10"</span><span class="fu">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"commit_message"</span><span class="fu">:</span> <span class="st">"Updated data source"</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Response:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"task_a1b2c3"</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"version"</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-03-04T12:34:56Z"</span><span class="fu">,</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"validation_status"</span><span class="fu">:</span> <span class="st">"passed"</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="dag-designer" class="level2">
+<h2 class="anchored" data-anchor-id="dag-designer">DAG Designer</h2>
+<section id="endpoints-5" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-5">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/designer/task-templates</code></td>
+<td>Get available task templates</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/designer/validate-dag</code></td>
+<td>Validate DAG structure without saving</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/designer/validate-task</code></td>
+<td>Validate task properties without saving</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/designer/inputs-outputs/{task_type}</code></td>
+<td>Get I/O schema for a task type</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-5" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-5">Request/Response Examples</h3>
+<section id="task-templates" class="level4">
+<h4 class="anchored" data-anchor-id="task-templates">Task Templates</h4>
+<pre><code>GET /designer/task-templates</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"templates"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"python_script"</span><span class="fu">,</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Python Script"</span><span class="fu">,</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"icon"</span><span class="fu">:</span> <span class="st">"mdi-language-python"</span><span class="fu">,</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Run a Python script"</span><span class="fu">,</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"version"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"3.8"</span><span class="ot">,</span> <span class="st">"3.9"</span><span class="ot">,</span> <span class="st">"3.10"</span><span class="ot">,</span> <span class="st">"3.11"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"timeout"</span><span class="fu">:</span> <span class="dv">3600</span><span class="fu">,</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"memory"</span><span class="fu">:</span> <span class="dv">2048</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"code_template"</span><span class="fu">:</span> <span class="st">"def main():</span><span class="ch">\n</span><span class="st">    # Your code here</span><span class="ch">\n</span><span class="st">    pass</span><span class="ch">\n\n</span><span class="st">result = main()"</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"http_request"</span><span class="fu">,</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"HTTP Request"</span><span class="fu">,</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"icon"</span><span class="fu">:</span> <span class="st">"mdi-api"</span><span class="fu">,</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Make an HTTP request"</span><span class="fu">,</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"method"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"GET"</span><span class="ot">,</span> <span class="st">"POST"</span><span class="ot">,</span> <span class="st">"PUT"</span><span class="ot">,</span> <span class="st">"DELETE"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"timeout"</span><span class="fu">:</span> <span class="dv">60</span><span class="fu">,</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>          <span class="dt">"retry"</span><span class="fu">:</span> <span class="dv">3</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="secrets-management" class="level2">
+<h2 class="anchored" data-anchor-id="secrets-management">Secrets Management</h2>
+<section id="endpoints-6" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-6">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/secrets</code></td>
+<td>Get list of all accessible secrets (names only)</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/secrets</code></td>
+<td>Create a new secret</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/secrets/{secret_id}</code></td>
+<td>Get secret metadata (not the value)</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/secrets/{secret_id}</code></td>
+<td>Update a secret</td>
+</tr>
+<tr class="odd">
+<td>DELETE</td>
+<td><code>/secrets/{secret_id}</code></td>
+<td>Delete a secret</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/secrets/{secret_id}/permissions</code></td>
+<td>Get permissions for a secret</td>
+</tr>
+<tr class="odd">
+<td>PUT</td>
+<td><code>/secrets/{secret_id}/permissions</code></td>
+<td>Update permissions for a secret</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-6" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-6">Request/Response Examples</h3>
+<section id="list-secrets" class="level4">
+<h4 class="anchored" data-anchor-id="list-secrets">List Secrets</h4>
+<pre><code>GET /secrets</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"secrets"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"sec_abc123"</span><span class="fu">,</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"AWS_CREDENTIALS"</span><span class="fu">,</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"AWS credentials for data team"</span><span class="fu">,</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2025-01-15T09:10:00Z"</span><span class="fu">,</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-02-20T14:30:00Z"</span><span class="fu">,</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"key_value"</span><span class="fu">,</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"owner"</span><span class="fu">:</span> <span class="st">"data_team"</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"sec_def456"</span><span class="fu">,</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"DATABASE_CREDENTIALS"</span><span class="fu">,</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Production database access"</span><span class="fu">,</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2024-12-10T11:25:00Z"</span><span class="fu">,</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2024-12-10T11:25:00Z"</span><span class="fu">,</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"key_value"</span><span class="fu">,</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"owner"</span><span class="fu">:</span> <span class="st">"infrastructure_team"</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="create-secret" class="level4">
+<h4 class="anchored" data-anchor-id="create-secret">Create Secret</h4>
+<pre><code>POST /secrets</code></pre>
+<p>Request:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"API_TOKEN"</span><span class="fu">,</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Token for external API access"</span><span class="fu">,</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"key_value"</span><span class="fu">,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"values"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"api_key"</span><span class="fu">:</span> <span class="st">"sk_live_1234567890abcdef"</span><span class="fu">,</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"api_secret"</span><span class="fu">:</span> <span class="st">"xyz_123456_abcdef"</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"permissions"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"team_id"</span><span class="fu">:</span> <span class="st">"team_integration"</span><span class="fu">,</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"access_level"</span><span class="fu">:</span> <span class="st">"read"</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Response:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"sec_ghi789"</span><span class="fu">,</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"API_TOKEN"</span><span class="fu">,</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Token for external API access"</span><span class="fu">,</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2025-03-04T12:34:56Z"</span><span class="fu">,</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-03-04T12:34:56Z"</span><span class="fu">,</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"key_value"</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="agent-management" class="level2">
+<h2 class="anchored" data-anchor-id="agent-management">Agent Management</h2>
+<section id="endpoints-7" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-7">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/agents</code></td>
+<td>Get list of all execution agents</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/agents/{agent_id}</code></td>
+<td>Get details of a specific agent</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/agents</code></td>
+<td>Register a new agent</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/agents/{agent_id}</code></td>
+<td>Update agent configuration</td>
+</tr>
+<tr class="odd">
+<td>DELETE</td>
+<td><code>/agents/{agent_id}</code></td>
+<td>Deregister an agent</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/agents/{agent_id}/restart</code></td>
+<td>Restart an agent</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/agents/{agent_id}/drain</code></td>
+<td>Drain tasks from an agent</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/agents/{agent_id}/metrics</code></td>
+<td>Get performance metrics for an agent</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-7" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-7">Request/Response Examples</h3>
+<section id="list-agents" class="level4">
+<h4 class="anchored" data-anchor-id="list-agents">List Agents</h4>
+<pre><code>GET /agents</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"agents"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"agent_123"</span><span class="fu">,</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"worker-01"</span><span class="fu">,</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"running"</span><span class="fu">,</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"ip"</span><span class="fu">:</span> <span class="st">"10.0.1.5"</span><span class="fu">,</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"registered_at"</span><span class="fu">:</span> <span class="st">"2025-01-01T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"last_heartbeat"</span><span class="fu">:</span> <span class="st">"2025-03-04T12:30:12Z"</span><span class="fu">,</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"version"</span><span class="fu">:</span> <span class="st">"1.2.3"</span><span class="fu">,</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"queues"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"default"</span><span class="ot">,</span> <span class="st">"high_priority"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"python"</span><span class="ot">,</span> <span class="st">"data_processing"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"current_tasks"</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"capacity"</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"system_load"</span><span class="fu">:</span> <span class="fl">42.5</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"agent_456"</span><span class="fu">,</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"worker-02"</span><span class="fu">,</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"running"</span><span class="fu">,</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"ip"</span><span class="fu">:</span> <span class="st">"10.0.1.6"</span><span class="fu">,</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"registered_at"</span><span class="fu">:</span> <span class="st">"2025-01-01T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"last_heartbeat"</span><span class="fu">:</span> <span class="st">"2025-03-04T12:30:08Z"</span><span class="fu">,</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"version"</span><span class="fu">:</span> <span class="st">"1.2.3"</span><span class="fu">,</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"queues"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"default"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"tags"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"python"</span><span class="ot">,</span> <span class="st">"ml"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"current_tasks"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"capacity"</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"system_load"</span><span class="fu">:</span> <span class="fl">68.3</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="queue-management" class="level2">
+<h2 class="anchored" data-anchor-id="queue-management">Queue Management</h2>
+<section id="endpoints-8" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-8">Endpoints</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/queues</code></td>
+<td>Get list of all task queues</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/queues/{queue_id}</code></td>
+<td>Get details of a specific queue</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/queues</code></td>
+<td>Create a new queue</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/queues/{queue_id}</code></td>
+<td>Update queue properties</td>
+</tr>
+<tr class="odd">
+<td>DELETE</td>
+<td><code>/queues/{queue_id}</code></td>
+<td>Delete a queue</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/queues/{queue_id}/tasks</code></td>
+<td>Get tasks in a queue</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/queues/{queue_id}/purge</code></td>
+<td>Purge all tasks from a queue</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/queues/{queue_id}/pause</code></td>
+<td>Pause a queue</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/queues/{queue_id}/resume</code></td>
+<td>Resume a paused queue</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-8" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-8">Request/Response Examples</h3>
+<section id="queue-details" class="level4">
+<h4 class="anchored" data-anchor-id="queue-details">Queue Details</h4>
+<pre><code>GET /queues/q_default</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"q_default"</span><span class="fu">,</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Default Queue"</span><span class="fu">,</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"General purpose task queue"</span><span class="fu">,</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"active"</span><span class="fu">,</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"priority"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2024-10-01T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"current_depth"</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"tasks_processed_24h"</span><span class="fu">:</span> <span class="dv">1245</span><span class="fu">,</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"avg_wait_time_ms"</span><span class="fu">:</span> <span class="dv">340</span><span class="fu">,</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"max_concurrent"</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"assigned_agents"</span><span class="fu">:</span> <span class="dv">5</span><span class="fu">,</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"metrics"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"hourly_throughput"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">56</span><span class="ot">,</span> <span class="dv">48</span><span class="ot">,</span> <span class="dv">52</span><span class="ot">,</span> <span class="dv">45</span><span class="ot">,</span> <span class="dv">67</span><span class="ot">,</span> <span class="dv">78</span><span class="ot">,</span> <span class="dv">89</span><span class="ot">,</span> <span class="dv">92</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"avg_processing_time_ms"</span><span class="fu">:</span> <span class="dv">512</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="configuration-management" class="level2">
+<h2 class="anchored" data-anchor-id="configuration-management">Configuration Management</h2>
+<section id="endpoints-9" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-9">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/config</code></td>
+<td>Get all configuration categories</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/config/{category}</code></td>
+<td>Get configuration for a specific category</td>
+</tr>
+<tr class="odd">
+<td>PUT</td>
+<td><code>/config/{category}</code></td>
+<td>Update configuration for a category</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/config/validate</code></td>
+<td>Validate configuration changes without applying</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/config/history</code></td>
+<td>Get configuration change history</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-9" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-9">Request/Response Examples</h3>
+<section id="get-configuration-category" class="level4">
+<h4 class="anchored" data-anchor-id="get-configuration-category">Get Configuration Category</h4>
+<pre><code>GET /config/scheduler</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"category"</span><span class="fu">:</span> <span class="st">"scheduler"</span><span class="fu">,</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Task scheduler settings"</span><span class="fu">,</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-02-10T15:30:00Z"</span><span class="fu">,</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_by"</span><span class="fu">:</span> <span class="st">"admin@example.com"</span><span class="fu">,</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"settings"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"key"</span><span class="fu">:</span> <span class="st">"scheduler.interval_seconds"</span><span class="fu">,</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"value"</span><span class="fu">:</span> <span class="dv">30</span><span class="fu">,</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"default_value"</span><span class="fu">:</span> <span class="dv">60</span><span class="fu">,</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"How often scheduler checks for new tasks"</span><span class="fu">,</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"integer"</span><span class="fu">,</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"range"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">10</span><span class="ot">,</span> <span class="dv">300</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"requires_restart"</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"key"</span><span class="fu">:</span> <span class="st">"scheduler.max_concurrent_tasks"</span><span class="fu">,</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"value"</span><span class="fu">:</span> <span class="dv">1000</span><span class="fu">,</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"default_value"</span><span class="fu">:</span> <span class="dv">500</span><span class="fu">,</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Maximum number of concurrent tasks"</span><span class="fu">,</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"integer"</span><span class="fu">,</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"range"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">100</span><span class="ot">,</span> <span class="dv">10000</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"requires_restart"</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="system-metrics" class="level2">
+<h2 class="anchored" data-anchor-id="system-metrics">System Metrics</h2>
+<section id="endpoints-10" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-10">Endpoints</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/metrics/system</code></td>
+<td>Get system-wide performance metrics</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/metrics/scheduler</code></td>
+<td>Get scheduler performance metrics</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/metrics/workers</code></td>
+<td>Get worker performance metrics</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/metrics/database</code></td>
+<td>Get database performance metrics</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/metrics/redis</code></td>
+<td>Get Redis/queue performance metrics</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/metrics/dags</code></td>
+<td>Get DAG execution metrics</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-10" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-10">Request/Response Examples</h3>
+<section id="system-metrics-1" class="level4">
+<h4 class="anchored" data-anchor-id="system-metrics-1">System Metrics</h4>
+<pre><code>GET /metrics/system</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"timestamp"</span><span class="fu">:</span> <span class="st">"2025-03-04T12:34:56Z"</span><span class="fu">,</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"uptime_days"</span><span class="fu">:</span> <span class="fl">45.2</span><span class="fu">,</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"cpu_usage_percent"</span><span class="fu">:</span> <span class="fl">68.5</span><span class="fu">,</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"memory_usage_percent"</span><span class="fu">:</span> <span class="fl">72.3</span><span class="fu">,</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"disk_usage_percent"</span><span class="fu">:</span> <span class="fl">45.8</span><span class="fu">,</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"network_in_mbps"</span><span class="fu">:</span> <span class="fl">125.6</span><span class="fu">,</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"network_out_mbps"</span><span class="fu">:</span> <span class="fl">87.2</span><span class="fu">,</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"active_connections"</span><span class="fu">:</span> <span class="dv">35</span><span class="fu">,</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"total_dags"</span><span class="fu">:</span> <span class="dv">256</span><span class="fu">,</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"total_tasks"</span><span class="fu">:</span> <span class="dv">1856</span><span class="fu">,</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"historical"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"interval"</span><span class="fu">:</span> <span class="st">"hourly"</span><span class="fu">,</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"periods"</span><span class="fu">:</span> <span class="dv">24</span><span class="fu">,</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"cpu_usage"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">65.2</span><span class="ot">,</span> <span class="fl">67.8</span><span class="ot">,</span> <span class="fl">70.1</span><span class="ot">,</span> <span class="fl">68.5</span><span class="ot">,</span> <span class="fl">64.2</span><span class="ot">,</span> <span class="fl">62.8</span><span class="ot">,</span> <span class="fl">63.5</span><span class="ot">,</span> <span class="fl">67.8</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"memory_usage"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">70.1</span><span class="ot">,</span> <span class="fl">71.2</span><span class="ot">,</span> <span class="fl">72.8</span><span class="ot">,</span> <span class="fl">72.3</span><span class="ot">,</span> <span class="fl">71.5</span><span class="ot">,</span> <span class="fl">71.2</span><span class="ot">,</span> <span class="fl">72.0</span><span class="ot">,</span> <span class="fl">72.3</span><span class="ot">]</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="user-management" class="level2">
+<h2 class="anchored" data-anchor-id="user-management">User Management</h2>
+<section id="endpoints-11" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-11">Endpoints</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/users</code></td>
+<td>Get paginated list of all users</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/users/{user_id}</code></td>
+<td>Get details of a specific user</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/users</code></td>
+<td>Create a new user</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/users/{user_id}</code></td>
+<td>Update user information</td>
+</tr>
+<tr class="odd">
+<td>DELETE</td>
+<td><code>/users/{user_id}</code></td>
+<td>Delete a user</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/users/{user_id}/permissions</code></td>
+<td>Get user permissions</td>
+</tr>
+<tr class="odd">
+<td>PUT</td>
+<td><code>/users/{user_id}/permissions</code></td>
+<td>Update user permissions</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/users/{user_id}/activity</code></td>
+<td>Get user activity log</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-11" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-11">Request/Response Examples</h3>
+<section id="user-details" class="level4">
+<h4 class="anchored" data-anchor-id="user-details">User Details</h4>
+<pre><code>GET /users/usr_123456</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"usr_123456"</span><span class="fu">,</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"username"</span><span class="fu">:</span> <span class="st">"john.doe@example.com"</span><span class="fu">,</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"John Doe"</span><span class="fu">,</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"role"</span><span class="fu">:</span> <span class="st">"data_engineer"</span><span class="fu">,</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2024-11-01T09:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-02-15T14:30:00Z"</span><span class="fu">,</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"last_login"</span><span class="fu">:</span> <span class="st">"2025-03-04T09:15:23Z"</span><span class="fu">,</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"active"</span><span class="fu">,</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"teams"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"data_team"</span><span class="ot">,</span> <span class="st">"infrastructure"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"permissions"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"dags"</span><span class="fu">:</span> <span class="st">"read_write"</span><span class="fu">,</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"executions"</span><span class="fu">:</span> <span class="st">"read_write"</span><span class="fu">,</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"agents"</span><span class="fu">:</span> <span class="st">"read"</span><span class="fu">,</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"queues"</span><span class="fu">:</span> <span class="st">"read"</span><span class="fu">,</span></span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"config"</span><span class="fu">:</span> <span class="st">"none"</span><span class="fu">,</span></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"secrets"</span><span class="fu">:</span> <span class="st">"read"</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="team-management" class="level2">
+<h2 class="anchored" data-anchor-id="team-management">Team Management</h2>
+<section id="endpoints-12" class="level3">
+<h3 class="anchored" data-anchor-id="endpoints-12">Endpoints</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/teams</code></td>
+<td>Get list of all teams</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/teams/{team_id}</code></td>
+<td>Get details of a specific team</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/teams</code></td>
+<td>Create a new team</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/teams/{team_id}</code></td>
+<td>Update team information</td>
+</tr>
+<tr class="odd">
+<td>DELETE</td>
+<td><code>/teams/{team_id}</code></td>
+<td>Delete a team</td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/teams/{team_id}/members</code></td>
+<td>Get team members</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/teams/{team_id}/members</code></td>
+<td>Add user to team</td>
+</tr>
+<tr class="even">
+<td>DELETE</td>
+<td><code>/teams/{team_id}/members/{user_id}</code></td>
+<td>Remove user from team</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/teams/{team_id}/permissions</code></td>
+<td>Get team permissions</td>
+</tr>
+<tr class="even">
+<td>PUT</td>
+<td><code>/teams/{team_id}/permissions</code></td>
+<td>Update team permissions</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="requestresponse-examples-12" class="level3">
+<h3 class="anchored" data-anchor-id="requestresponse-examples-12">Request/Response Examples</h3>
+<section id="team-details" class="level4">
+<h4 class="anchored" data-anchor-id="team-details">Team Details</h4>
+<pre><code>GET /teams/team_data</code></pre>
+<p>Response:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"success"</span><span class="fu">,</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"data"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"team_data"</span><span class="fu">,</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Data Team"</span><span class="fu">,</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"description"</span><span class="fu">:</span> <span class="st">"Data engineering and analytics team"</span><span class="fu">,</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"created_at"</span><span class="fu">:</span> <span class="st">"2024-10-01T00:00:00Z"</span><span class="fu">,</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"updated_at"</span><span class="fu">:</span> <span class="st">"2025-01-15T10:30:00Z"</span><span class="fu">,</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"member_count"</span><span class="fu">:</span> <span class="dv">8</span><span class="fu">,</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"owner_id"</span><span class="fu">:</span> <span class="st">"usr_123456"</span><span class="fu">,</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"permissions"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"dags"</span><span class="fu">:</span> <span class="st">"read_write"</span><span class="fu">,</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"executions"</span><span class="fu">:</span> <span class="st">"read_write"</span><span class="fu">,</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"agents"</span><span class="fu">:</span> <span class="st">"read"</span><span class="fu">,</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"queues"</span><span class="fu">:</span> <span class="st">"read"</span><span class="fu">,</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"config"</span><span class="fu">:</span> <span class="st">"none"</span><span class="fu">,</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"secrets"</span><span class="fu">:</span> <span class="st">"read_write"</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+</section>
+<section id="error-handling" class="level2">
+<h2 class="anchored" data-anchor-id="error-handling">Error Handling</h2>
+<p>All API endpoints follow a consistent error format:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"status"</span><span class="fu">:</span> <span class="st">"error"</span><span class="fu">,</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"error"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"code"</span><span class="fu">:</span> <span class="st">"invalid_request"</span><span class="fu">,</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"message"</span><span class="fu">:</span> <span class="st">"The request was invalid for the following reasons"</span><span class="fu">,</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"details"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Field 'username' is required"</span><span class="ot">,</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Password must be at least 8 characters long"</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="common-error-codes" class="level3">
+<h3 class="anchored" data-anchor-id="common-error-codes">Common Error Codes</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Error Code</th>
+<th>HTTP Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>unauthorized</code></td>
+<td>401</td>
+<td>Authentication required or invalid token</td>
+</tr>
+<tr class="even">
+<td><code>forbidden</code></td>
+<td>403</td>
+<td>Insufficient permissions for the requested operation</td>
+</tr>
+<tr class="odd">
+<td><code>not_found</code></td>
+<td>404</td>
+<td>The requested resource was not found</td>
+</tr>
+<tr class="even">
+<td><code>invalid_request</code></td>
+<td>400</td>
+<td>Invalid request parameters or body</td>
+</tr>
+<tr class="odd">
+<td><code>validation_error</code></td>
+<td>400</td>
+<td>Validation failed for the provided data</td>
+</tr>
+<tr class="even">
+<td><code>conflict</code></td>
+<td>409</td>
+<td>Resource conflict (e.g., duplicate name)</td>
+</tr>
+<tr class="odd">
+<td><code>internal_error</code></td>
+<td>500</td>
+<td>Server encountered an unexpected error</td>
+</tr>
+<tr class="even">
+<td><code>service_unavailable</code></td>
+<td>503</td>
+<td>Service is temporarily unavailable</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="pagination" class="level2">
+<h2 class="anchored" data-anchor-id="pagination">Pagination</h2>
+<p>All list endpoints support pagination with the following query parameters:</p>
+<ul>
+<li><code>page</code>: Page number (default: 1)</li>
+<li><code>limit</code>: Items per page (default: 20, max: 100)</li>
+<li><code>sort</code>: Field to sort by</li>
+<li><code>order</code>: Sort order (<code>asc</code> or <code>desc</code>)</li>
+</ul>
+<p>Pagination metadata is included in the response:</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"pagination"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"page"</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"limit"</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"total"</span><span class="fu">:</span> <span class="dv">256</span><span class="fu">,</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">"pages"</span><span class="fu">:</span> <span class="dv">13</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="rate-limiting" class="level2">
+<h2 class="anchored" data-anchor-id="rate-limiting">Rate Limiting</h2>
+<p>API requests are subject to rate limiting. The current limits are included in the HTTP headers of each response:</p>
+<pre><code>X-RateLimit-Limit: 5000
+X-RateLimit-Remaining: 4995
+X-RateLimit-Reset: 1583247600</code></pre>
+<p>When the rate limit is exceeded, a 429 Too Many Requests status is returned with a Retry-After header.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/neural-chilli\.github\.io\/Cyclonetix\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
